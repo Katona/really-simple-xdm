@@ -2,40 +2,6 @@ import test from 'ava';
 import {RpcClientHandler} from './rpc_client'
 import sinon from 'sinon';
 
-class ConsoleMessagingBackend {
-
-    constructor() {
-        this.callbacks = []
-    }
-    sendMessage(msg) {
-        this.callbackId = msg.args.find(arg => arg.type === 'function').id;
-        console.log(JSON.stringify(msg));
-    }
-    onResponse(callback) { 
-        console.log(callback);
-        this.callbacks.push(callback);
-    }
-
-    emitOnResponse(arg) {
-        console.log('emitting onResponse');
-        this.callbacks.forEach(c => c(arg));
-    }
-}
-
-
-// GET /
-// api.get()
-// // GET /users
-// api.getUsers()
-// // GET /users/1234/likes
-// api.getUsers$Likes('1234')
-// // GET /users/1234/likes?page=2
-// api.getUsers$Likes('1234', { page: 2 })
-// // POST /items with body
-// api.postItems({ name: 'Item name' })
-// // api.foobar is not a function
-// api.foobar()
-
 test('should register a response listener for callbacks', t => {
 	const testBackend = {
 		sendMessage: sinon.stub(),
