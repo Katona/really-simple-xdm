@@ -49,3 +49,28 @@ test('should handle callbacks.', t => {
 	callbackResponseListener({ type: 'CALLBACK', id: cbDeregistrationMessage.args[1].id, args: ['firstArg']});
 	t.is(testCallback.callCount, 1, 'Callback should have not been invoked since it has been deregistered.');
 });
+
+test('should handle function calls', async t => {
+	const testBackend = {
+		sendMessage: sinon.stub(),
+		onResponse: sinon.stub(),
+		removeResponseListener: sinon.stub()
+	};
+	const client = new Proxy({}, new RpcClientHandler(testBackend));
+	const responsePromise = client.testFunction(1, 'secondArg');
+	t.is(testBackend.sendMessage.callCount, 1);
+	const functionCallMessage = testBackend.sendMessage.firstCall.args[0];
+	t.is(functionCallMessage.type, 'FUNCTION_CALL');
+	t.is(functionCallMessage.functionName, 'testFunction');
+	t.deepEqual(functionCallMessage.args[0], { type: 'number', value: 1});
+	t.deepEqual(functionCallMessage.args[1], { type: 'string', value: 'secondArg'});
+	// One listener for the callbacks, and one for specifically listen to the response of the function call ...
+	t.is(testBackend.onResponse.callCount, 2);
+	const functionCallResponseListener = testBackend.onResponse.secondCall.args[0];
+	// Emulate response message with the result
+	functionCallResponseListener({type: 'RETURN_VALUE', id: functionCallMessage.id, value: 'return value'});
+	t.is(testBackend.removeResponseListener.callCount, 1);
+	t.is(testBackend.removeResponseListener.firstCall.args[0], functionCallResponseListener);
+	const returnValue = await responsePromise;
+	t.is(returnValue, 'return value');
+});
