@@ -128,7 +128,7 @@ class RpcClientHandler {
                 }
             });
             let msg = {
-                type: 'CALLBACK_DEREGISTRATION',                
+                type: 'CALLBACK_DEREGISTRATION',
                 id: uuid.v4(),
                 functionName: propKey,
                 args: argDescriptors,
