@@ -4,7 +4,6 @@ class RpcClientHandler {
 
     constructor(messagingBackend, callbackRegistrationMetadata) {
         this.callbackRegistrations = [];
-        this.callbacks = [];
         this.callbackRegistrationMetadata = callbackRegistrationMetadata;
         this.messagingBackend = messagingBackend;
         this.messagingBackend.onMessage(this.handleCallbackResponse.bind(this));
