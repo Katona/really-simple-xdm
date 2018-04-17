@@ -1,5 +1,5 @@
 import test from 'ava';
-import {RpcClientHandler} from './rpc_client'
+import {createRpcClient} from './rpc_client'
 import sinon from 'sinon';
 
 test.beforeEach(t => {
@@ -8,7 +8,7 @@ test.beforeEach(t => {
 		onResponse: sinon.stub(),
 		removeResponseListener: sinon.stub()		
 	}
-	t.context.client = new Proxy({}, new RpcClientHandler(t.context.testBackend, [{register: "on", deregister: "off"}]));
+	t.context.client = createRpcClient(t.context.testBackend, [{register: "on", deregister: "off"}]);
 });
 
 test('should register a response listener for callbacks', t => {

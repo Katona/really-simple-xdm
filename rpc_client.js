@@ -9,6 +9,7 @@ class RpcClientHandler {
         this.messagingBackend = messagingBackend;
         this.messagingBackend.onResponse(this.handleCallbackResponse.bind(this));
     }
+
     get(target, propKey) {
         const callbackMetadata = this.callbackRegistrationMetadata.find(metadata => propKey === metadata.deregister || propKey === metadata.register);
         return callbackMetadata 
@@ -163,4 +164,5 @@ class RpcClientHandler {
 
 }
 
-module.exports.RpcClientHandler = RpcClientHandler;
+module.exports.createRpcClient = (messagingBackend, callbackRegistrationMetadata) => 
+    new Proxy({}, new RpcClientHandler(messagingBackend, callbackRegistrationMetadata));
