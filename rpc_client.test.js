@@ -8,7 +8,7 @@ test.beforeEach(t => {
 		onResponse: sinon.stub(),
 		removeResponseListener: sinon.stub()		
 	}
-	t.context.client = new Proxy({}, new RpcClientHandler(t.context.testBackend));
+	t.context.client = new Proxy({}, new RpcClientHandler(t.context.testBackend, [{register: "on", deregister: "off"}]));
 });
 
 test('should register a response listener for callbacks', t => {

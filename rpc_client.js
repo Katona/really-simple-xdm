@@ -2,10 +2,10 @@ let uuid = require('uuid');
 
 class RpcClientHandler {
 
-    constructor(messagingBackend) {
+    constructor(messagingBackend, callbackRegistrationMetadata) {
         this.callbackRegistrations = [];
         this.callbacks = [];
-        this.callbackRegistrationMetadata = [{register: "on", deregister: "off"}];
+        this.callbackRegistrationMetadata = callbackRegistrationMetadata;
         this.messagingBackend = messagingBackend;
         this.messagingBackend.onResponse(this.handleCallbackResponse.bind(this));
     }
