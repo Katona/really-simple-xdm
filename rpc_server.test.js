@@ -72,7 +72,7 @@ test('should handle callback deregistrations.', t => {
 	t.is(t.context.serverObject.testCallbackDeregistrar.firstCall.args[1], registeredCallback);
 });
 
-test.only('should handle same callbacks registered multiple times.', t => {
+test('should handle same callbacks registered multiple times.', t => {
 	const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
 	const args = [
 		{
