@@ -50,6 +50,7 @@ class RpcServer {
         const actualArgs = args.map(a => a.type === 'function' ? callbackRegistration.callbackFunction : a.value);
         try {
             this.serverObject[functionName].apply(this.serverObject, actualArgs);
+            this.messagingBackend.sendMessage({type: 'RETURN_VALUE', id, value: undefined });
         } catch (error) {
             this.messagingBackend.sendMessage({id, type: 'ERROR', error, functionName});
         }
@@ -65,6 +66,7 @@ class RpcServer {
         const actualArgs = args.map(a => a.type === 'function' ? callbackRegistration.callbackFunction : a.value);
         try {
             this.serverObject[functionName].apply(this.serverObject, actualArgs);
+            this.messagingBackend.sendMessage({type: 'RETURN_VALUE', id, value: undefined });
             callbackRegistration.count--;
             if (callbackRegistration.count === 0) {
                 this.callbackRegistrations = this.callbackRegistrations.filter(registration => registration !== callbackRegistration);

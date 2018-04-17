@@ -40,9 +40,10 @@ test('should handle callback registrations.', t => {
 	t.is(callbackRegistrationArguments[0], args[0].value);
 	const registeredCallback = callbackRegistrationArguments[1];
 	t.true(typeof registeredCallback === 'function');
+	const callCountBeforeCall = t.context.testBackend.sendMessage.callCount;
 	registeredCallback('firstArg', 2);
-	t.is(t.context.testBackend.sendMessage.callCount, 1);
-	const callbackMessage = t.context.testBackend.sendMessage.firstCall.args[0];
+	t.is(t.context.testBackend.sendMessage.callCount, callCountBeforeCall + 1);
+	const callbackMessage = t.context.testBackend.sendMessage.lastCall.args[0];
 	t.is(callbackMessage.type, 'CALLBACK');
 	t.is(callbackMessage.id, 'callback-id');
 	t.deepEqual(callbackMessage.args, ['firstArg', 2]);
