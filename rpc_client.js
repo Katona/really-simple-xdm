@@ -40,7 +40,7 @@ class RpcClientHandler {
                     if (response.type === 'RETURN_VALUE') {
                         resolve(response.value);
                     } else if (response.type === 'ERROR') {
-                        reject(this.response.error);
+                        reject(response.error);
                     }
                 }
                 this.messagingBackend.onResponse(responseListener);
