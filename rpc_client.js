@@ -17,9 +17,7 @@ class RpcClientHandler {
     }
 
     handleFunctionCall(target, propKey) {
-        console.log('function')
         return (...args) => {
-            console.log(`${propKey}(${JSON.stringify(args)})`);
             const argDescriptors = args.map(arg => 
                 ({
                     type: typeof arg,
@@ -58,7 +56,6 @@ class RpcClientHandler {
 
     registerCallback(callbackMetadata, target, propKey) {
         return (...args) => {
-            console.log(`${propKey}(${JSON.stringify(args)})`);
             const callbackFunction = args.find(arg => typeof arg === 'function');
             let callbackRegistration = this.callbackRegistrations.find(c => c.callbackFunction === callbackFunction);
             const callbackId = callbackRegistration ? callbackRegistration.callbackId : uuid.v4();
@@ -106,7 +103,6 @@ class RpcClientHandler {
 
     deRegisterCallback(callbackMetadata, target, propKey) {
         return (...args) => {
-            console.log(`${propKey}(${JSON.stringify(args)})`);
             const callbackFunction = args.find(arg => typeof arg === 'function');
             
             const callbackRegistration = this.callbackRegistrations.find(c => c.callbackFunction === callbackFunction);
@@ -156,7 +152,6 @@ class RpcClientHandler {
     }
 
     handleCallbackResponse(response) {
-        console.log('handle callback')
         if (response.type !== 'CALLBACK') {
             return;
         }
