@@ -65,7 +65,11 @@ function returnValue(id, value) {
     return { type: 'RETURN_VALUE', id, value } ;
 }
 
+function error(id, error, functionName) {
+    return { type: 'ERROR', id, error, functionName };
+}
 module.exports.createFunctionCallMessage = createFunctionCallMessage;
 module.exports.createCallbackRegistrationMessage = createCallbackRegistrationMessage;
 module.exports.createCallbackDeregistrationMessage = createCallbackDeregistrationMessage;
 module.exports.returnValue = returnValue;
+module.exports.error = error;

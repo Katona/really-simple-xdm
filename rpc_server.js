@@ -26,12 +26,12 @@ class RpcServer {
             if (response instanceof Promise) {
                 response
                     .then(result => this.messagingBackend.sendMessage(messages.returnValue(id, result)))
-                    .catch(error => this.messagingBackend.sendMessage({ type: 'ERROR', id, error }));
+                    .catch(error => this.messagingBackend.sendMessage(messages.error(id, error)));
             } else {
                 this.messagingBackend.sendMessage(messages.returnValue(id, response));
             }
         } catch (error) {
-            this.messagingBackend.sendMessage({ type: 'ERROR', id, error });
+            this.messagingBackend.sendMessage(messages.error(id, error));
         }
     }
 
@@ -54,7 +54,7 @@ class RpcServer {
             this.serverObject[functionName].apply(this.serverObject, actualArgs);
             this.messagingBackend.sendMessage(messages.returnValue(id, undefined));
         } catch (error) {
-            this.messagingBackend.sendMessage({id, type: 'ERROR', error, functionName});
+            this.messagingBackend.sendMessage(messages.error(id, error));
         }
     }
 
@@ -62,7 +62,7 @@ class RpcServer {
         const callbackDescriptor = args.find(arg => arg.type === 'function');
         let callbackRegistration = this.callbackRegistrations.find(registration => registration.id === callbackDescriptor.id);
         if (!callbackRegistration) {
-            this.messagingBackend.sendMessage({type: 'ERROR', id, error: 'Callback is not registered' } );
+            this.messagingBackend.sendMessage(messages.error(id, 'Callback is not registered.', functionName));
             return;
         }
         const actualArgs = args.map(a => a.type === 'function' ? callbackRegistration.callbackFunction : a.value);
@@ -74,7 +74,7 @@ class RpcServer {
                 this.callbackRegistrations = this.callbackRegistrations.filter(registration => registration !== callbackRegistration);
             }
         } catch (error) {
-            this.messagingBackend.sendMessage({id, type: 'ERROR', error, functionName});
+            this.messagingBackend.sendMessage(messages.error(id, error, functionName));
         }
     }
 }
