@@ -103,7 +103,7 @@ test('should handle same callbacks registered multiple times.', t => {
 	t.is(deregisteredCallback, deregisteredCallback2);
 });
 
-test.only('should handle function calls without return value', t => {
+test('should handle function calls without return value', t => {
 	const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
 	messageListener({type: 'FUNCTION_CALL', id: 'test-id', functionName: 'testFunction', args: [
 		{type: 'number', value: 1}, {type: 'string', value: 'secondArg' }]});
