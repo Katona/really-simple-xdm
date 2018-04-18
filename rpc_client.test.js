@@ -1,6 +1,7 @@
 import test from 'ava';
 import {createRpcClient} from './rpc_client'
 import sinon from 'sinon';
+import messages from './messages'
 
 test.beforeEach(t => {
 	t.context.testBackend = {
@@ -31,7 +32,7 @@ test('should handle callbacks.', t => {
 	t.is(cbRegistrationMessage.args[1].type, 'function')
 	const callbackArgument = cbRegistrationMessage.args[1];
 	// Trigger a callback response
-	callbackResponseListener({ type: 'CALLBACK', id: callbackArgument.id, args: ['firstArg', 'secondArg'] });
+	callbackResponseListener(messages.callback(callbackArgument.id, 'firstArg', 'secondArg'));
 	t.is(testCallback.callCount, 1);
 	t.deepEqual(testCallback.firstCall.args, ['firstArg', 'secondArg']);
 

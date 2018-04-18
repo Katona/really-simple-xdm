@@ -43,7 +43,7 @@ class RpcServer {
                 id: callbackArgument.id,
                 count: 0,
                 callbackFunction: (...a) => {
-                    this.messagingBackend.sendMessage(messages.callback(callbackArgument.id, a));
+                    this.messagingBackend.sendMessage(messages.callback(callbackArgument.id, ...a));
                 }
             }
             this.callbackRegistrations.push(callbackRegistration);
