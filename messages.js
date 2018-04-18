@@ -69,8 +69,8 @@ function error(id, error, functionName) {
     return { type: 'ERROR', id, error, functionName };
 }
 
-function callback(id, args) {
-    return { type: 'CALLBACK', id, args };
+function callback(id, ...args) {
+    return { type: 'CALLBACK', id, args: [...args] };
 }
 
 module.exports.createFunctionCallMessage = createFunctionCallMessage;
