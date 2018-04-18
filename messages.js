@@ -61,6 +61,11 @@ function createCallbackDeregistrationMessage(functionName, callbackId, args) {
     return msg;
 }
 
-module.exports.createFunctionCallMessage = createFunctionCallMessage
-module.exports.createCallbackRegistrationMessage = createCallbackRegistrationMessage
-module.exports.createCallbackDeregistrationMessage = createCallbackDeregistrationMessage
+function returnValue(id, value) {
+    return { type: 'RETURN_VALUE', id, value } ;
+}
+
+module.exports.createFunctionCallMessage = createFunctionCallMessage;
+module.exports.createCallbackRegistrationMessage = createCallbackRegistrationMessage;
+module.exports.createCallbackDeregistrationMessage = createCallbackDeregistrationMessage;
+module.exports.returnValue = returnValue;

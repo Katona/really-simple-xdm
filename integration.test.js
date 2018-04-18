@@ -81,7 +81,7 @@ class TestServiceClass {
 test.only('simple', async t => {
 
     const testBackend = new TestMessagingService();
-    const rpcClient = createRpcClient(testBackend.getClientBackend(), [{ register: 'register', deregister: 'deregister' }]);
+    const rpcClient = createRpcClient(testBackend.getClientBackend(), [{ register: 'on', deregister: 'off' }]);
     const serviceObject = new TestServiceClass();
     const rpcServer = new RpcServer(testBackend.getServerBackend(), serviceObject);
 
@@ -89,8 +89,8 @@ test.only('simple', async t => {
     const testCallback = args => { console.log('event received: ', args); }
     rpcClient.register('test', 'test2', testCallback);
     serviceObject.emitEvent('test event');
-    rpcClient.deregister('test1', 'test3', testCallback);
-    serviceObject.emitEvent('test event2');
+    // rpcClient.deregister('test1', 'test3', testCallback);
+    // serviceObject.emitEvent('test event2');
     const sum = await rpcClient.add(3, 4);
     console.log('sum: ', sum);
     const product = await rpcClient.multiply(8, 6);

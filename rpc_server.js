@@ -1,4 +1,5 @@
 let uuid = require('uuid');
+const messages = require('./messages');
 
 class RpcServer {
     constructor(messagingBackend, serverObject) {
@@ -24,10 +25,10 @@ class RpcServer {
             let response = this.serverObject[functionName].apply(this.serverObject, argumentValues); // eslint-disable-line
             if (response instanceof Promise) {
                 response
-                    .then(result => this.messagingBackend.sendMessage({ type: 'RETURN_VALUE', id, value: result } ))
+                    .then(result => this.messagingBackend.sendMessage(messages.returnValue(id, result)))
                     .catch(error => this.messagingBackend.sendMessage({ type: 'ERROR', id, error }));
             } else {
-                this.messagingBackend.sendMessage({ type: 'RETURN_VALUE', id, value: response });
+                this.messagingBackend.sendMessage(messages.returnValue(id, response));
             }
         } catch (error) {
             this.messagingBackend.sendMessage({ type: 'ERROR', id, error });
@@ -51,7 +52,7 @@ class RpcServer {
         const actualArgs = args.map(a => a.type === 'function' ? callbackRegistration.callbackFunction : a.value);
         try {
             this.serverObject[functionName].apply(this.serverObject, actualArgs);
-            this.messagingBackend.sendMessage({type: 'RETURN_VALUE', id, value: undefined });
+            this.messagingBackend.sendMessage(messages.returnValue(id, undefined));
         } catch (error) {
             this.messagingBackend.sendMessage({id, type: 'ERROR', error, functionName});
         }
@@ -67,7 +68,7 @@ class RpcServer {
         const actualArgs = args.map(a => a.type === 'function' ? callbackRegistration.callbackFunction : a.value);
         try {
             this.serverObject[functionName].apply(this.serverObject, actualArgs);
-            this.messagingBackend.sendMessage({type: 'RETURN_VALUE', id, value: undefined });
+            this.messagingBackend.sendMessage(messages.returnValue(id, undefined));
             callbackRegistration.count--;
             if (callbackRegistration.count === 0) {
                 this.callbackRegistrations = this.callbackRegistrations.filter(registration => registration !== callbackRegistration);
