@@ -68,8 +68,14 @@ function returnValue(id, value) {
 function error(id, error, functionName) {
     return { type: 'ERROR', id, error, functionName };
 }
+
+function callback(id, args) {
+    return { type: 'CALLBACK', id, args };
+}
+
 module.exports.createFunctionCallMessage = createFunctionCallMessage;
 module.exports.createCallbackRegistrationMessage = createCallbackRegistrationMessage;
 module.exports.createCallbackDeregistrationMessage = createCallbackDeregistrationMessage;
 module.exports.returnValue = returnValue;
 module.exports.error = error;
+module.exports.callback = callback;
