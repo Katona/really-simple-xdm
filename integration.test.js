@@ -3,7 +3,7 @@ import {createRpcClient} from './rpc_client';
 import {RpcServer} from './rpc_server';
 import sinon from 'sinon';
 
-class SimpleBackend {
+class SimpleMessagingService {
     constructor() {
         this.listeners = [];
     }
@@ -28,10 +28,11 @@ class SimpleBackend {
         this.listeners = this.listeners.filter(listener => listener === callback);
     }
 }
-class TestBackend {
+
+class TestMessagingService {
     constructor() {
-        this.serverBackend = new SimpleBackend();
-        this.clientBackend = new SimpleBackend();
+        this.serverBackend = new SimpleMessagingService();
+        this.clientBackend = new SimpleMessagingService();
         this.serverBackend.setTarget(this.clientBackend);
         this.clientBackend.setTarget(this.serverBackend);
     }
@@ -79,7 +80,7 @@ class TestServiceClass {
 
 test.only('simple', async t => {
 
-    const testBackend = new TestBackend();
+    const testBackend = new TestMessagingService();
     const rpcClient = createRpcClient(testBackend.getClientBackend(), [{ register: 'register', deregister: 'deregister' }]);
     const serviceObject = new TestServiceClass();
     const rpcServer = new RpcServer(testBackend.getServerBackend(), serviceObject);
