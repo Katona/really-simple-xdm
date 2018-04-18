@@ -30,13 +30,13 @@ class RpcClientHandler {
                 functionName: propKey,
                 args: argDescriptors,
             }
-            this.messagingBackend.sendMessage(msg);
-            return new Promise((resolve, reject) => {
+            const resultPromise = new Promise((resolve, reject) => {
                 const responseListener = response => {
                     if (response.id !== msg.id) {
                         return;
                     }
                     this.messagingBackend.removeMessageListener(responseListener);
+
                     if (response.type === 'RETURN_VALUE') {
                         resolve(response.value);
                     } else if (response.type === 'ERROR') {
@@ -45,6 +45,8 @@ class RpcClientHandler {
                 }
                 this.messagingBackend.onMessage(responseListener);
             });
+            this.messagingBackend.sendMessage(msg);
+            return resultPromise;
         }
     }
 
