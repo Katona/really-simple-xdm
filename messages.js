@@ -15,7 +15,7 @@ function createFunctionCallMessage(functionName, args) {
     }
 }
 
-function createCallbackRegistrationMessage(functionName, callbackId, args) {
+function createCallbackRegistrationMessage(functionName, callbackId, ...args) {
     const argDescriptors = args.map(arg => {
         if (typeof arg === 'function') {
             return {
@@ -38,7 +38,7 @@ function createCallbackRegistrationMessage(functionName, callbackId, args) {
     return msg
 }
 
-function createCallbackDeregistrationMessage(functionName, callbackId, args) {
+function createCallbackDeregistrationMessage(functionName, registerFunctionName, callbackId, ...args) {
     const argDescriptors = args.map(arg => {
         if (typeof arg === 'function') {
             return {
@@ -56,6 +56,7 @@ function createCallbackDeregistrationMessage(functionName, callbackId, args) {
         type: 'CALLBACK_DEREGISTRATION',
         id: uuid.v4(),
         functionName,
+        registerFunctionName,
         args: argDescriptors,
     }
     return msg;
@@ -70,7 +71,7 @@ function error(id, error, functionName) {
 }
 
 function callback(id, ...args) {
-    return { type: 'CALLBACK', id, args: [...args] };
+    return { type: 'CALLBACK', id, args };
 }
 
 module.exports.createFunctionCallMessage = createFunctionCallMessage;

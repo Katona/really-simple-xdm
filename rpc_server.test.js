@@ -1,6 +1,7 @@
 import test from 'ava';
 import {RpcServer} from './rpc_server'
 import sinon from 'sinon';
+import messages from './messages';
 
 test.beforeEach(t => {
 	t.context.testBackend = {
@@ -24,20 +25,10 @@ test('should register a message listener', t => {
 
 test('should handle callback registrations.', t => {
 	const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
-	const args = [
-		{
-			type: 'string',
-			value: 'test'	
-		},
-		{
-			type: 'function',
-			id: 'callback-id'
-		}
-	]
-	messageListener({type: 'CALLBACK_REGISTRATION', id: 'test-id', functionName: 'testCallbackRegistrar', args });
+	messageListener(messages.createCallbackRegistrationMessage('testCallbackRegistrar', 'callback-id', 'test', () => {} ));
 	t.is(t.context.serverObject.testCallbackRegistrar.callCount, 1);
 	const callbackRegistrationArguments = t.context.serverObject.testCallbackRegistrar.firstCall.args;
-	t.is(callbackRegistrationArguments[0], args[0].value);
+	t.is(callbackRegistrationArguments[0], 'test');
 	const registeredCallback = callbackRegistrationArguments[1];
 	t.true(typeof registeredCallback === 'function');
 	const callCountBeforeCall = t.context.testBackend.sendMessage.callCount;
@@ -51,23 +42,14 @@ test('should handle callback registrations.', t => {
 
 test('should handle callback deregistrations.', t => {
 	const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
-	const args = [
-		{
-			type: 'string',
-			value: 'test'	
-		},
-		{
-			type: 'function',
-			id: 'callback-id'
-		}
-	]
-	messageListener({type: 'CALLBACK_REGISTRATION', id: 'test-id', functionName: 'testCallbackRegistrar', args });
+	messageListener(messages.createCallbackRegistrationMessage('testCallbackRegistrar', 'callback-id', 'test', () => {} ));
 	t.is(t.context.serverObject.testCallbackRegistrar.callCount, 1);
 	const callbackRegistrationArguments = t.context.serverObject.testCallbackRegistrar.firstCall.args;
-	t.is(callbackRegistrationArguments[0], args[0].value);
+	t.is(callbackRegistrationArguments[0], 'test');
 	const registeredCallback = callbackRegistrationArguments[1];
 	// Deregistration test
-	messageListener({type: 'CALLBACK_DEREGISTRATION', id: 'test-id', functionName: 'testCallbackDeregistrar', args });
+	messageListener(messages.createCallbackDeregistrationMessage(
+		'testCallbackDeregistrar', 'testCallbackRegistrar', 'callback-id', 'test', () => {}));
 	t.is(t.context.serverObject.testCallbackDeregistrar.callCount, 1);
 	const callbackDeregistrationArguments = t.context.serverObject.testCallbackDeregistrar.firstCall.args;
 	t.is(t.context.serverObject.testCallbackDeregistrar.firstCall.args[1], registeredCallback);
@@ -75,28 +57,20 @@ test('should handle callback deregistrations.', t => {
 
 test('should handle same callbacks registered multiple times.', t => {
 	const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
-	const args = [
-		{
-			type: 'string',
-			value: 'test'	
-		},
-		{
-			type: 'function',
-			id: 'callback-id'
-		}
-	]
-	messageListener({type: 'CALLBACK_REGISTRATION', id: 'test-id', functionName: 'testCallbackRegistrar', args });
+	messageListener(messages.createCallbackRegistrationMessage('testCallbackRegistrar', 'callback-id', 'test', () => {} ));
 	const registeredCallback = t.context.serverObject.testCallbackRegistrar.firstCall.args[1];
-	messageListener({type: 'CALLBACK_REGISTRATION', id: 'test-id', functionName: 'testCallbackRegistrar2', args });
+	messageListener(messages.createCallbackRegistrationMessage('testCallbackRegistrar2', 'callback-id', 'test', () => {} ));
 	const registeredCallback1 = t.context.serverObject.testCallbackRegistrar2.firstCall.args[1];
 	t.is(registeredCallback, registeredCallback1);
 
 
 	// Deregistration test
-	messageListener({type: 'CALLBACK_DEREGISTRATION', id: 'test-id', functionName: 'testCallbackDeregistrar', args });
+	messageListener(messages.createCallbackDeregistrationMessage(
+		'testCallbackDeregistrar', 'testCallbackRegistrar', 'callback-id', 'test', () => {}));
 	t.is(t.context.serverObject.testCallbackDeregistrar.callCount, 1);
 	const deregisteredCallback = t.context.serverObject.testCallbackDeregistrar.firstCall.args[1];
-	messageListener({type: 'CALLBACK_DEREGISTRATION', id: 'test-id', functionName: 'testCallbackDeregistrar2', args });
+	messageListener(messages.createCallbackDeregistrationMessage(
+		'testCallbackDeregistrar2', 'testCallbackRegistrar2', 'callback-id', 'test', () => {}));
 	t.is(t.context.serverObject.testCallbackDeregistrar2.callCount, 1);
 	const deregisteredCallback2 = t.context.serverObject.testCallbackDeregistrar2.firstCall.args[1];
 	t.is(registeredCallback, deregisteredCallback);

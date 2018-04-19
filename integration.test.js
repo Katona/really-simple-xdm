@@ -43,23 +43,16 @@ class TestMessagingService {
 
 class TestServiceClass {
     register(arg1, arg2, callback) {
-        console.log("register ", arg1, arg2, callback);
         this.callback = callback;
     }
 
     deregister(arg1, arg2, callback) {
-        console.log('deregister ', arg1, arg2, callback);
         if (this.callback === callback) {
             this.callback = undefined;
         }
     }
 
-    voidFunction(arg) {
-        console.log('voidFunction ', arg);
-    }
-
     add(a, b) {
-        console.log('add ', a, b);
         return a + b;
     }
 
@@ -83,18 +76,25 @@ test.only('simple', async t => {
     const testBackend = new TestMessagingService();
     const rpcClient = createRpcClient(testBackend.getClientBackend(), [{ register: 'on', deregister: 'off' }]);
     const serviceObject = new TestServiceClass();
+    serviceObject.voidFunction = sinon.stub();
     const rpcServer = new RpcServer(testBackend.getServerBackend(), serviceObject);
 
     rpcClient.voidFunction('adf');
-    const testCallback = args => { console.log('event received: ', args); }
+    t.is(serviceObject.voidFunction.callCount, 1);
+    t.deepEqual(serviceObject.voidFunction.firstCall.args, ['adf']);
+
+    const testCallback = sinon.stub();
     rpcClient.register('test', 'test2', testCallback);
+    t.not(serviceObject.callback, undefined);
     serviceObject.emitEvent('test event');
-    // rpcClient.deregister('test1', 'test3', testCallback);
-    // serviceObject.emitEvent('test event2');
+    t.is(testCallback.callCount, 1);
+    t.deepEqual(testCallback.firstCall.args, ['test event']);
     const sum = await rpcClient.add(3, 4);
-    console.log('sum: ', sum);
+    t.is(sum, 7);
     const product = await rpcClient.multiply(8, 6);
-    console.log('product: ', product);
+    t.is(product, 48);
     const field = await rpcClient.objectParameter({ field: 'field of object' });
-    console.log('field: ', field);
+    t.is(field, 'field of object');
+    rpcClient.deregister('test', 'test2', testCallback);
+    t.is(serviceObject.callback, undefined);
 });

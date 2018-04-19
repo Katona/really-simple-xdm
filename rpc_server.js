@@ -1,8 +1,10 @@
 let uuid = require('uuid');
 const messages = require('./messages');
+const equal = require('deep-equal');
 
 class RpcServer {
     constructor(messagingBackend, serverObject) {
+        this.callbackFunctions = [];
         this.callbackRegistrations = [];
         this.messagingBackend = messagingBackend;
         this.serverObject = serverObject;
@@ -37,19 +39,19 @@ class RpcServer {
 
     handleCallbackRegistration({id, functionName, args}) {
         const callbackArgument = args.find(arg => arg.type === 'function');
-        let callbackRegistration = this.callbackRegistrations.find(registration => registration.id === callbackArgument.id);
-        if (!callbackRegistration) {
-            callbackRegistration = {
+        let callbackFunction = this.callbackFunctions.find(registration => registration.id === callbackArgument.id);
+        if (!callbackFunction) {
+            callbackFunction = {
                 id: callbackArgument.id,
-                count: 0,
-                callbackFunction: (...a) => {
+                function: (...a) => {
                     this.messagingBackend.sendMessage(messages.callback(callbackArgument.id, ...a));
                 }
             }
-            this.callbackRegistrations.push(callbackRegistration);
+            this.callbackFunctions.push(callbackFunction);
         }
-        callbackRegistration.count++;
-        const actualArgs = args.map(a => a.type === 'function' ? callbackRegistration.callbackFunction : a.value);
+        this.callbackRegistrations.push({ callbackId: callbackFunction.id, functionName, args});
+
+        const actualArgs = args.map(a => a.type === 'function' ? callbackFunction.function : a.value);
         try {
             this.serverObject[functionName].apply(this.serverObject, actualArgs);
             this.messagingBackend.sendMessage(messages.returnValue(id, undefined));
@@ -58,20 +60,28 @@ class RpcServer {
         }
     }
 
-    handleCallbackDeregistration({id, functionName, args}) {
-        const callbackDescriptor = args.find(arg => arg.type === 'function');
-        let callbackRegistration = this.callbackRegistrations.find(registration => registration.id === callbackDescriptor.id);
+    getCallbackRegistration(functionName, args) {
+        return this.callbackRegistrations.find(registration => equal(registration.args, args) && registration.functionName === functionName);
+    }
+
+    removeRegistration(registration) {
+        this.callbackRegistrations = this.callbackRegistrations.filter(reg => reg !== registration);
+    }
+
+    handleCallbackDeregistration({id, functionName, registerFunctionName, args}) {
+        let callbackRegistration = this.getCallbackRegistration(registerFunctionName, args);
         if (!callbackRegistration) {
             this.messagingBackend.sendMessage(messages.error(id, 'Callback is not registered.', functionName));
             return;
         }
-        const actualArgs = args.map(a => a.type === 'function' ? callbackRegistration.callbackFunction : a.value);
+        const callbackFunction = this.callbackFunctions.find(callbackFunction => callbackFunction.id === callbackRegistration.callbackId);
+        const actualArgs = args.map(a => a.type === 'function' ? callbackFunction.function : a.value);
         try {
             this.serverObject[functionName].apply(this.serverObject, actualArgs);
             this.messagingBackend.sendMessage(messages.returnValue(id, undefined));
-            callbackRegistration.count--;
-            if (callbackRegistration.count === 0) {
-                this.callbackRegistrations = this.callbackRegistrations.filter(registration => registration !== callbackRegistration);
+            this.removeRegistration(callbackRegistration);
+            if (this.callbackRegistrations.filter(reg => reg.callbackId === callbackRegistration.callbackId).length === 0) {
+                this.callbackFunctions = this.callbackFunctions.filter(registration => registration !== callbackRegistration);
             }
         } catch (error) {
             this.messagingBackend.sendMessage(messages.error(id, error, functionName));

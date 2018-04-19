@@ -51,7 +51,7 @@ class RpcClientHandler {
             const callbackFunction = args.find(arg => typeof arg === 'function');
             let callbackRegistration = this.callbackRegistrations.find(c => c.callbackFunction === callbackFunction);
             const callbackId = callbackRegistration ? callbackRegistration.callbackId : uuid.v4();
-            let msg = messages.createCallbackRegistrationMessage(functionName, callbackId, args);
+            let msg = messages.createCallbackRegistrationMessage(functionName, callbackId, ...args);
             if (!callbackRegistration) {
                 callbackRegistration = { callbackFunction, callbackId, count: 0 };
                 this.callbackRegistrations.push(callbackRegistration);
@@ -84,7 +84,7 @@ class RpcClientHandler {
                 console.warn('Callback is not registered');
                 return;
             }
-            let msg = messages.createCallbackDeregistrationMessage(functionName, callbackRegistration.callbackId, args);
+            let msg = messages.createCallbackDeregistrationMessage(functionName, callbackMetadata.deregister, callbackRegistration.callbackId, ...args);
             callbackRegistration.count--;
             if (callbackRegistration.count === 0) {
                 this.callbackRegistrations = this.callbackRegistrations.filter(r => r !== callbackRegistration);
