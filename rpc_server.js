@@ -1,11 +1,11 @@
 let uuid = require('uuid');
 const messages = require('./messages');
 const equal = require('deep-equal');
+const CallbackRegistrationHandler = require('./callback_registration_handler');
 
 class RpcServer {
     constructor(messagingBackend, serverObject) {
-        this.callbackFunctions = [];
-        this.callbackRegistrations = [];
+        this.callbackRegistrationHandler = new CallbackRegistrationHandler();
         this.messagingBackend = messagingBackend;
         this.serverObject = serverObject;
         this.messagingBackend.onMessage(this.onMessage.bind(this));
@@ -39,19 +39,16 @@ class RpcServer {
 
     handleCallbackRegistration({id, functionName, args}) {
         const callbackArgument = args.find(arg => arg.type === 'function');
-        let callbackFunction = this.callbackFunctions.find(registration => registration.id === callbackArgument.id);
+        // let callbackFunction = this.callbackFunctions.find(registration => registration.id === callbackArgument.id);
+        let callbackFunction = this.callbackRegistrationHandler.getCallback(callbackArgument.id);
         if (!callbackFunction) {
-            callbackFunction = {
-                id: callbackArgument.id,
-                function: (...a) => {
-                    this.messagingBackend.sendMessage(messages.callback(callbackArgument.id, ...a));
-                }
-            }
-            this.callbackFunctions.push(callbackFunction);
+            callbackFunction = 
+                (...a) => this.messagingBackend.sendMessage(messages.callback(callbackArgument.id, ...a));
+            this.callbackRegistrationHandler.addCallback(callbackArgument.id, callbackFunction);
         }
-        this.callbackRegistrations.push({ callbackId: callbackFunction.id, functionName, args});
+        this.callbackRegistrationHandler.addRegistration(callbackArgument.id, functionName, args);
 
-        const actualArgs = args.map(a => a.type === 'function' ? callbackFunction.function : a.value);
+        const actualArgs = args.map(a => a.type === 'function' ? callbackFunction : a.value);
         try {
             this.serverObject[functionName].apply(this.serverObject, actualArgs);
             this.messagingBackend.sendMessage(messages.returnValue(id, undefined));
@@ -60,28 +57,20 @@ class RpcServer {
         }
     }
 
-    getCallbackRegistration(functionName, args) {
-        return this.callbackRegistrations.find(registration => equal(registration.args, args) && registration.functionName === functionName);
-    }
-
-    removeRegistration(registration) {
-        this.callbackRegistrations = this.callbackRegistrations.filter(reg => reg !== registration);
-    }
-
     handleCallbackDeregistration({id, functionName, registerFunctionName, args}) {
-        let callbackRegistration = this.getCallbackRegistration(registerFunctionName, args);
+        let callbackRegistration = this.callbackRegistrationHandler.getRegistration(registerFunctionName, args);
         if (!callbackRegistration) {
             this.messagingBackend.sendMessage(messages.error(id, 'Callback is not registered.', functionName));
             return;
         }
-        const callbackFunction = this.callbackFunctions.find(callbackFunction => callbackFunction.id === callbackRegistration.callbackId);
-        const actualArgs = args.map(a => a.type === 'function' ? callbackFunction.function : a.value);
+        const callbackFunction = this.callbackRegistrationHandler.getCallback(callbackRegistration.callbackId);
+        const actualArgs = args.map(a => a.type === 'function' ? callbackFunction : a.value);
         try {
             this.serverObject[functionName].apply(this.serverObject, actualArgs);
             this.messagingBackend.sendMessage(messages.returnValue(id, undefined));
             this.removeRegistration(callbackRegistration);
-            if (this.callbackRegistrations.filter(reg => reg.callbackId === callbackRegistration.callbackId).length === 0) {
-                this.callbackFunctions = this.callbackFunctions.filter(registration => registration !== callbackRegistration);
+            if (!this.callbackRegistrationHandler.hasRegistrations(callbackRegistration.callbackId)) {
+                this.callbackRegistrationHandler.removeCallback(callbackRegistration.callbackId);
             }
         } catch (error) {
             this.messagingBackend.sendMessage(messages.error(id, error, functionName));
