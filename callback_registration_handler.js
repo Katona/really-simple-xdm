@@ -3,20 +3,26 @@ const equal = require('deep-equal');
 class CallbackRegistrationHandler {
 
     constructor() {
-        this.callbackFunctions = {};
+        this.callbackFunctions = [];
         this.callbackRegistrations = [];
     }
 
     getCallback(callbackId) {
-        return this.callbackFunctions[callbackId];
+        const callbackEntry = this.callbackFunctions.find(c => c.callbackId === callbackId);
+        return callbackEntry ? callbackEntry.callbackFunction : null;
+    }
+
+    getCallbackId(callbackFunction) {
+        const callbackEntry = this.callbackFunctions.find(c => c.callbackFunction === callbackFunction);
+        return callbackEntry ? callbackEntry.callbackId : null;
     }
 
     addCallback(callbackId, callbackFunction) {
-        this.callbackFunctions[callbackId] = callbackFunction;
+        this.callbackFunctions.push({ callbackId, callbackFunction });
     }
 
     removeCallback(callbackId) {
-        delete this.callbackFunctions[callbackId];
+        this.callbackFunctions = this.callbackFunctions.filter(c => c.callbackId !== callbackId);
     }
 
     addRegistration(callbackId, functionName, args) {

@@ -1,10 +1,11 @@
 let uuid = require('uuid');
 let messages = require('./messages');
+let CallbackRegistrationHandler = require('./callback_registration_handler');
 
 class RpcClientHandler {
 
     constructor(messagingBackend, callbackRegistrationMetadata) {
-        this.callbackRegistrations = [];
+        this.callbackRegistrationHandler = new CallbackRegistrationHandler();
         this.callbackRegistrationMetadata = callbackRegistrationMetadata;
         this.messagingBackend = messagingBackend;
         this.messagingBackend.onMessage(this.handleCallbackResponse.bind(this));
@@ -49,14 +50,13 @@ class RpcClientHandler {
     registerCallback(callbackMetadata, target, functionName) {
         return (...args) => {
             const callbackFunction = args.find(arg => typeof arg === 'function');
-            let callbackRegistration = this.callbackRegistrations.find(c => c.callbackFunction === callbackFunction);
-            const callbackId = callbackRegistration ? callbackRegistration.callbackId : uuid.v4();
-            let msg = messages.createCallbackRegistrationMessage(functionName, callbackId, ...args);
-            if (!callbackRegistration) {
-                callbackRegistration = { callbackFunction, callbackId, count: 0 };
-                this.callbackRegistrations.push(callbackRegistration);
+            let callbackId = this.callbackRegistrationHandler.getCallbackId(callbackFunction);
+            if (!callbackId) {
+                callbackId = uuid.v4();
+                this.callbackRegistrationHandler.addCallback(callbackId, callbackFunction);
             }
-            callbackRegistration.count++;
+            this.callbackRegistrationHandler.addRegistration(callbackId, functionName, args);
+            let msg = messages.createCallbackRegistrationMessage(functionName, callbackId, ...args);
             this.messagingBackend.sendMessage(msg);
             return this.createReturnValuePromise(msg);
         }
@@ -65,16 +65,15 @@ class RpcClientHandler {
     deregisterCallback(callbackMetadata, target, functionName) {
         return (...args) => {
             const callbackFunction = args.find(arg => typeof arg === 'function');
-            
-            const callbackRegistration = this.callbackRegistrations.find(c => c.callbackFunction === callbackFunction);
+            const callbackRegistration = this.callbackRegistrationHandler.getRegistration(callbackMetadata.register, args);
             if (!callbackRegistration) {
-                console.warn('Callback is not registered');
+                console.warn('No registration exist for "%s" with arguments [%s]', functionName, args);
                 return;
             }
             let msg = messages.createCallbackDeregistrationMessage(functionName, callbackMetadata.deregister, callbackRegistration.callbackId, ...args);
-            callbackRegistration.count--;
-            if (callbackRegistration.count === 0) {
-                this.callbackRegistrations = this.callbackRegistrations.filter(r => r !== callbackRegistration);
+            this.callbackRegistrationHandler.removeRegistration(callbackRegistration);
+            if (!this.callbackRegistrationHandler.hasRegistrations(callbackRegistration.callbackId)) {
+                this.callbackRegistrationHandler.removeCallback(callbackRegistration.callbackId);
             }
             this.messagingBackend.sendMessage(msg);
             return this.createReturnValuePromise(msg);
@@ -102,9 +101,9 @@ class RpcClientHandler {
         if (response.type !== 'CALLBACK') {
             return;
         }
-        const callbackRegistration = this.callbackRegistrations.find(cbRegistration => response.id === cbRegistration.callbackId);
-        if (callbackRegistration) {
-            callbackRegistration.callbackFunction(...response.args);
+        const callbackFunction = this.callbackRegistrationHandler.getCallback(response.id);
+        if (callbackFunction) {
+            callbackFunction(...response.args);
         }
     }
 
