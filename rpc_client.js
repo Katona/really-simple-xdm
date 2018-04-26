@@ -43,7 +43,7 @@ class RpcClientHandler {
     handleCallbackRegistration(callbackMetadata, target, propKey) {
         return callbackMetadata.register === propKey 
             ? this.registerCallback(callbackMetadata, target, propKey)
-            : this.deRegisterCallback(callbackMetadata, target, propKey);
+            : this.deregisterCallback(callbackMetadata, target, propKey);
     }
 
     registerCallback(callbackMetadata, target, functionName) {
@@ -62,7 +62,7 @@ class RpcClientHandler {
         }
     }
 
-    deRegisterCallback(callbackMetadata, target, functionName) {
+    deregisterCallback(callbackMetadata, target, functionName) {
         return (...args) => {
             const callbackFunction = args.find(arg => typeof arg === 'function');
             
