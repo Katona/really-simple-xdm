@@ -58,20 +58,7 @@ class RpcClientHandler {
             }
             callbackRegistration.count++;
             this.messagingBackend.sendMessage(msg);
-            return new Promise((resolve, reject) => {
-                const responseListener = response => {
-                    if (response.id !== msg.id) {
-                        return;
-                    }
-                    this.messagingBackend.removeMessageListener(responseListener);
-                    if (response.type === 'RETURN_VALUE') {
-                        resolve(response.value);
-                    } else if (response.type === 'ERROR') {
-                        reject(this.response.error);
-                    }
-                }
-                this.messagingBackend.onMessage(responseListener);
-            });
+            return this.createReturnValuePromise(msg);
         }
     }
 
@@ -90,21 +77,25 @@ class RpcClientHandler {
                 this.callbackRegistrations = this.callbackRegistrations.filter(r => r !== callbackRegistration);
             }
             this.messagingBackend.sendMessage(msg);
-            return new Promise((resolve, reject) => {
-                const responseListener = response => {
-                    if (response.id !== msg.id) {
-                        return;
-                    }
-                    this.messagingBackend.removeMessageListener(responseListener);
-                    if (response.type === 'RETURN_VALUE') {
-                        resolve(response.value);
-                    } else if (response.type === 'ERROR') {
-                        reject(this.response.error);
-                    }
+            return this.createReturnValuePromise(msg);
+        }
+    }
+
+    createReturnValuePromise(originalMessage) {
+        return new Promise((resolve, reject) => {
+            const responseListener = response => {
+                if (response.id !== originalMessage.id) {
+                    return;
                 }
-                this.messagingBackend.onMessage(responseListener);
-            });
-        }   
+                this.messagingBackend.removeMessageListener(responseListener);
+                if (response.type === 'RETURN_VALUE') {
+                    resolve(response.value);
+                } else if (response.type === 'ERROR') {
+                    reject(response.error);
+                }
+            }
+            this.messagingBackend.onMessage(responseListener);
+        });
     }
 
     handleCallbackResponse(response) {
