@@ -21,21 +21,7 @@ class RpcClientHandler {
     handleFunctionCall(target, functionName) {
         return (...args) => {
             let msg = messages.createFunctionCallMessage(functionName, args);
-            const resultPromise = new Promise((resolve, reject) => {
-                const responseListener = response => {
-                    if (response.id !== msg.id) {
-                        return;
-                    }
-                    this.messagingBackend.removeMessageListener(responseListener);
-
-                    if (response.type === 'RETURN_VALUE') {
-                        resolve(response.value);
-                    } else if (response.type === 'ERROR') {
-                        reject(response.error);
-                    }
-                }
-                this.messagingBackend.onMessage(responseListener);
-            });
+            const resultPromise = this.createResult(msg);
             this.messagingBackend.sendMessage(msg);
             return resultPromise;
         }
@@ -58,7 +44,7 @@ class RpcClientHandler {
             this.callbackRegistrationHandler.addRegistration(callbackId, functionName, args);
             let msg = messages.createCallbackRegistrationMessage(functionName, callbackId, ...args);
             this.messagingBackend.sendMessage(msg);
-            return this.createReturnValuePromise(msg);
+            return this.createResult(msg);
         }
     }
 
@@ -76,11 +62,11 @@ class RpcClientHandler {
                 this.callbackRegistrationHandler.removeCallback(callbackRegistration.callbackId);
             }
             this.messagingBackend.sendMessage(msg);
-            return this.createReturnValuePromise(msg);
+            return this.createResult(msg);
         }
     }
 
-    createReturnValuePromise(originalMessage) {
+    createResult(originalMessage) {
         return new Promise((resolve, reject) => {
             const responseListener = response => {
                 if (response.id !== originalMessage.id) {
