@@ -24,7 +24,12 @@ class RpcServer {
     handleFunctionCall({id, functionName, args}) {
         try {
             const argumentValues = args.map(a => a.value);
-            let response = this.serverObject[functionName].apply(this.serverObject, argumentValues); // eslint-disable-line
+            const functionToCall = this.serverObject[functionName];
+            if (!functionToCall) {
+                this.messagingBackend.sendMessage(messages.error(id, new Error(`${functionName} is not a function`)));
+                return;
+            }
+            let response = functionToCall.apply(this.serverObject, argumentValues); // eslint-disable-line
             if (response instanceof Promise) {
                 response
                     .then(result => this.messagingBackend.sendMessage(messages.returnValue(id, result)))
