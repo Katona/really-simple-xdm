@@ -56,7 +56,7 @@ class RpcClientHandler {
                 console.warn('No registration exist for "%s" with arguments [%s]', functionName, args);
                 return;
             }
-            let msg = messages.createCallbackDeregistrationMessage(functionName, callbackMetadata.deregister, callbackRegistration.callbackId, ...args);
+            let msg = messages.createCallbackDeregistrationMessage(functionName, callbackMetadata.register, callbackRegistration.callbackId, ...args);
             this.callbackRegistrationHandler.removeRegistration(callbackRegistration);
             if (!this.callbackRegistrationHandler.hasRegistrations(callbackRegistration.callbackId)) {
                 this.callbackRegistrationHandler.removeCallback(callbackRegistration.callbackId);
