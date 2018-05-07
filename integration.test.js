@@ -69,7 +69,7 @@ test('test calling of non existing function', async t => {
 
 test('test callbacks', async t => {
     const testEventEmitter = new EventEmitter();
-    const rpcClient = t.context.createClient([{register: 'on', deregister: 'off'}]);
+    const rpcClient = t.context.createClient([{register: 'on', deregister: 'removeListener'}]);
     const rpcServer = t.context.createServer(testEventEmitter);
     const event1Listener1 = sinon.stub();
     const event1Listener2 = sinon.stub();
@@ -90,7 +90,7 @@ test('test callbacks', async t => {
     t.is(event1Listener1.callCount, 2)
     t.is(event1Listener2.callCount, 1)
 
-    rpcClient.off('event1', event1Listener1);
+    rpcClient.removeListener('event1', event1Listener1);
     testEventEmitter.emit('event1', 1);
     t.is(event1Listener1.callCount, 2);
     t.is(event1Listener2.callCount, 2);
@@ -99,7 +99,7 @@ test('test callbacks', async t => {
     testEventEmitter.emit('event1', 1);
     t.is(event1Listener2.callCount, 4);
 
-    // rpcClient.off('event1', event1Listener2);
-    // testEventEmitter.emit('event1', 1);
-    // t.is(event1Listener2.callCount, 5);
+    rpcClient.removeListener('event1', event1Listener2);
+    testEventEmitter.emit('event1', 1);
+    t.is(event1Listener2.callCount, 5);
 });
