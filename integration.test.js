@@ -67,39 +67,94 @@ test('test calling of non existing function', async t => {
 	t.is(error.message, 'nonExisting is not a function');
 });
 
-test('test callbacks', async t => {
+test('Simple callback test', t => {
     const testEventEmitter = new EventEmitter();
     const rpcClient = t.context.createClient([{register: 'on', deregister: 'removeListener'}]);
     const rpcServer = t.context.createServer(testEventEmitter);
-    const event1Listener1 = sinon.stub();
-    const event1Listener2 = sinon.stub();
+    const eventListener = sinon.stub();
+    
+    rpcClient.on('event1', eventListener);
+    testEventEmitter.emit('event1', 'testParam1', 2);
+    t.is(eventListener.callCount, 1);
+    t.deepEqual(eventListener.firstCall.args, ['testParam1', 2]);
+    
+    rpcClient.removeListener('event1', eventListener);
+    testEventEmitter.emit('event1');
+    t.is(eventListener.callCount, 1);
+});
+
+test('Multiple callbacks test', async t => {
+    const testEventEmitter = new EventEmitter();
+    const rpcClient = t.context.createClient([{register: 'on', deregister: 'removeListener'}]);
+    const rpcServer = t.context.createServer(testEventEmitter);
+    const event1Listener = sinon.stub();
     const event2Listener = sinon.stub();
     
-    rpcClient.on('event1', event1Listener1);
+    rpcClient.on('event1', event1Listener);
     testEventEmitter.emit('event1', 1);
-    t.is(event1Listener1.callCount, 1)
-    t.is(event1Listener1.firstCall.args[0], 1);
+    t.is(event1Listener.callCount, 1)
+    t.is(event1Listener.firstCall.args[0], 1);
 
     rpcClient.on('event2', event2Listener);
     testEventEmitter.emit('event2', 2);
     t.is(event2Listener.callCount, 1);
     t.is(event2Listener.firstCall.args[0], 2);
 
-    rpcClient.on('event1', event1Listener2);
+    rpcClient.removeListener('event1', event1Listener);
     testEventEmitter.emit('event1', 1);
-    t.is(event1Listener1.callCount, 2)
-    t.is(event1Listener2.callCount, 1)
+    t.is(event1Listener.callCount, 1);
 
-    rpcClient.removeListener('event1', event1Listener1);
-    testEventEmitter.emit('event1', 1);
-    t.is(event1Listener1.callCount, 2);
-    t.is(event1Listener2.callCount, 2);
+    testEventEmitter.emit('event2', 2);
+    t.is(event2Listener.callCount, 2);
+    
+    rpcClient.removeListener('event2', event2Listener);
+    testEventEmitter.emit('event2', 2);
+    t.is(event2Listener.callCount, 2);
+});
 
-    rpcClient.on('event1', event1Listener2);
+test('Same callback multiple times for same event.', async t => {
+    const testEventEmitter = new EventEmitter();
+    const rpcClient = t.context.createClient([{register: 'on', deregister: 'removeListener'}]);
+    const rpcServer = t.context.createServer(testEventEmitter);
+    const eventListener = sinon.stub();
+    
+    rpcClient.on('event1', eventListener);
+    rpcClient.on('event1', eventListener);
     testEventEmitter.emit('event1', 1);
-    t.is(event1Listener2.callCount, 4);
+    t.is(eventListener.callCount, 2)
+    t.is(eventListener.firstCall.args[0], 1);
+    t.is(eventListener.secondCall.args[0], 1);
 
-    rpcClient.removeListener('event1', event1Listener2);
+    rpcClient.removeListener("event1", eventListener);
+    testEventEmitter.emit('event1', 1)
+    t.is(eventListener.callCount, 3);
+    
+    rpcClient.removeListener("event1", eventListener);
+    testEventEmitter.emit('event1', 1)
+    t.is(eventListener.callCount, 3);
+});
+
+test('Same callback for different events.', async t => {
+    const testEventEmitter = new EventEmitter();
+    const rpcClient = t.context.createClient([{register: 'on', deregister: 'removeListener'}]);
+    const rpcServer = t.context.createServer(testEventEmitter);
+    const eventListener = sinon.stub();
+    
+    rpcClient.on('event1', eventListener);
+    rpcClient.on('event2', eventListener);
     testEventEmitter.emit('event1', 1);
-    t.is(event1Listener2.callCount, 5);
+    t.is(eventListener.callCount, 1)
+    t.is(eventListener.firstCall.args[0], 1);
+
+    testEventEmitter.emit('event2', 2);
+    t.is(eventListener.callCount, 2)
+    t.is(eventListener.secondCall.args[0], 2);
+
+    rpcClient.removeListener("event1", eventListener);
+    testEventEmitter.emit('event1', 1)
+    t.is(eventListener.callCount, 2);
+    
+    rpcClient.removeListener("event2", eventListener);
+    testEventEmitter.emit('event2', 2)
+    t.is(eventListener.callCount, 2);
 });
