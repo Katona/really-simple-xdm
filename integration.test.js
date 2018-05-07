@@ -2,6 +2,7 @@ import test from 'ava';
 import {createRpcClient} from './rpc_client';
 import {RpcServer} from './rpc_server';
 import sinon from 'sinon';
+import {EventEmitter} from 'events';
 
 class SimpleMessagingService {
     constructor() {
@@ -41,60 +42,64 @@ class TestMessagingService {
     getClientBackend() { return this.clientBackend; }
 }
 
-class TestServiceClass {
-    register(arg1, arg2, callback) {
-        this.callback = callback;
-    }
-
-    deregister(arg1, arg2, callback) {
-        if (this.callback === callback) {
-            this.callback = undefined;
-        }
-    }
-
-    add(a, b) {
-        return a + b;
-    }
-
-    multiply(a, b) {
-        return Promise.resolve(a * b);
-    }
-
-    objectParameter(obj) {
-        return obj.field;
-    }
-
-    emitEvent(arg) {
-        if (this.callback !== undefined) {
-            this.callback(arg);
-        }
-    }
-}
-
-test.only('simple', async t => {
-
+test.beforeEach(t => {
     const testBackend = new TestMessagingService();
-    const rpcClient = createRpcClient(testBackend.getClientBackend(), [{ register: 'on', deregister: 'off' }]);
-    const serviceObject = new TestServiceClass();
-    serviceObject.voidFunction = sinon.stub();
-    const rpcServer = new RpcServer(testBackend.getServerBackend(), serviceObject);
+	t.context.createClient = (params) => createRpcClient(testBackend.getClientBackend(), params);
+	t.context.createServer = (serviceObject) => new RpcServer(testBackend.getServerBackend(), serviceObject);
+});
 
-    rpcClient.voidFunction('adf');
-    t.is(serviceObject.voidFunction.callCount, 1);
-    t.deepEqual(serviceObject.voidFunction.firstCall.args, ['adf']);
+test('with Math object', async t => {
+    const rpcClient = t.context.createClient([]);
+    const rpcServer = t.context.createServer(Math);
+    const abs = await rpcClient.abs(-1);
+    t.is(abs, 1);
 
-    const testCallback = sinon.stub();
-    rpcClient.register('test', 'test2', testCallback);
-    t.not(serviceObject.callback, undefined);
-    serviceObject.emitEvent('test event');
-    t.is(testCallback.callCount, 1);
-    t.deepEqual(testCallback.firstCall.args, ['test event']);
-    const sum = await rpcClient.add(3, 4);
-    t.is(sum, 7);
-    const product = await rpcClient.multiply(8, 6);
-    t.is(product, 48);
-    const field = await rpcClient.objectParameter({ field: 'field of object' });
-    t.is(field, 'field of object');
-    rpcClient.deregister('test', 'test2', testCallback);
-    t.is(serviceObject.callback, undefined);
+    const max = await rpcClient.max(-10, 0, 22);
+    t.is(max, 22);
+});
+
+test('test calling of non existing function', async t => {
+    const rpcClient = t.context.createClient([]);
+    const rpcServer = t.context.createServer({});
+
+    const promise = rpcClient.nonExisting('asdfds');
+    const error = await t.throws(promise);
+	t.is(error.message, 'nonExisting is not a function');
+});
+
+test('test callbacks', async t => {
+    const testEventEmitter = new EventEmitter();
+    const rpcClient = t.context.createClient([{register: 'on', deregister: 'off'}]);
+    const rpcServer = t.context.createServer(testEventEmitter);
+    const event1Listener1 = sinon.stub();
+    const event1Listener2 = sinon.stub();
+    const event2Listener = sinon.stub();
+    
+    rpcClient.on('event1', event1Listener1);
+    testEventEmitter.emit('event1', 1);
+    t.is(event1Listener1.callCount, 1)
+    t.is(event1Listener1.firstCall.args[0], 1);
+
+    rpcClient.on('event2', event2Listener);
+    testEventEmitter.emit('event2', 2);
+    t.is(event2Listener.callCount, 1);
+    t.is(event2Listener.firstCall.args[0], 2);
+
+    rpcClient.on('event1', event1Listener2);
+    testEventEmitter.emit('event1', 1);
+    t.is(event1Listener1.callCount, 2)
+    t.is(event1Listener2.callCount, 1)
+
+    rpcClient.off('event1', event1Listener1);
+    testEventEmitter.emit('event1', 1);
+    t.is(event1Listener1.callCount, 2);
+    t.is(event1Listener2.callCount, 2);
+
+    rpcClient.on('event1', event1Listener2);
+    testEventEmitter.emit('event1', 1);
+    t.is(event1Listener2.callCount, 4);
+
+    // rpcClient.off('event1', event1Listener2);
+    // testEventEmitter.emit('event1', 1);
+    // t.is(event1Listener2.callCount, 5);
 });
