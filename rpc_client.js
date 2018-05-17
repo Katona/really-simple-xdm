@@ -2,6 +2,10 @@ let uuid = require('uuid');
 let messages = require('./messages');
 let CallbackRegistrationHandler = require('./callback_registration_handler');
 
+function assertCallbackCountIs(obj, count) {
+    const fnCount = obj.reduce((fnCount, obj) => fnCount + (typeof obj === 'function' ? 1 : 0), 0);
+    if (fnCount !== count) throw new Error("Allowed number of callback functions: ", count);
+}
 class RpcClientHandler {
 
     constructor(messagingBackend, callbackRegistrationMetadata) {
@@ -13,13 +17,14 @@ class RpcClientHandler {
 
     get(target, propKey) {
         const callbackMetadata = this.callbackRegistrationMetadata.find(metadata => propKey === metadata.deregister || propKey === metadata.register);
-        return callbackMetadata 
+        return callbackMetadata
             ? this.handleCallbackRegistration(callbackMetadata, target, propKey)
             : this.handleFunctionCall(target, propKey);
     }
 
     handleFunctionCall(target, functionName) {
         return (...args) => {
+            assertCallbackCountIs(args, 0);
             let msg = messages.createFunctionCallMessage(functionName, args);
             const resultPromise = this.createResult(msg);
             this.messagingBackend.sendMessage(msg);
@@ -28,13 +33,14 @@ class RpcClientHandler {
     }
 
     handleCallbackRegistration(callbackMetadata, target, propKey) {
-        return callbackMetadata.register === propKey 
+        return callbackMetadata.register === propKey
             ? this.registerCallback(callbackMetadata, target, propKey)
             : this.deregisterCallback(callbackMetadata, target, propKey);
     }
 
     registerCallback(callbackMetadata, target, functionName) {
         return (...args) => {
+            assertCallbackCountIs(args, 1);
             const callbackFunction = args.find(arg => typeof arg === 'function');
             let callbackId = this.callbackRegistrationHandler.getCallbackId(callbackFunction);
             if (!callbackId) {
@@ -50,6 +56,7 @@ class RpcClientHandler {
 
     deregisterCallback(callbackMetadata, target, functionName) {
         return (...args) => {
+            assertCallbackCountIs(args, 1);
             const callbackFunction = args.find(arg => typeof arg === 'function');
             const callbackRegistration = this.callbackRegistrationHandler.getRegistration(callbackMetadata.register, args);
             if (!callbackRegistration) {
@@ -95,5 +102,5 @@ class RpcClientHandler {
 
 }
 
-module.exports.createRpcClient = (messagingBackend, callbackRegistrationMetadata) => 
+module.exports.createRpcClient = (messagingBackend, callbackRegistrationMetadata) =>
     new Proxy({}, new RpcClientHandler(messagingBackend, callbackRegistrationMetadata));

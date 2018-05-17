@@ -158,3 +158,17 @@ test('Same callback for different events.', async t => {
     testEventEmitter.emit('event2', 2)
     t.is(eventListener.callCount, 2);
 });
+
+test('Multiple callback function registration is not supported.', t => {
+    const rpcClient = t.context.createClient([{register: 'on', deregister: 'removeListener'}]);
+    t.throws(() => {
+        rpcClient.on(() => {}, () => {});
+    }, Error);
+});
+
+test('Callbacks are not allowed as parameter for normal functions.', t => {
+    const rpcClient = t.context.createClient([{register: 'on', deregister: 'removeListener'}]);
+    t.throws(() => {
+        rpcClient.test(() => {},'a');
+    }, Error, "The allowed number of callback functions: 0");
+});
