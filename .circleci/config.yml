@@ -34,13 +34,7 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
         
       # run tests!
-      - run: npm test
+      - run: npm test-ci
 
-dependencies:
-  override:
-    - npm install tap-xunit --save-dev # or you could use npm
-test:
-  override:
-    - mkdir -p $CIRCLE_TEST_REPORTS/reports
-    - ava --tap | tap-xunit > $CIRCLE_TEST_REPORTS/reports/ava.xml
-
+      - store_test_results:
+        path: build/test-results/

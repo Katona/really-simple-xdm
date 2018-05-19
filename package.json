@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "ava"
+    "test": "ava",
+    "test-ci": "mkdir -p build/test-results/ava && ava --tap | tap-xunit > build/test-results/ava/test-results.xml"
   },
   "author": "",
   "license": "ISC",
@@ -14,6 +15,7 @@
   },
   "devDependencies": {
     "ava": "1.0.0-beta.4",
-    "sinon": "^4.5.0"
+    "sinon": "^4.5.0",
+    "tap-xunit": "^2.3.0"
   }
 }
