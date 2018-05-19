@@ -37,4 +37,4 @@ jobs:
       - run: npm test-ci
 
       - store_test_results:
-        path: build/test-results/
+          path: build/test-results/
