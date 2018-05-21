@@ -46,7 +46,6 @@ class RpcServer {
 
     handleCallbackRegistration({ id, functionName, args }) {
         const callbackArgument = args.find(arg => arg.type === "function");
-        // let callbackFunction = this.callbackFunctions.find(registration => registration.id === callbackArgument.id);
         let callbackFunction = this.callbackRegistrationHandler.getCallback(callbackArgument.id);
         if (!callbackFunction) {
             callbackFunction = (...a) =>
