@@ -1,7 +1,7 @@
-let uuid = require('uuid');
-const messages = require('./messages');
-const equal = require('deep-equal');
-const CallbackRegistrationHandler = require('./callback_registration_handler');
+let uuid = require("uuid");
+const messages = require("./messages");
+const equal = require("deep-equal");
+const CallbackRegistrationHandler = require("./callback_registration_handler");
 
 class RpcServer {
     constructor(messagingBackend, serverObject) {
@@ -12,18 +12,18 @@ class RpcServer {
     }
 
     onMessage(message) {
-        if (message.type === 'FUNCTION_CALL') {
+        if (message.type === "FUNCTION_CALL") {
             this.handleFunctionCall(message);
-        } else if (message.type === 'CALLBACK_REGISTRATION') {
+        } else if (message.type === "CALLBACK_REGISTRATION") {
             this.handleCallbackRegistration(message);
-        } else if (message.type === 'CALLBACK_DEREGISTRATION') {
+        } else if (message.type === "CALLBACK_DEREGISTRATION") {
             this.handleCallbackDeregistration(message);
-        } else if (message.type === 'PING') {
+        } else if (message.type === "PING") {
             this.handlePing(message);
         }
     }
 
-    handleFunctionCall({id, functionName, args}) {
+    handleFunctionCall({ id, functionName, args }) {
         try {
             const argumentValues = args.map(a => a.value);
             const functionToCall = this.serverObject[functionName];
@@ -44,18 +44,18 @@ class RpcServer {
         }
     }
 
-    handleCallbackRegistration({id, functionName, args}) {
-        const callbackArgument = args.find(arg => arg.type === 'function');
+    handleCallbackRegistration({ id, functionName, args }) {
+        const callbackArgument = args.find(arg => arg.type === "function");
         // let callbackFunction = this.callbackFunctions.find(registration => registration.id === callbackArgument.id);
         let callbackFunction = this.callbackRegistrationHandler.getCallback(callbackArgument.id);
         if (!callbackFunction) {
-            callbackFunction = 
-                (...a) => this.messagingBackend.sendMessage(messages.callback(callbackArgument.id, ...a));
+            callbackFunction = (...a) =>
+                this.messagingBackend.sendMessage(messages.callback(callbackArgument.id, ...a));
             this.callbackRegistrationHandler.addCallback(callbackArgument.id, callbackFunction);
         }
         this.callbackRegistrationHandler.addRegistration(callbackArgument.id, functionName, args);
 
-        const actualArgs = args.map(a => a.type === 'function' ? callbackFunction : a.value);
+        const actualArgs = args.map(a => (a.type === "function" ? callbackFunction : a.value));
         try {
             this.serverObject[functionName].apply(this.serverObject, actualArgs);
             this.messagingBackend.sendMessage(messages.returnValue(id, undefined));
@@ -64,14 +64,14 @@ class RpcServer {
         }
     }
 
-    handleCallbackDeregistration({id, functionName, registerFunctionName, args}) {
+    handleCallbackDeregistration({ id, functionName, registerFunctionName, args }) {
         let callbackRegistration = this.callbackRegistrationHandler.getRegistration(registerFunctionName, args);
         if (!callbackRegistration) {
-            this.messagingBackend.sendMessage(messages.error(id, 'Callback is not registered.', functionName));
+            this.messagingBackend.sendMessage(messages.error(id, "Callback is not registered.", functionName));
             return;
         }
         const callbackFunction = this.callbackRegistrationHandler.getCallback(callbackRegistration.callbackId);
-        const actualArgs = args.map(a => a.type === 'function' ? callbackFunction : a.value);
+        const actualArgs = args.map(a => (a.type === "function" ? callbackFunction : a.value));
         try {
             this.serverObject[functionName].apply(this.serverObject, actualArgs);
             this.messagingBackend.sendMessage(messages.returnValue(id, undefined));
@@ -85,9 +85,9 @@ class RpcServer {
     }
 
     handlePing(message) {
-        console.log('ping');
+        console.log("ping");
         this.messagingBackend.sendMessage(messages.pong());
     }
 }
 
-module.exports.RpcServer = RpcServer
+module.exports.RpcServer = RpcServer;

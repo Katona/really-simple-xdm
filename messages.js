@@ -1,23 +1,21 @@
-let uuid = require('uuid');
+let uuid = require("uuid");
 
 function createFunctionCallMessage(functionName, args) {
-    const argDescriptors = args.map(arg => 
-        ({
-            type: typeof arg,
-            value: arg
-        })
-    );
+    const argDescriptors = args.map(arg => ({
+        type: typeof arg,
+        value: arg
+    }));
     return {
-        type: 'FUNCTION_CALL',
+        type: "FUNCTION_CALL",
         id: uuid.v4(),
         functionName,
-        args: argDescriptors,
-    }
+        args: argDescriptors
+    };
 }
 
 function createCallbackRegistrationMessage(functionName, callbackId, ...args) {
     const argDescriptors = args.map(arg => {
-        if (typeof arg === 'function') {
+        if (typeof arg === "function") {
             return {
                 type: typeof arg,
                 id: callbackId
@@ -30,17 +28,17 @@ function createCallbackRegistrationMessage(functionName, callbackId, ...args) {
         }
     });
     let msg = {
-        type: 'CALLBACK_REGISTRATION',
+        type: "CALLBACK_REGISTRATION",
         id: uuid.v4(),
         functionName,
-        args: argDescriptors,
-    }
-    return msg
+        args: argDescriptors
+    };
+    return msg;
 }
 
 function createCallbackDeregistrationMessage(functionName, registerFunctionName, callbackId, ...args) {
     const argDescriptors = args.map(arg => {
-        if (typeof arg === 'function') {
+        if (typeof arg === "function") {
             return {
                 type: typeof arg,
                 id: callbackId
@@ -53,33 +51,33 @@ function createCallbackDeregistrationMessage(functionName, registerFunctionName,
         }
     });
     let msg = {
-        type: 'CALLBACK_DEREGISTRATION',
+        type: "CALLBACK_DEREGISTRATION",
         id: uuid.v4(),
         functionName,
         registerFunctionName,
-        args: argDescriptors,
-    }
+        args: argDescriptors
+    };
     return msg;
 }
 
 function returnValue(id, value) {
-    return { type: 'RETURN_VALUE', id, value } ;
+    return { type: "RETURN_VALUE", id, value };
 }
 
 function error(id, error, functionName) {
-    return { type: 'ERROR', id, error, functionName };
+    return { type: "ERROR", id, error, functionName };
 }
 
 function callback(id, ...args) {
-    return { type: 'CALLBACK', id, args };
+    return { type: "CALLBACK", id, args };
 }
 
 function ping() {
-    return { type: 'PING' };
+    return { type: "PING" };
 }
 
 function pong() {
-    return { type: 'PONG' };
+    return { type: "PONG" };
 }
 
 module.exports.createFunctionCallMessage = createFunctionCallMessage;

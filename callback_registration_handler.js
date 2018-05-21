@@ -1,7 +1,6 @@
-const equal = require('deep-equal');
+const equal = require("deep-equal");
 
 class CallbackRegistrationHandler {
-
     constructor() {
         this.callbackFunctions = [];
         this.callbackRegistrations = [];
@@ -26,13 +25,15 @@ class CallbackRegistrationHandler {
     }
 
     addRegistration(callbackId, functionName, args) {
-        this.callbackRegistrations.push({callbackId, functionName, args});
+        this.callbackRegistrations.push({ callbackId, functionName, args });
     }
 
     getRegistration(functionName, args) {
-        return this.callbackRegistrations.find(registration => equal(registration.args, args) && registration.functionName === functionName);
+        return this.callbackRegistrations.find(
+            registration => equal(registration.args, args) && registration.functionName === functionName
+        );
     }
-    
+
     removeRegistration(registration) {
         this.callbackRegistrations = this.callbackRegistrations.filter(reg => reg !== registration);
     }
