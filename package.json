@@ -11,7 +11,7 @@
       "mkdir -p build/test-results/ava && ava --tap | tap-xunit > build/test-results/ava/test-results.xml"
   },
   "lint-staged": {
-    "*.{js}": ["prettier --write", "git add"]
+    "*.js": ["prettier --write", "git add"]
   },
   "husky": {
     "hooks": {
