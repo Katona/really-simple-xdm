@@ -4,7 +4,7 @@ let CallbackRegistrationHandler = require("./callback_registration_handler");
 
 function assertCallbackCountIs(obj, count) {
     const fnCount = obj.reduce((fnCount, obj) => fnCount + (typeof obj === "function" ? 1 : 0), 0);
-    if (fnCount !== count) throw new Error(`Allowed number of callback functions is ${count}, received ${fnCount}. `);
+    if (fnCount !== count) throw new Error(`Allowed number of callback functions is ${count}, received ${fnCount}.`);
 }
 class RpcClientHandler {
     constructor(messagingBackend, callbackRegistrationMetadata) {
