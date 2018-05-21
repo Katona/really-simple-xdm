@@ -1,7 +1,7 @@
 {
-  "name": "proxy_test",
+  "name": "rpc.js",
   "version": "1.0.0",
-  "description": "",
+  "description": "Experimental RPC library based on Javascript Proxies.",
   "main": "index.js",
   "scripts": {
     "prettier": "prettier --write *.js",
@@ -18,8 +18,15 @@
       "pre-commit": "lint-staged"
     }
   },
-  "author": "",
-  "license": "ISC",
+  "author": {
+    "name": "Gabor Hornyak",
+    "email": "gabhornyak@gmail.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Katona/rpc.js.git"
+  },
   "dependencies": {
     "deep-equal": "^1.0.1",
     "uuid": "^3.2.1"
