@@ -4,7 +4,7 @@ let CallbackRegistrationHandler = require('./callback_registration_handler');
 
 function assertCallbackCountIs(obj, count) {
     const fnCount = obj.reduce((fnCount, obj) => fnCount + (typeof obj === 'function' ? 1 : 0), 0);
-    if (fnCount !== count) throw new Error("Allowed number of callback functions: ", count);
+    if (fnCount !== count) throw new Error(`Allowed number of callback functions is ${count}, received ${fnCount}. `);
 }
 class RpcClientHandler {
 
@@ -23,6 +23,10 @@ class RpcClientHandler {
     }
 
     handleFunctionCall(target, functionName) {
+        // TODO: we have to prevent 'then' calls, otherwise some code assumes that this is a Promise
+        if (functionName === 'then') {
+            return;
+        }
         return (...args) => {
             assertCallbackCountIs(args, 0);
             let msg = messages.createFunctionCallMessage(functionName, args);
@@ -101,6 +105,29 @@ class RpcClientHandler {
     }
 
 }
+const createRpcClient = (messagingBackend, callbackRegistrationMetadata) => new Proxy({}, new RpcClientHandler(messagingBackend, callbackRegistrationMetadata));
+module.exports.createRpcClient = createRpcClient;
 
-module.exports.createRpcClient = (messagingBackend, callbackRegistrationMetadata) =>
-    new Proxy({}, new RpcClientHandler(messagingBackend, callbackRegistrationMetadata));
+module.exports.connect = (messagingBackend, callbackRegistrationMetadata) => {
+    return new Promise((resolve, reject) => {
+        const pingId = setInterval(() => {
+            messagingBackend.sendMessage(messages.ping())
+        }, 200);
+
+        const timeoutId = setTimeout(() => {
+            clearInterval(pingId);
+            reject(new Error('Timeout during connecting to server.'));
+        }, 1000);
+        const messageListener = msg => {
+            if (msg.type === 'PONG') {
+                messagingBackend.removeMessageListener(messageListener);
+                clearInterval(pingId);
+                clearTimeout(timeoutId);
+                const rpcClient = createRpcClient(messagingBackend, callbackRegistrationMetadata)
+                resolve(rpcClient);
+            }
+        };
+        messagingBackend.onMessage(messageListener);
+        messagingBackend.sendMessage(messages.ping());
+    });
+}

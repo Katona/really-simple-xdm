@@ -74,9 +74,19 @@ function callback(id, ...args) {
     return { type: 'CALLBACK', id, args };
 }
 
+function ping() {
+    return { type: 'PING' };
+}
+
+function pong() {
+    return { type: 'PONG' };
+}
+
 module.exports.createFunctionCallMessage = createFunctionCallMessage;
 module.exports.createCallbackRegistrationMessage = createCallbackRegistrationMessage;
 module.exports.createCallbackDeregistrationMessage = createCallbackDeregistrationMessage;
 module.exports.returnValue = returnValue;
 module.exports.error = error;
 module.exports.callback = callback;
+module.exports.ping = ping;
+module.exports.pong = pong;

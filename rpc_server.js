@@ -18,6 +18,8 @@ class RpcServer {
             this.handleCallbackRegistration(message);
         } else if (message.type === 'CALLBACK_DEREGISTRATION') {
             this.handleCallbackDeregistration(message);
+        } else if (message.type === 'PING') {
+            this.handlePing(message);
         }
     }
 
@@ -80,6 +82,11 @@ class RpcServer {
         } catch (error) {
             this.messagingBackend.sendMessage(messages.error(id, error, functionName));
         }
+    }
+
+    handlePing(message) {
+        console.log('ping');
+        this.messagingBackend.sendMessage(messages.pong());
     }
 }
 

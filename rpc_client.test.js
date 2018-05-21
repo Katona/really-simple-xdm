@@ -1,5 +1,5 @@
 import test from 'ava';
-import {createRpcClient} from './rpc_client'
+import {createRpcClient, connect} from './rpc_client'
 import sinon from 'sinon';
 import messages from './messages'
 
@@ -84,4 +84,30 @@ test('should handle function call errors', async t => {
 	} catch (e) {
 		t.is(e, 'error message');
 	}
+});
+
+test('connect() should return a Promise which resolves to the client after successful handshake', async t => {
+	const localTestBackend = {
+		sendMessage: sinon.stub(),
+		onMessage: sinon.stub(),
+		removeMessageListener: sinon.stub()		
+	}
+	const rpcClientPromise = connect(localTestBackend, []);
+	t.is(localTestBackend.onMessage.callCount, 1);
+	const messageListener = localTestBackend.onMessage.firstCall.args[0];
+	t.is(localTestBackend.sendMessage.callCount > 0, true);	// PING messages ...
+	t.is(localTestBackend.sendMessage.firstCall.args[0].type, 'PING');
+	messageListener(messages.pong());
+	const rpcClient = await rpcClientPromise
+});
+
+test('connect() should return a Promise which rejects in case of connection timeout', async t => {
+	const localTestBackend = {
+		sendMessage: sinon.stub(),
+		onMessage: sinon.stub(),
+		removeMessageListener: sinon.stub()		
+	}
+	const rpcClientPromise = connect(localTestBackend, []);
+
+	await t.throws(rpcClientPromise, 'Timeout during connecting to server.');
 });
