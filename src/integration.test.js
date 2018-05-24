@@ -170,12 +170,9 @@ test("Multiple callback function registration is not supported.", t => {
     }, Error);
 });
 
-test.only("Callbacks are not allowed as parameter for normal functions.", t => {
+test("Callbacks are not allowed as parameter for normal functions.", t => {
     const rpcClient = t.context.createClient([{ register: "on", deregister: "removeListener" }]);
-    t.throws(
-        () => {
-            rpcClient.test(() => {}, "a");
-        },
-        "Allowed number of callback functions is 0, received 1."
-    );
+    t.throws(() => {
+        rpcClient.test(() => {}, "a");
+    }, "Allowed number of callback functions is 0, received 1.");
 });
