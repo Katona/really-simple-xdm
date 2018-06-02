@@ -13,7 +13,7 @@ function createFunctionCallMessage(functionName, args) {
     };
 }
 
-function createCallbackRegistrationMessage(functionName, callbackId, ...args) {
+function createCallbackRegistrationMessage(functionName, callbackId, args) {
     const argDescriptors = args.map(arg => {
         if (typeof arg === "function") {
             return {
@@ -36,7 +36,7 @@ function createCallbackRegistrationMessage(functionName, callbackId, ...args) {
     return msg;
 }
 
-function createCallbackDeregistrationMessage(functionName, registerFunctionName, callbackId, ...args) {
+function createCallbackDeregistrationMessage(functionName, registerFunctionName, callbackId, args) {
     const argDescriptors = args.map(arg => {
         if (typeof arg === "function") {
             return {

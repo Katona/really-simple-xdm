@@ -53,7 +53,7 @@ class RpcClientHandler {
                 this.callbackRegistrationHandler.addCallback(callbackId, callbackFunction);
             }
             this.callbackRegistrationHandler.addRegistration(callbackId, functionName, args);
-            let msg = messages.createCallbackRegistrationMessage(functionName, callbackId, ...args);
+            let msg = messages.createCallbackRegistrationMessage(functionName, callbackId, args);
             this.messagingBackend.sendMessage(msg);
             return this.createResult(msg);
         };
@@ -75,7 +75,7 @@ class RpcClientHandler {
                 functionName,
                 callbackMetadata.register,
                 callbackRegistration.callbackId,
-                ...args
+                args
             );
             this.callbackRegistrationHandler.removeRegistration(callbackRegistration);
             if (!this.callbackRegistrationHandler.hasRegistrations(callbackRegistration.callbackId)) {
