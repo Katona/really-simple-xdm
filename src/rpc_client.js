@@ -52,7 +52,7 @@ class RpcClientHandler {
                 callbackId = uuid.v4();
                 this.callbackRegistrationHandler.addCallback(callbackId, callbackFunction);
             }
-            this.callbackRegistrationHandler.addRegistration(callbackId, functionName, args);
+            this.callbackRegistrationHandler.addRegistration(callbackId, functionName, ...args);
             let msg = messages.createCallbackRegistrationMessage(functionName, callbackId, args);
             this.messagingBackend.sendMessage(msg);
             return this.createResult(msg);
@@ -65,7 +65,7 @@ class RpcClientHandler {
             const callbackFunction = args.find(arg => typeof arg === "function");
             const callbackRegistration = this.callbackRegistrationHandler.getRegistration(
                 callbackMetadata.register,
-                args
+                ...args
             );
             if (!callbackRegistration) {
                 console.warn('No registration exist for "%s" with arguments [%s]', functionName, args);

@@ -52,7 +52,7 @@ class RpcServer {
                 this.messagingBackend.sendMessage(messages.callback(callbackArgument.id, ...a));
             this.callbackRegistrationHandler.addCallback(callbackArgument.id, callbackFunction);
         }
-        this.callbackRegistrationHandler.addRegistration(callbackArgument.id, functionName, args);
+        this.callbackRegistrationHandler.addRegistration(callbackArgument.id, functionName, ...args);
 
         const actualArgs = args.map(a => (a.type === "function" ? callbackFunction : a.value));
         try {
@@ -64,7 +64,7 @@ class RpcServer {
     }
 
     handleCallbackDeregistration({ id, functionName, registerFunctionName, args }) {
-        let callbackRegistration = this.callbackRegistrationHandler.getRegistration(registerFunctionName, args);
+        let callbackRegistration = this.callbackRegistrationHandler.getRegistration(registerFunctionName, ...args);
         if (!callbackRegistration) {
             this.messagingBackend.sendMessage(messages.error(id, "Callback is not registered.", functionName));
             return;

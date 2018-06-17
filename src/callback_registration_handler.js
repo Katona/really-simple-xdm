@@ -24,13 +24,13 @@ class CallbackRegistrationHandler {
         this.callbackFunctions = this.callbackFunctions.filter(c => c.callbackId !== callbackId);
     }
 
-    addRegistration(callbackId, functionName, args) {
-        this.callbackRegistrations.push({ callbackId, functionName, args });
+    addRegistration(callbackId, ...registrationProperties) {
+        this.callbackRegistrations.push({ callbackId, registrationProperties });
     }
 
-    getRegistration(functionName, args) {
-        return this.callbackRegistrations.find(
-            registration => equal(registration.args, args) && registration.functionName === functionName
+    getRegistration(...registrationProperties) {
+        return this.callbackRegistrations.find(registration =>
+            equal(registration.registrationProperties, registrationProperties)
         );
     }
 
