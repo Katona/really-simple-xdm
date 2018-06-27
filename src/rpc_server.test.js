@@ -104,17 +104,13 @@ test("should handle same callbacks registered multiple times.", t => {
 
 test("should handle function calls without return value", t => {
     const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
-    messageListener({
-        type: "FUNCTION_CALL",
-        id: "test-id",
-        functionName: "testFunction",
-        args: [{ type: "number", value: 1 }, { type: "string", value: "secondArg" }]
-    });
+    const functionCallMessage = messages.createFunctionCallMessage("testFunction", [1, "secondArg"]);
+    messageListener(functionCallMessage);
     t.is(t.context.serverObject.testFunction.callCount, 1);
     t.deepEqual(t.context.serverObject.testFunction.firstCall.args, [1, "secondArg"]);
     t.is(t.context.testBackend.sendMessage.callCount, 1);
     const returnValueMessage = t.context.testBackend.sendMessage.firstCall.args[0];
-    t.is(returnValueMessage.id, "test-id");
+    t.is(returnValueMessage.id, functionCallMessage.id);
     t.is(returnValueMessage.type, "RETURN_VALUE");
     t.is(returnValueMessage.value, undefined);
 });
@@ -124,12 +120,7 @@ test("should handle function calls with return value", t => {
     t.context.serverObject.testFunction.returns(expectedReturnValue);
     // Emulate function call message
     const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
-    messageListener({
-        type: "FUNCTION_CALL",
-        id: "test-id",
-        functionName: "testFunction",
-        args: []
-    });
+    messageListener(messages.createFunctionCallMessage("testFunction", []));
     t.is(t.context.serverObject.testFunction.callCount, 1);
     const returnValueMessage = t.context.testBackend.sendMessage.firstCall.args[0];
     t.deepEqual(returnValueMessage.value, expectedReturnValue);
@@ -141,22 +132,18 @@ test("should handle function calls returning a promise.", t => {
     t.context.serverObject.testFunction.returns(returnedPromise);
     // Emulate function call message
     const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
+    const functionCallMessage = messages.createFunctionCallMessage("testFunction", []);
     // The return value message will happen asynchronously since testFunction returns a promise,
     // so we wrap the rest of the test in a promise and let Ava wait for it.
     const result = new Promise((resolve, reject) => {
         t.context.testBackend.sendMessage = message => {
-            t.is(message.id, "test-id");
+            t.is(message.id, functionCallMessage.id);
             t.is(message.type, "RETURN_VALUE");
             t.deepEqual(message.value, resolvedValue);
             resolve();
         };
     });
-    messageListener({
-        type: "FUNCTION_CALL",
-        id: "test-id",
-        functionName: "testFunction",
-        args: []
-    });
+    messageListener(functionCallMessage);
     return result;
 });
 
@@ -164,12 +151,7 @@ test("should handle function call errors", t => {
     t.context.serverObject.testFunction.throws("error object");
     // Emulate function call message
     const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
-    messageListener({
-        type: "FUNCTION_CALL",
-        id: "test-id",
-        functionName: "testFunction",
-        args: []
-    });
+    messageListener(messages.createFunctionCallMessage("testFunction", []));
     t.is(t.context.serverObject.testFunction.callCount, 1);
     const returnValueMessage = t.context.testBackend.sendMessage.firstCall.args[0];
     t.is(returnValueMessage.type, "ERROR");

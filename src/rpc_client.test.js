@@ -46,11 +46,7 @@ test("should handle callbacks.", t => {
     t.is(cbDeregistrationMessage.args[0].type, "string");
     t.is(cbDeregistrationMessage.args[1].type, "function");
 
-    callbackResponseListener({
-        type: "CALLBACK",
-        id: cbDeregistrationMessage.args[1].id,
-        args: ["firstArg"]
-    });
+    callbackResponseListener(messages.callback(cbDeregistrationMessage.args[1].id, ["firstArg"]));
     t.is(testCallback.callCount, 1, "Callback should have not been invoked since it has been deregistered.");
 });
 
@@ -69,11 +65,7 @@ test("should handle function calls", async t => {
     t.is(t.context.testBackend.onMessage.callCount, 2);
     const functionCallResponseListener = t.context.testBackend.onMessage.secondCall.args[0];
     // Emulate response message with the result
-    functionCallResponseListener({
-        type: "RETURN_VALUE",
-        id: functionCallMessage.id,
-        value: "return value"
-    });
+    functionCallResponseListener(messages.returnValue(functionCallMessage.id, "return value"));
     t.is(t.context.testBackend.removeMessageListener.callCount, 1);
     t.is(t.context.testBackend.removeMessageListener.firstCall.args[0], functionCallResponseListener);
     const returnValue = await responsePromise;
@@ -87,11 +79,7 @@ test("should handle function call errors", async t => {
     t.is(t.context.testBackend.onMessage.callCount, 2);
     const functionCallResponseListener = t.context.testBackend.onMessage.secondCall.args[0];
     // Emulate error
-    functionCallResponseListener({
-        type: "ERROR",
-        id: functionCallMessage.id,
-        error: "error message"
-    });
+    functionCallResponseListener(messages.error(functionCallMessage.id, "error message"));
     t.is(t.context.testBackend.removeMessageListener.callCount, 1);
     t.is(t.context.testBackend.removeMessageListener.firstCall.args[0], functionCallResponseListener);
     try {
