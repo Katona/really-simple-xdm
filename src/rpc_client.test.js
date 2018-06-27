@@ -32,7 +32,7 @@ test("should handle callbacks.", t => {
     t.is(cbRegistrationMessage.args[1].type, "function");
     const callbackArgument = cbRegistrationMessage.args[1];
     // Trigger a callback response
-    callbackResponseListener(messages.callback(callbackArgument.id, "firstArg", "secondArg"));
+    callbackResponseListener(messages.callback(callbackArgument.value, "firstArg", "secondArg"));
     t.is(testCallback.callCount, 1);
     t.deepEqual(testCallback.firstCall.args, ["firstArg", "secondArg"]);
 

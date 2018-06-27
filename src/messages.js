@@ -15,17 +15,10 @@ function createFunctionCallMessage(functionName, args) {
 
 function createCallbackRegistrationMessage(functionName, callbackId, args) {
     const argDescriptors = args.map(arg => {
-        if (typeof arg === "function") {
-            return {
-                type: typeof arg,
-                id: callbackId
-            };
-        } else {
-            return {
-                type: typeof arg,
-                value: arg
-            };
-        }
+        return {
+            type: typeof arg,
+            value: typeof arg === "function" ? callbackId : arg
+        };
     });
     let msg = {
         type: "CALLBACK_REGISTRATION",
@@ -38,17 +31,10 @@ function createCallbackRegistrationMessage(functionName, callbackId, args) {
 
 function createCallbackDeregistrationMessage(functionName, registerFunctionName, callbackId, args) {
     const argDescriptors = args.map(arg => {
-        if (typeof arg === "function") {
-            return {
-                type: typeof arg,
-                id: callbackId
-            };
-        } else {
-            return {
-                type: typeof arg,
-                value: arg
-            };
-        }
+        return {
+            type: typeof arg,
+            value: typeof arg === "function" ? callbackId : arg
+        };
     });
     let msg = {
         type: "CALLBACK_DEREGISTRATION",

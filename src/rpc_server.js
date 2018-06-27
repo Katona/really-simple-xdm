@@ -44,22 +44,22 @@ class RpcServer {
         }
     }
 
-    handleCallbackRegistration({ id, functionName, args }) {
+    handleCallbackRegistration({ messageId, functionName, args }) {
         const callbackArgument = args.find(arg => arg.type === "function");
-        let callbackFunction = this.callbackRegistrationHandler.getCallback(callbackArgument.id);
+        const callbackId = callbackArgument.value;
+        let callbackFunction = this.callbackRegistrationHandler.getCallback(callbackId);
         if (!callbackFunction) {
-            callbackFunction = (...a) =>
-                this.messagingBackend.sendMessage(messages.callback(callbackArgument.id, ...a));
-            this.callbackRegistrationHandler.addCallback(callbackArgument.id, callbackFunction);
+            callbackFunction = (...a) => this.messagingBackend.sendMessage(messages.callback(callbackId, ...a));
+            this.callbackRegistrationHandler.addCallback(callbackId, callbackFunction);
         }
-        this.callbackRegistrationHandler.addRegistration(callbackArgument.id, functionName, ...args);
+        this.callbackRegistrationHandler.addRegistration(callbackId, functionName, ...args);
 
         const actualArgs = args.map(a => (a.type === "function" ? callbackFunction : a.value));
         try {
             this.serverObject[functionName].apply(this.serverObject, actualArgs);
-            this.messagingBackend.sendMessage(messages.returnValue(id, undefined));
+            this.messagingBackend.sendMessage(messages.returnValue(messageId, undefined));
         } catch (error) {
-            this.messagingBackend.sendMessage(messages.error(id, error));
+            this.messagingBackend.sendMessage(messages.error(messageId, error));
         }
     }
 
