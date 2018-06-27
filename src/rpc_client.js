@@ -62,7 +62,6 @@ class RpcClientHandler {
     deregisterCallback(callbackMetadata, target, functionName) {
         return (...args) => {
             assertCallbackCountIs(args, 1);
-            const callbackFunction = args.find(arg => typeof arg === "function");
             const callbackRegistration = this.callbackRegistrationHandler.getRegistration(
                 callbackMetadata.register,
                 ...args
