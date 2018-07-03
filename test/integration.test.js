@@ -32,24 +32,24 @@ class SimpleMessagingService {
 
 class TestMessagingService {
     constructor() {
-        this.serverBackend = new SimpleMessagingService();
-        this.clientBackend = new SimpleMessagingService();
-        this.serverBackend.setTarget(this.clientBackend);
-        this.clientBackend.setTarget(this.serverBackend);
+        this.serverMessagingService = new SimpleMessagingService();
+        this.clientMessagingService = new SimpleMessagingService();
+        this.serverMessagingService.setTarget(this.clientMessagingService);
+        this.clientMessagingService.setTarget(this.serverMessagingService);
     }
 
-    getServerBackend() {
-        return this.serverBackend;
+    getServerMessagingService() {
+        return this.serverMessagingService;
     }
-    getClientBackend() {
-        return this.clientBackend;
+    getClientMessagingService() {
+        return this.clientMessagingService;
     }
 }
 
 test.beforeEach(t => {
     const testBackend = new TestMessagingService();
-    t.context.createClient = params => createRpcClient(testBackend.getClientBackend(), params);
-    t.context.createServer = serviceObject => new RpcServer(testBackend.getServerBackend(), serviceObject);
+    t.context.createClient = params => createRpcClient(testBackend.getClientMessagingService(), params);
+    t.context.createServer = serviceObject => new RpcServer(testBackend.getServerMessagingService(), serviceObject);
 });
 
 test("with Math object", async t => {

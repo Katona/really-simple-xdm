@@ -110,7 +110,8 @@ test("connect() should return a Promise which rejects in case of connection time
         onMessage: sinon.stub(),
         removeMessageListener: sinon.stub()
     };
-    const rpcClientPromise = connect(localTestBackend, []);
-
+    const timeoutFn = sinon.stub();
+    const rpcClientPromise = connect(localTestBackend, [], timeoutFn);
+    timeoutFn.firstCall.args[0]();
     await t.throws(rpcClientPromise, "Timeout during connecting to server.");
 });

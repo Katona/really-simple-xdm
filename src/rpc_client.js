@@ -116,16 +116,20 @@ const createRpcClient = (messagingBackend, callbackRegistrationMetadata) =>
     new Proxy({}, new RpcClientHandler(messagingBackend, callbackRegistrationMetadata));
 module.exports.createRpcClient = createRpcClient;
 
-module.exports.connect = (messagingBackend, callbackRegistrationMetadata) => {
+const defaultTimeoutFunction = callback => {
+    setTimeout(callback, 1000);
+};
+
+module.exports.connect = (messagingBackend, callbackRegistrationMetadata, timeoutFn = defaultTimeoutFunction) => {
     return new Promise((resolve, reject) => {
         const pingId = setInterval(() => {
             messagingBackend.sendMessage(messages.ping());
         }, 200);
 
-        const timeoutId = setTimeout(() => {
+        const timeoutId = timeoutFn(() => {
             clearInterval(pingId);
             reject(new Error("Timeout during connecting to server."));
-        }, 1000);
+        });
         const messageListener = msg => {
             if (msg.type === "PONG") {
                 messagingBackend.removeMessageListener(messageListener);
