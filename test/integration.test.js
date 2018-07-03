@@ -1,6 +1,6 @@
 import test from "ava";
-import { createRpcClient } from "./rpc_client";
-import { RpcServer } from "./rpc_server";
+import { createRpcClient } from "../src/rpc_client";
+import { RpcServer } from "../src/rpc_server";
 import sinon from "sinon";
 import { EventEmitter } from "events";
 

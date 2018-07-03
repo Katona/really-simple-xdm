@@ -1,7 +1,7 @@
 import test from "ava";
-import { createRpcClient, connect } from "./rpc_client";
+import { createRpcClient, connect } from "../src/rpc_client";
 import sinon from "sinon";
-import messages from "./messages";
+import messages from "../src/messages";
 
 test.beforeEach(t => {
     t.context.testBackend = {
