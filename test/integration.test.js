@@ -163,7 +163,7 @@ test("Same callback for different events.", async t => {
     t.is(eventListener.callCount, 2);
 });
 
-test("Multiple callback function registration is not supported.", t => {
+test("Only one callback can be registered at a time.", t => {
     const rpcClient = t.context.createClient([{ register: "on", deregister: "removeListener" }]);
     t.throws(() => {
         rpcClient.on(() => {}, () => {});
