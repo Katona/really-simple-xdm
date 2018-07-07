@@ -1,9 +1,9 @@
 class CrossWindowMessagingService {
-    constructor(target, targetOrigin) {
+    constructor(target, targetOrigin, _window = window) {
         this.listeners = [];
         this.targetOrigin = targetOrigin;
         this.target = target;
-        window.addEventListener("message", e => {
+        _window.addEventListener("message", e => {
             if (e.origin === this.targetOrigin) {
                 this.listeners.forEach(l => {
                     l(e.data);

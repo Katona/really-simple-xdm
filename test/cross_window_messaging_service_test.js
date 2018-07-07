@@ -4,7 +4,7 @@ import CrossWindowMessagingService from "../src/cross_window_messaging_service";
 
 const { JSDOM } = jsdom;
 
-test.cb("Cross window messaging service test", t => {
+test.cb("Test send message", t => {
     const { window } = new JSDOM("", {
         url: "http://bar.com/"
     });
@@ -15,6 +15,6 @@ test.cb("Cross window messaging service test", t => {
         t.is(e.data.message, "hello");
         t.end();
     });
-    const msgService = new CrossWindowMessagingService(frame.contentWindow, "http://bar.com");
+    const msgService = new CrossWindowMessagingService(frame.contentWindow, "http://bar.com", window);
     msgService.sendMessage({ message: "hello" });
 });
