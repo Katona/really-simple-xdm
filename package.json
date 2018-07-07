@@ -10,11 +10,13 @@
     "prettier": "prettier --write *.js",
     "lint-staged": "lint-staged",
     "test": "ava",
-    "test-ci":
-      "mkdir -p build/test-results/ava && ava --tap | tap-xunit > build/test-results/ava/test-results.xml"
+    "test-ci": "mkdir -p build/test-results/ava && ava --tap | tap-xunit > build/test-results/ava/test-results.xml"
   },
   "lint-staged": {
-    "*.js": ["prettier --write", "git add"]
+    "*.js": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "husky": {
     "hooks": {
@@ -37,6 +39,7 @@
   "devDependencies": {
     "ava": "1.0.0-beta.4",
     "husky": "^1.0.0-rc.6",
+    "jsdom": "^11.11.0",
     "lint-staged": "^7.1.2",
     "prettier": "1.12.1",
     "sinon": "^4.5.0",
