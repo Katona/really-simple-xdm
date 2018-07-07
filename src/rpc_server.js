@@ -84,7 +84,6 @@ class RpcServer {
     }
 
     handlePing(message) {
-        console.log("ping");
         this.messagingBackend.sendMessage(messages.pong());
     }
 }
