@@ -23,3 +23,5 @@ connect(messagingService).then(mathProxy => {
     mathProxy.abs(-2).then(result => console.log(result)); // Prints '2'
 });
 ```
+
+The `connect` method returns a promise which is resolved with a proxy object when the connection is estabilished with the server object in the embedded frame. All the methods of the server object (`Math` in the example) can be called on the proxy almost the same as if it was the server object itself. The only difference is the calls return a `Promise` in every case. If the call is successful, then the promise is resolved with the return value if any, if the call fails then the promise is rejected.
