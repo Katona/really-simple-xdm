@@ -1,0 +1,10 @@
+<html>
+<body>
+  <script src="../src/index.js"></script>
+  <script>
+    const messagingSrv = new test.CrossWindowMessagingService(window.parent, "*");
+    messagingSrv.onMessage(msg => console.log('Message from parent: ', msg));
+    messagingSrv.sendMessage("Iframe message");
+  </script>
+</body>
+</html>

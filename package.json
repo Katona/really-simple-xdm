@@ -37,7 +37,7 @@
     "uuid": "^3.2.1"
   },
   "devDependencies": {
-    "ava": "1.0.0-beta.4",
+    "ava": "^1.0.0-beta.6",
     "husky": "^1.0.0-rc.6",
     "lint-staged": "^7.1.2",
     "prettier": "1.12.1",

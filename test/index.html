@@ -1,0 +1,14 @@
+<html>
+<body>
+  <iframe id="testFrame" src="./iframe.html"></iframe>
+  <script src="../src/index.js"></script>
+  <script>
+    const iframeElement = document.getElementById('testFrame');
+    const messagingSrv = new test.CrossWindowMessagingService(iframeElement.contentWindow, "*");
+    messagingSrv.onMessage(msg => {
+      console.log("Message received from iframe: ", msg)
+      messagingSrv.sendMessage("Parent message");
+    });
+  </script>
+</body>
+</html>
