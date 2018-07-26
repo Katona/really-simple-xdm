@@ -4,7 +4,7 @@ class CrossWindowMessagingService {
         this.targetOrigin = targetOrigin;
         this.target = target;
         _window.addEventListener("message", e => {
-            if (e.origin === this.targetOrigin) {
+            if (this.targetOrigin === "*" || e.origin === this.targetOrigin) {
                 this.listeners.forEach(l => {
                     l(e.data);
                 });
