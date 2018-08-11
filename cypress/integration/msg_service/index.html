@@ -2,7 +2,7 @@
 <body>
   <iframe id="testFrame" src="./iframe.html"></iframe>
   <div>Message from received from iframe: </div><span id="response_from_iframe"></span>
-  <script src="../src/index.js"></script>
+  <script src="../../../src/index.js"></script>
   <script>
     const iframeElement = document.getElementById('testFrame');
     const messagingSrv = new test.CrossWindowMessagingService(iframeElement.contentWindow, "*");
