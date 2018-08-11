@@ -10,7 +10,8 @@
     "prettier": "prettier --write *.js",
     "lint-staged": "lint-staged",
     "test": "ava",
-    "test-ci": "mkdir -p build/test-results/ava && ava --tap | tap-xunit > build/test-results/ava/test-results.xml"
+    "test-ci": "mkdir -p build/test-results/ava && ava --tap | tap-xunit > build/test-results/ava/test-results.xml",
+    "cypress": "cypress open"
   },
   "lint-staged": {
     "*.js": [
@@ -38,6 +39,7 @@
   },
   "devDependencies": {
     "ava": "^1.0.0-beta.6",
+    "cypress": "^3.0.3",
     "husky": "^1.0.0-rc.6",
     "lint-staged": "^7.1.2",
     "prettier": "1.12.1",
