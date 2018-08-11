@@ -1,11 +1,13 @@
 <html>
 <body>
   <iframe id="testFrame" src="./iframe.html"></iframe>
+  <div>Message from received from iframe: </div><span id="response_from_iframe"></span>
   <script src="../src/index.js"></script>
   <script>
     const iframeElement = document.getElementById('testFrame');
     const messagingSrv = new test.CrossWindowMessagingService(iframeElement.contentWindow, "*");
     messagingSrv.onMessage(msg => {
+      document.querySelector("#response_from_iframe").innerHTML = msg
       console.log("Message received from iframe: ", msg)
       messagingSrv.sendMessage("Parent message");
     });
