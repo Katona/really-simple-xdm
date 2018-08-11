@@ -9,8 +9,10 @@
   "scripts": {
     "prettier": "prettier --write *.js",
     "lint-staged": "lint-staged",
+    "watch": "parcel --global test cypress/integration/msg_service/index.html",
     "test": "ava",
     "test-ci": "mkdir -p build/test-results/ava && ava --tap | tap-xunit > build/test-results/ava/test-results.xml",
+    "test-cypress": "cypress run --reporter junit --reporter-options 'mochaFile=junit-results/my-test-output.xml'",
     "cypress": "cypress open"
   },
   "lint-staged": {
