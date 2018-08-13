@@ -9,10 +9,12 @@
   "scripts": {
     "prettier": "prettier --write *.js",
     "lint-staged": "lint-staged",
-    "watch": "parcel --global test cypress/integration/msg_service/index.html",
     "test": "ava",
     "test-ci": "mkdir -p build/test-results/ava && ava --tap | tap-xunit > build/test-results/ava/test-results.xml",
-    "test-cypress": "cypress run --reporter junit --reporter-options 'mochaFile=junit-results/my-test-output.xml'",
+    "build-test-bundle": "parcel build src/index.js --global test",
+    "copy-test-harness": "cpy cypress/integration/**/*.html dist/",
+    "test-server": "http-server dist/",
+    "e2e-test": "cypress run --reporter junit --reporter-options 'mochaFile=junit-results/my-test-output.xml'",
     "cypress": "cypress open"
   },
   "lint-staged": {
@@ -41,7 +43,9 @@
   },
   "devDependencies": {
     "ava": "^1.0.0-beta.6",
+    "cpy-cli": "^2.0.0",
     "cypress": "^3.0.3",
+    "http-server": "^0.11.1",
     "husky": "^1.0.0-rc.6",
     "lint-staged": "^7.1.2",
     "prettier": "1.12.1",

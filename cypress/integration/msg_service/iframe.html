@@ -1,7 +1,7 @@
 <html>
 <body>
   <div>Message from parent: </div><span id="response_from_parent"></span>
-  <script src="../../../src/index.js"></script>
+  <script src="/index.js"></script>
   <script>
     const messagingSrv = new test.CrossWindowMessagingService(window.parent, "*");
     const responseSpan = document.querySelector("#response_from_parent");
