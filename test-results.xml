@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Mocha Tests" time="0.252" tests="1" failures="0">
-  <testsuite name="Root Suite" timestamp="2018-08-14T20:55:01" tests="0" failures="0" time="0">
-  </testsuite>
-  <testsuite name="Messages" timestamp="2018-08-14T20:55:01" tests="1" failures="0" time="0.252">
-    <testcase name="Messages should appear on load" time="0.252" classname="should appear on load">
-    </testcase>
-  </testsuite>
-</testsuites>

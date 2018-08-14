@@ -1,5 +1,7 @@
 {
     "reporter": "junit",
-    "reporterOoptions": "mochaFile=build/test-results/cypress/test-results.xml",
+    "reporterOptions": {
+        "mochaFile": "build/test-results/cypress/test-results.xml"
+    },
     "ignoreTestFiles": "*.html"
 }
