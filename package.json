@@ -50,6 +50,7 @@
     "http-server": "^0.11.1",
     "husky": "^1.0.0-rc.6",
     "lint-staged": "^7.1.2",
+    "parcel": "^1.9.7",
     "prettier": "1.12.1",
     "sinon": "^4.5.0",
     "tap-xunit": "^2.3.0",
