@@ -1,6 +1,6 @@
 describe("Messages", () => {
     it("should appear on load", () => {
-        cy.visit("http://localhost:1234");
+        cy.visit("http://localhost:8080");
         cy.get("#response_from_iframe").contains("Iframe message");
         cy.get("#testFrame").then(function($iframe) {
             const $jbody = $iframe.contents().find("body");

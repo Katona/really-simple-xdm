@@ -10,11 +10,13 @@
     "prettier": "prettier --write *.js",
     "lint-staged": "lint-staged",
     "test": "ava",
-    "test-ci": "mkdir -p build/test-results/ava && ava --tap | tap-xunit > build/test-results/ava/test-results.xml",
-    "build-test-bundle": "parcel build src/index.js --global test",
-    "copy-test-harness": "cpy cypress/integration/**/*.html dist/",
-    "test-server": "http-server dist/",
-    "e2e-test": "cypress run --reporter junit --reporter-options 'mochaFile=junit-results/my-test-output.xml'",
+    "unit-test-ci": "mkdir -p build/test-results/ava && ava --tap | tap-xunit > build/test-results/ava/test-results.xml",
+    "test-bundle": "parcel build src/index.js --out-dir build/dist/ --global test",
+    "copy-test-harness": "cpy cypress/integration/**/*.html build/dist/",
+    "test-build": "npm run test-bundle && npm run copy-test-harness",
+    "test-server": "http-server build/dist/ & wait-on http://localhost:8080",
+    "e2e-test-ci": "cypress run",
+    "test-ci": "rm -rf build && npm run unit-test-ci && npm run test-build && npm run test-server && npm run e2e-test-ci",
     "cypress": "cypress open"
   },
   "lint-staged": {
@@ -50,6 +52,7 @@
     "lint-staged": "^7.1.2",
     "prettier": "1.12.1",
     "sinon": "^4.5.0",
-    "tap-xunit": "^2.3.0"
+    "tap-xunit": "^2.3.0",
+    "wait-on": "^2.1.0"
   }
 }
