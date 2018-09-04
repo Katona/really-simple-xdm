@@ -29,7 +29,7 @@ function callbackRegistration(functionName, callbackId, args) {
     return msg;
 }
 
-function createCallbackDeregistrationMessage(functionName, registerFunctionName, callbackId, args) {
+function callbackDeregistration(functionName, registerFunctionName, callbackId, args) {
     const argDescriptors = args.map(arg => {
         return {
             type: typeof arg,
@@ -68,7 +68,7 @@ function pong(id) {
 
 module.exports.functionCall = functionCall;
 module.exports.callbackRegistration = callbackRegistration;
-module.exports.createCallbackDeregistrationMessage = createCallbackDeregistrationMessage;
+module.exports.callbackDeregistration = callbackDeregistration;
 module.exports.returnValue = returnValue;
 module.exports.error = error;
 module.exports.callback = callback;
