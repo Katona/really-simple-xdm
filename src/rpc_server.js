@@ -84,7 +84,7 @@ class RpcServer {
     }
 
     handlePing(message) {
-        this.messagingBackend.sendMessage(messages.pong());
+        this.messagingBackend.sendMessage(messages.pong(message.id));
     }
 }
 

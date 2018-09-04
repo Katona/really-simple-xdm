@@ -59,11 +59,11 @@ function callback(id, ...args) {
 }
 
 function ping() {
-    return { type: "PING" };
+    return { type: "PING", id: uuid.v4() };
 }
 
-function pong() {
-    return { type: "PONG" };
+function pong(id) {
+    return { type: "PONG", id };
 }
 
 module.exports.createFunctionCallMessage = createFunctionCallMessage;

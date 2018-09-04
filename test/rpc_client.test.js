@@ -100,7 +100,7 @@ test("connect() should return a Promise which resolves to the client after succe
     const messageListener = localTestBackend.onMessage.firstCall.args[0];
     t.is(localTestBackend.sendMessage.callCount > 0, true); // PING messages ...
     t.is(localTestBackend.sendMessage.firstCall.args[0].type, "PING");
-    messageListener(messages.pong());
+    messageListener(messages.pong(localTestBackend.sendMessage.firstCall.args[0].id));
     const rpcClient = await rpcClientPromise;
 });
 

@@ -122,16 +122,17 @@ const defaultTimeoutFunction = callback => {
 
 module.exports.connect = (messagingBackend, callbackRegistrationMetadata = [], timeoutFn = defaultTimeoutFunction) => {
     return new Promise((resolve, reject) => {
+        const pingMsg = messages.ping();
         const pingId = setInterval(() => {
-            messagingBackend.sendMessage(messages.ping());
+            messagingBackend.sendMessage(pingMsg);
         }, 200);
 
         const timeoutId = timeoutFn(() => {
             clearInterval(pingId);
             reject(new Error("Timeout during connecting to server."));
         });
-        const messageListener = msg => {
-            if (msg.type === "PONG") {
+        const messageListener = responseMsg => {
+            if (responseMsg.type === "PONG" && responseMsg.id === pingMsg.id) {
                 messagingBackend.removeMessageListener(messageListener);
                 clearInterval(pingId);
                 clearTimeout(timeoutId);
@@ -140,6 +141,6 @@ module.exports.connect = (messagingBackend, callbackRegistrationMetadata = [], t
             }
         };
         messagingBackend.onMessage(messageListener);
-        messagingBackend.sendMessage(messages.ping());
+        messagingBackend.sendMessage(pingMsg);
     });
 };
