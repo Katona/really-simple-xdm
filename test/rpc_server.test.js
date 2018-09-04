@@ -25,9 +25,7 @@ test("should register a message listener", t => {
 
 test("should handle callback registrations.", t => {
     const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
-    messageListener(
-        messages.createCallbackRegistrationMessage("testCallbackRegistrar", "callback-id", ["test", () => {}])
-    );
+    messageListener(messages.callbackRegistration("testCallbackRegistrar", "callback-id", ["test", () => {}]));
     t.is(t.context.serverObject.testCallbackRegistrar.callCount, 1);
     const callbackRegistrationArguments = t.context.serverObject.testCallbackRegistrar.firstCall.args;
     t.is(callbackRegistrationArguments[0], "test");
@@ -44,9 +42,7 @@ test("should handle callback registrations.", t => {
 
 test("should handle callback deregistrations.", t => {
     const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
-    messageListener(
-        messages.createCallbackRegistrationMessage("testCallbackRegistrar", "callback-id", ["test", () => {}])
-    );
+    messageListener(messages.callbackRegistration("testCallbackRegistrar", "callback-id", ["test", () => {}]));
     t.is(t.context.serverObject.testCallbackRegistrar.callCount, 1);
     const callbackRegistrationArguments = t.context.serverObject.testCallbackRegistrar.firstCall.args;
     t.is(callbackRegistrationArguments[0], "test");
@@ -67,13 +63,9 @@ test("should handle callback deregistrations.", t => {
 
 test("should handle same callbacks registered multiple times.", t => {
     const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
-    messageListener(
-        messages.createCallbackRegistrationMessage("testCallbackRegistrar", "callback-id", ["test", () => {}])
-    );
+    messageListener(messages.callbackRegistration("testCallbackRegistrar", "callback-id", ["test", () => {}]));
     const registeredCallback = t.context.serverObject.testCallbackRegistrar.firstCall.args[1];
-    messageListener(
-        messages.createCallbackRegistrationMessage("testCallbackRegistrar2", "callback-id", ["test", () => {}])
-    );
+    messageListener(messages.callbackRegistration("testCallbackRegistrar2", "callback-id", ["test", () => {}]));
     const registeredCallback1 = t.context.serverObject.testCallbackRegistrar2.firstCall.args[1];
     t.is(registeredCallback, registeredCallback1);
 
