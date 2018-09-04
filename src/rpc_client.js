@@ -30,7 +30,7 @@ class RpcClientHandler {
         }
         return (...args) => {
             assertCallbackCountIs(args, 0);
-            let msg = messages.createFunctionCallMessage(functionName, args);
+            let msg = messages.functionCall(functionName, args);
             const resultPromise = this.createResult(msg);
             this.messagingBackend.sendMessage(msg);
             return resultPromise;

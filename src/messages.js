@@ -1,6 +1,6 @@
 let uuid = require("uuid");
 
-function createFunctionCallMessage(functionName, args) {
+function functionCall(functionName, args) {
     const argDescriptors = args.map(arg => ({
         type: typeof arg,
         value: arg
@@ -66,7 +66,7 @@ function pong(id) {
     return { type: "PONG", id };
 }
 
-module.exports.createFunctionCallMessage = createFunctionCallMessage;
+module.exports.functionCall = functionCall;
 module.exports.createCallbackRegistrationMessage = createCallbackRegistrationMessage;
 module.exports.createCallbackDeregistrationMessage = createCallbackDeregistrationMessage;
 module.exports.returnValue = returnValue;
