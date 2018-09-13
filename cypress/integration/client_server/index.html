@@ -1,0 +1,19 @@
+<html>
+<body>
+  <iframe id="testFrame" src="./iframe.html"></iframe>
+  <span>The abs of -2 is </span><span id="result"></span>
+  <script src="/index.js"></script>
+  <script>
+    async function test() {
+      const iframeElement = document.getElementById('testFrame');
+      const messagingSrv = new rpc.CrossWindowMessagingService(iframeElement.contentWindow, "*");
+      client = await rpc.connect(messagingSrv);
+      const result = await client.abs(-2);
+      document.querySelector("#result").innerHTML = result;
+      console.log('The abs of "-2" is ', result);
+    }
+
+    test();
+  </script>
+</body>
+</html>

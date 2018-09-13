@@ -3,7 +3,7 @@
   <div>Message from parent: </div><span id="response_from_parent"></span>
   <script src="/index.js"></script>
   <script>
-    const messagingSrv = new test.CrossWindowMessagingService(window.parent, "*");
+    const messagingSrv = new rpc.CrossWindowMessagingService(window.parent, "*");
     const responseSpan = document.querySelector("#response_from_parent");
 
     messagingSrv.onMessage(msg => responseSpan.innerHTML = msg);

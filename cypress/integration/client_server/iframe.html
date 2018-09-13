@@ -1,0 +1,10 @@
+<html>
+<body>
+  <script src="/index.js"></script>
+  <script>
+    const messagingSrv = new rpc.CrossWindowMessagingService(window.parent, "*");
+    const server = new rpc.RpcServer(messagingSrv, Math);
+    console.log('Server is ready.');
+</script>
+</body>
+</html>
