@@ -114,13 +114,12 @@ class RpcClientHandler {
 }
 const createRpcClient = (messagingBackend, callbackRegistrationMetadata = []) =>
     new Proxy({}, new RpcClientHandler(messagingBackend, callbackRegistrationMetadata));
-module.exports.createRpcClient = createRpcClient;
 
 const defaultTimeoutFunction = callback => {
     setTimeout(callback, 1000);
 };
 
-module.exports.connect = (messagingBackend, callbackRegistrationMetadata = [], timeoutFn = defaultTimeoutFunction) => {
+const waitForServer = (messagingBackend, timeoutFn) => {
     return new Promise((resolve, reject) => {
         const pingMsg = messages.ping();
         const pingId = setInterval(() => {
@@ -136,11 +135,18 @@ module.exports.connect = (messagingBackend, callbackRegistrationMetadata = [], t
                 messagingBackend.removeMessageListener(messageListener);
                 clearInterval(pingId);
                 clearTimeout(timeoutId);
-                const rpcClient = createRpcClient(messagingBackend, callbackRegistrationMetadata);
-                resolve(rpcClient);
+                resolve();
             }
         };
         messagingBackend.onMessage(messageListener);
         messagingBackend.sendMessage(pingMsg);
     });
 };
+const connect = (messagingBackend, callbackRegistrationMetadata = [], timeoutFn = defaultTimeoutFunction) => {
+    return waitForServer(messagingBackend, timeoutFn).then(() =>
+        createRpcClient(messagingBackend, callbackRegistrationMetadata)
+    );
+};
+
+module.exports.connect = connect;
+module.exports.createRpcClient = createRpcClient;
