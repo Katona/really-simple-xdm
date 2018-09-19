@@ -116,7 +116,7 @@ const createRpcClient = (messagingBackend, callbackRegistrationMetadata = []) =>
     new Proxy({}, new RpcClientHandler(messagingBackend, callbackRegistrationMetadata));
 
 const defaultTimeoutFunction = callback => {
-    setTimeout(callback, 1000);
+    return setTimeout(callback, 1000);
 };
 
 const waitForServer = (messagingBackend, timeoutFn) => {
