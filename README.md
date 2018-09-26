@@ -12,16 +12,28 @@ console.log(Math.abs(-2)); // Prints '2'
 If the `Math` object were in a cross domain frame, then calling it with `rpc.js` would be the following. We need some setup in the frame:
 
 ```
-const messagingService; // later
-const server = new RpcServer(messagingService, Math);
+const messagingSrv = new rpc.CrossWindowMessagingService(window.parent, "*");
+const server = new rpc.createServer(messagingSrv, Math);
 ```
 
 And in the client:
 ```
-const messagingService; // later
-connect(messagingService).then(mathProxy => {
+const iframeElement = document.getElementById('testFrame'); // the id of the frame containing the `Math` object to be proxied
+const messagingService = new rpc.CrossWindowMessagingService(iframeElement.contentWindow, "*");
+createClient(messagingService).then(mathProxy => {
     mathProxy.abs(-2).then(result => console.log(result)); // Prints '2'
 });
 ```
 
-The `connect` method returns a promise which is resolved with a proxy object when the connection is estabilished with the server object in the embedded frame. All the methods of the server object (`Math` in the example) can be called on the proxy almost the same as if it was the server object itself. The only difference is the calls return a `Promise` in every case. If the call is successful, then the promise is resolved with the return value if any, if the call fails then the promise is rejected.
+If we were to use `async` functions, then the client code would be like the following:
+```
+async function test() {
+    const iframeElement = document.getElementById('testFrame');
+    const messagingService = new rpc.CrossWindowMessagingService(iframeElement.contentWindow, "*");
+    const client = await rpc.createClient(messagingService);
+    const result = await client.abs(-2);
+    console.log(result);
+}
+```
+
+The `createClient` method returns a promise which is resolved with a proxy object when the connection is estabilished with the server object in the embedded frame. All the methods of the server object (`Math` in the example) can be called on the proxy almost the same as if it was the server object itself. The only difference is the calls return a `Promise` in every case. If the call is successful, then the promise is resolved with the return value if any, if the call fails then the promise is rejected.
