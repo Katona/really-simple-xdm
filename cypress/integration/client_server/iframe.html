@@ -3,7 +3,7 @@
   <script src="/index.js"></script>
   <script>
     const messagingSrv = new rpc.CrossWindowMessagingService(window.parent, "*");
-    const server = new rpc.RpcServer(messagingSrv, Math);
+    const server = new rpc.createServer(messagingSrv, Math);
     console.log('Server is ready.');
 </script>
 </body>

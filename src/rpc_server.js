@@ -88,4 +88,6 @@ class RpcServer {
     }
 }
 
+const createServer = (messagingBackend, serverObject) => new RpcServer(messagingBackend, serverObject);
 module.exports.RpcServer = RpcServer;
+module.exports.createServer = createServer;
