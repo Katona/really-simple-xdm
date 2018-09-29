@@ -1,36 +1,40 @@
 # rpc.js
 [![CircleCI](https://circleci.com/gh/Katona/rpc.js.svg?style=shield&circle-token=4fe7750d41525e10efd25cf28e42b5b07c8230f9)](https://circleci.com/gh/Katona/rpc.js)
 
-Experimental Javascript RPC library based on [Javascript proxies](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy).
+Experimental JavaScript Cross Domain Messaging library based on [JavaScript proxies](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy).
 
-The original goal was to simplify cross window messaging in browsers, that is, making the communication with a Javascript object in a frame (almost) as simple as it were a local one. Considering the following example:
+The goal of this library to simplify cross domain messaging in browsers, that is, making the communication with a Javascript object in a frame (almost) as simple as it were a local one.
 
-```
+# Quick Start
+Let's assume that we would like to call `Math.abs(-2)`, if `Math` were a local object, then the call would look like this:
+
+```javascript
 console.log(Math.abs(-2)); // Prints '2'
 ```
 
-If the `Math` object were in a cross domain frame, then calling it with `rpc.js` would be the following. We need some setup in the frame:
-
-```
+First, we need some setup in the frame:
+```javascript
 const messagingSrv = new rpc.CrossWindowMessagingService(window.parent, "*");
 const server = new rpc.createServer(messagingSrv, Math);
 ```
 
 And in the client:
-```
-const iframeElement = document.getElementById('testFrame'); // the id of the frame containing the `Math` object to be proxied
+```javascript
+const iframeElement = document.getElementById('testFrame'); // the id of the frame containing the `Math` object to be called
 const messagingService = new rpc.CrossWindowMessagingService(iframeElement.contentWindow, "*");
-createClient(messagingService).then(mathProxy => {
+const client = rpc.createClient(messagingService); // 'client' is a promise which resolves with the proxy of 'Math'
+client.then(mathProxy => {
     mathProxy.abs(-2).then(result => console.log(result)); // Prints '2'
 });
 ```
 
 If we were to use `async` functions, then the client code would be like the following:
-```
+```javascript
 async function test() {
     const iframeElement = document.getElementById('testFrame');
     const messagingService = new rpc.CrossWindowMessagingService(iframeElement.contentWindow, "*");
     const client = await rpc.createClient(messagingService);
+
     const result = await client.abs(-2);
     console.log(result);
 }
