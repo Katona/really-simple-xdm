@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Experimental RPC library based on Javascript Proxies.",
   "main": "src/index.js",
+  "types": "src/index.d.ts",
   "files": [
     "src/"
   ],
