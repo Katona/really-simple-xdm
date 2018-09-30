@@ -1,0 +1,19 @@
+<html>
+<body>
+  <iframe id="testFrame" src="./iframe.html"></iframe>
+  <span id="result"></span>
+  <script src="/index.js"></script>
+  <script>
+    async function test() {
+      const iframeElement = document.getElementById('testFrame');
+      const messagingSrv = new xdmjs.CrossWindowMessagingService(iframeElement.contentWindow, "*");
+      const client = await xdmjs.createClient(messagingSrv, [ { register :"setTimeout" } ]);
+      const result = await client.setTimeout((e) => {
+        document.querySelector("#result").innerHTML = "Timeout! " + e;
+        console.log('Timeout!');
+      }, 500, "TestParam");
+    }
+    test();
+  </script>
+</body>
+</html>
