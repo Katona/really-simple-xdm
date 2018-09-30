@@ -1,5 +1,5 @@
-// Type definitions for rpc.js
-// Project: rpc.js
+// Type definitions for xdm.js
+// Project: xdm.js
 // Definitions by: Gabor Hornyak
 
 /**
@@ -36,7 +36,7 @@ export interface MessagingService {
  * A messaging service implementation to be used for communacting with a frame embedded in a html page.
  */
 export class CrossWindowMessagingService implements MessagingService {
-    constructor(target: Window, targetOrigin: string);
+    constructor(target: Window, tar getOrigin: string);
     sendMessage(message: any);
     onMessage(messageListener: MessageListener);
     removeMessageListener(messageListener: MessageListener);

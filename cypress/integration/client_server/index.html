@@ -6,8 +6,8 @@
   <script>
     async function test() {
       const iframeElement = document.getElementById('testFrame');
-      const messagingSrv = new rpc.CrossWindowMessagingService(iframeElement.contentWindow, "*");
-      const client = await rpc.createClient(messagingSrv);
+      const messagingSrv = new xdmjs.CrossWindowMessagingService(iframeElement.contentWindow, "*");
+      const client = await xdmjs.createClient(messagingSrv);
       const result = await client.abs(-2);
       document.querySelector("#result").innerHTML = result;
       console.log('The abs of "-2" is ', result);

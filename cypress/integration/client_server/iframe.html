@@ -2,8 +2,8 @@
 <body>
   <script src="/index.js"></script>
   <script>
-    const messagingSrv = new rpc.CrossWindowMessagingService(window.parent, "*");
-    const server = new rpc.createServer(messagingSrv, Math);
+    const messagingSrv = new xdmjs.CrossWindowMessagingService(window.parent, "*");
+    const server = new xdmjs.createServer(messagingSrv, Math);
     console.log('Server is ready.');
 </script>
 </body>
