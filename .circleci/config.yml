@@ -11,7 +11,7 @@ jobs:
         environment:
           ## this enables colors in the output
           TERM: xterm
-      
+
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
@@ -36,9 +36,9 @@ jobs:
             - node_modules
             - ~/.cache
           key: v2-dependencies-{{ checksum "package.json" }}
-        
+
       # run tests!
       - run: npm run test-ci
 
       - store_test_results:
-          path: build/test-results/
+          path: dist/test-results/

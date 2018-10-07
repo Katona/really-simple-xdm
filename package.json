@@ -11,13 +11,11 @@
     "prettier": "prettier --write *.js",
     "lint-staged": "lint-staged",
     "test": "ava",
-    "unit-test-ci": "mkdir -p build/test-results/ava && ava --tap | tap-xunit > build/test-results/ava/test-results.xml",
-    "test-bundle": "parcel build src/index.js --out-dir build/dist/ --global xdmjs",
-    "copy-test-harness": "cpy --parents --cwd=cypress/integration/ **/*.html ../../build/dist/",
-    "test-build": "npm run test-bundle && npm run copy-test-harness",
-    "start": "npm run test-build && http-server build/dist/",
-    "e2e-test-ci": "cypress run",
-    "test-ci": "rm -rf build && npm run unit-test-ci && npm run test-build && server-test start 8080 e2e-test-ci",
+    "unit-test-ci": "mkdir -p dist/test-results/ava && ava --tap | tap-xunit > dist/test-results/ava/test-results.xml",
+    "e2e-test": "cypress run",
+    "e2e-test-ci": "server-test start 8080 e2e-test",
+    "test-ci": "npm run unit-test-ci && npm run e2e-test-ci",
+    "start": "webpack-dev-server --mode development",
     "cypress": "cypress open"
   },
   "lint-staged": {
@@ -51,10 +49,12 @@
     "http-server": "^0.11.1",
     "husky": "^1.0.0-rc.6",
     "lint-staged": "^7.1.2",
-    "parcel": "^1.9.7",
     "prettier": "1.12.1",
     "sinon": "^4.5.0",
     "start-server-and-test": "^1.7.4",
-    "tap-xunit": "^2.3.0"
+    "tap-xunit": "^2.3.0",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.9"
   }
 }
