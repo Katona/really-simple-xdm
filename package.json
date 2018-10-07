@@ -15,9 +15,9 @@
     "test-bundle": "parcel build src/index.js --out-dir build/dist/ --global xdmjs",
     "copy-test-harness": "cpy --parents --cwd=cypress/integration/ **/*.html ../../build/dist/",
     "test-build": "npm run test-bundle && npm run copy-test-harness",
-    "test-server": "http-server build/dist/ & wait-on http://localhost:8080",
+    "start": "npm run test-build && http-server build/dist/",
     "e2e-test-ci": "cypress run",
-    "test-ci": "rm -rf build && npm run unit-test-ci && npm run test-build && npm run test-server && npm run e2e-test-ci",
+    "test-ci": "rm -rf build && npm run unit-test-ci && npm run test-build && server-test start 8080 e2e-test-ci",
     "cypress": "cypress open"
   },
   "lint-staged": {
@@ -54,7 +54,7 @@
     "parcel": "^1.9.7",
     "prettier": "1.12.1",
     "sinon": "^4.5.0",
-    "tap-xunit": "^2.3.0",
-    "wait-on": "^2.1.0"
+    "start-server-and-test": "^1.7.4",
+    "tap-xunit": "^2.3.0"
   }
 }
