@@ -13,7 +13,9 @@ class CrossWindowMessagingService {
     }
 
     sendMessage(msg) {
-        this.target.postMessage(msg, this.targetOrigin);
+        // Send the message through a stringify/parse loop so that 'postMessage' can clone it.
+        const msgClone = JSON.parse(JSON.stringify(msg));
+        this.target.postMessage(msgClone, this.targetOrigin);
     }
 
     onMessage(callback) {
