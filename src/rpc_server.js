@@ -44,7 +44,7 @@ class RpcServer {
         }
     }
 
-    handleCallbackRegistration({ messageId, functionName, args }) {
+    handleCallbackRegistration({ id, functionName, args }) {
         const callbackArgument = args.find(arg => arg.type === "function");
         const callbackId = callbackArgument.value;
         let callbackFunction = this.callbackRegistrationHandler.getCallback(callbackId);
@@ -57,9 +57,9 @@ class RpcServer {
         const actualArgs = args.map(a => (a.type === "function" ? callbackFunction : a.value));
         try {
             this.serverObject[functionName].apply(this.serverObject, actualArgs);
-            this.messagingBackend.sendMessage(messages.returnValue(messageId, undefined));
+            this.messagingBackend.sendMessage(messages.returnValue(id, undefined));
         } catch (error) {
-            this.messagingBackend.sendMessage(messages.error(messageId, error));
+            this.messagingBackend.sendMessage(messages.error(id, error));
         }
     }
 
