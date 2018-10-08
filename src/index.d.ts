@@ -36,25 +36,27 @@ export interface MessagingService {
  * A messaging service implementation to be used for communacting with a frame embedded in a html page.
  */
 export class CrossWindowMessagingService implements MessagingService {
-    constructor(target: Window, tar getOrigin: string);
+    constructor(target: Window, targetOrigin: string);
     sendMessage(message: any);
     onMessage(messageListener: MessageListener);
     removeMessageListener(messageListener: MessageListener);
 }
 
 /**
- * Provides information about function pairs of registering/deregistering callbacks.
+ * Provides information about function pairs of registering/deregistering event listeners.
  */
-export interface CallbackRegistrationMetadata {
+export interface EventListenerRegistrationMetadata {
     /**
-     * The name of the function which registers a callback.
+     * The name of the function which registers an event listener.
      */
     on: string,
     /**
-     * The name of the function which deregisters a callback.
+     * The name of the function which deregisters an event listener.
      */
     off: string
 }
 export function createServer(messagingService: MessagingService, serverObject: any): any;
 
-export function createClient(messagingService: MessagingService, callbackRegistrationMetadatas: CallbackRegistrationMetadata[] = []): Promise<any>;
+export function createClient(
+    messagingService: MessagingService,
+    eventListenerRegistrationMetadatas: EventListenerRegistrationMetadata[] = []): Promise<any>;
