@@ -14,7 +14,7 @@ console.log(Math.abs(-2)); // Prints '2'
 
 Assuming `Math` resides in a cross domain frame, the calling it would be the following. Some initialization is needed in the frame:
 ```javascript
-import { CrossWindowMessagingService, createServe } from 'xdm.js';
+import { CrossWindowMessagingService, createServer } from 'xdm.js';
 
 const messagingSrv = new CrossWindowMessagingService(window.parent, "*");
 const server = createServer(messagingSrv, Math);
