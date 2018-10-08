@@ -1,17 +1,20 @@
 <html>
 <body>
   <iframe id="testFrame" src="./iframe.html"></iframe>
-  <span id="result"></span>
+  <div id="result"></div>
+  <button id="stop-listening">Stop Listening</button>
   <script src="/index.js"></script>
   <script>
     async function test() {
+      let counter = 0;
       const iframeElement = document.getElementById('testFrame');
       const messagingSrv = new xdmjs.CrossWindowMessagingService(iframeElement.contentWindow, "*");
-      const client = await xdmjs.createClient(messagingSrv, [ { register :"setTimeout" } ]);
-      const result = await client.setTimeout((e) => {
-        document.querySelector("#result").innerHTML = "Timeout! " + e;
-        console.log('Timeout!');
-      }, 500, "TestParam");
+      const client = await xdmjs.createClient(messagingSrv, [ { register: 'on', deregister: 'off' } ]);
+      const clickListener = e => {
+        document.querySelector("#result").innerHTML = "On click: " + counter++;
+      };
+      const result = await client.on('click', clickListener);
+      document.querySelector('#stop-listening').onclick = () => client.off('click', clickListener);
     }
     test();
   </script>

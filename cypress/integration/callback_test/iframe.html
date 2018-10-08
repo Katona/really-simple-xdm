@@ -1,9 +1,14 @@
 <html>
 <body>
+  <button id="test-event">Test Event</button>
+
   <script src="/index.js"></script>
+  <script src="https://unpkg.com/eventemitter3@latest/umd/eventemitter3.min.js"></script>
   <script>
+    const eventEmitter = new EventEmitter3();
     const messagingSrv = new xdmjs.CrossWindowMessagingService(window.parent, "*");
-    const server = xdmjs.createServer(messagingSrv, { setTimeout: setTimeout.bind(window) });
+    const server = xdmjs.createServer(messagingSrv, eventEmitter);
+    document.querySelector('#test-event').onclick = () => eventEmitter.emit('click');
     console.log('Server is ready.');
 </script>
 </body>
