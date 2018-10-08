@@ -38,7 +38,7 @@ mathProxyPromise.then(mathProxy => {
 });
 ```
 
-If we were to use `async` functions, then the client code would be the following:
+If we were to use `async` functions, then the client code would be as simple as:
 ```javascript
 const mathProxy = await createClient(messagingService);
 const result = await mathProxy.abs(-2);
