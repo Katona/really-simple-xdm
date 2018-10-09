@@ -43,9 +43,9 @@ export class CrossWindowMessagingService implements MessagingService {
 }
 
 /**
- * Provides information about function pairs of registering/deregistering event listeners.
+ * Provides information about events, such as the functions used for registering/deregistering listeners, etc.
  */
-export interface EventListenerRegistrationMetadata {
+export interface EventMetadata {
     /**
      * The name of the function which registers an event listener.
      */
@@ -58,6 +58,6 @@ export interface EventListenerRegistrationMetadata {
 export function createServer(messagingService: MessagingService, serverObject: any): any;
 
 export interface ClientOptions {
-    eventListenerRegistrationMetadata: EventListenerRegistrationMetadata[] = []
+    events: EventMetadata[] = []
 }
 export function createClient(messagingService: MessagingService, options: ClientOptions): Promise<any>;

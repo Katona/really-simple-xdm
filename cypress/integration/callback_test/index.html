@@ -10,7 +10,7 @@
       const iframeElement = document.getElementById('testFrame');
       const messagingSrv = new xdmjs.CrossWindowMessagingService(iframeElement.contentWindow, "*");
       const options = {
-        callbackRegistrationMetadata: [ { register: 'on', deregister: 'off' } ]
+        events: [ { register: 'on', deregister: 'off' } ]
       }
       const client = await xdmjs.createClient(messagingSrv, options);
       const clickListener = e => {

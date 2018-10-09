@@ -10,7 +10,7 @@ test.beforeEach(t => {
         removeMessageListener: sinon.stub()
     };
     const options = {
-        callbackRegistrationMetadata: [{ register: "on", deregister: "off" }]
+        events: [{ register: "on", deregister: "off" }]
     };
     t.context.client = createRpcClient(t.context.testBackend, options);
 });

@@ -53,7 +53,7 @@ Only event handlers are supported.
 
 ```javascript
 const options = {
-    callbackRegistrationMetadata: [ { register: 'on', deregister: 'off' } ]
+    callbackRegistrationMeventsetadata: [ { register: 'on', deregister: 'off' } ]
 }
 const client = await xdmjs.createClient(messagingService, options);
 const clickListener = e => {
@@ -63,5 +63,4 @@ const result = await client.on('click', clickListener); // registering the liste
 client.off('click', clickListener); // deregistration
 ```
 
-The `createClient` function accepts a `ClientOptions` object of which the `callbackRegistrationMetadata` property is an array of `EventListenerRegistrationMetadata`, which describes the functions used for registering and
-deregistering the event listeners. This information will be used for book keeping the event listener registrations. From this point event listeners has to be registered as usual, keeping in mind that the registration function (as mentioned above) returns a promise.
+The `createClient` function accepts a `ClientOptions` object of which the `events` property is an array of `EventMetadata`, which describes events provided by the proxied object. The `EventMetadata` specifies the functions used to register and deregister event listeners for the particular event. This information will be used for book keeping the event listener registrations. From this point event listeners has to be registered as usual, keeping in mind that the registration function (as mentioned above) returns a promise.

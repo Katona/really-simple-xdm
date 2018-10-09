@@ -9,7 +9,7 @@ function assertCallbackCountIs(obj, count) {
 class RpcClientHandler {
     constructor(messagingBackend, options) {
         this.callbackRegistrationHandler = new CallbackRegistrationHandler();
-        this.callbackRegistrationMetadata = options.callbackRegistrationMetadata;
+        this.callbackRegistrationMetadata = options.events;
         this.messagingBackend = messagingBackend;
         this.messagingBackend.onMessage(this.handleCallbackResponse.bind(this));
     }
@@ -114,7 +114,7 @@ class RpcClientHandler {
 }
 
 const defaultOptions = {
-    callbackRegistrationMetadata: [],
+    events: [],
     timeoutFn: callback => setTimeout(callback, 1000)
 };
 
