@@ -19,7 +19,7 @@ import { CrossWindowMessagingService, createServer } from 'xdm.js';
 const messagingSrv = new CrossWindowMessagingService(window.parent, "*");
 const server = createServer(messagingSrv, Math);
 ```
-`createServer` requires to arguments, a `MessagingService` and the object which we want to make accessible in the host page (`Math` in our
+`createServer` requires two arguments, a `MessagingService` and the object which we want to make accessible in the host page (`Math` in our
 case). We use `CrossWindowMessagingService` which handles the message passing between cross domain frames.
 
 And in host page:
@@ -52,7 +52,10 @@ The `createClient`, just as `createServer`, requires a `MessagingService` to use
 Only event handlers are supported.
 
 ```javascript
-const client = await xdmjs.createClient(messagingService, [ { register: 'on', deregister: 'off' } ]);
+const options = {
+    callbackRegistrationMetadata: [ { register: 'on', deregister: 'off' } ]
+}
+const client = await xdmjs.createClient(messagingService, options);
 const clickListener = e => {
     console.log(e);
 };
@@ -60,5 +63,5 @@ const result = await client.on('click', clickListener); // registering the liste
 client.off('click', clickListener); // deregistration
 ```
 
-The `createClient` function accepts an array of `EventListenerRegistrationMetadata`, which describes the functions used for registering and
+The `createClient` function accepts a `ClientOptions` object of which the `callbackRegistrationMetadata` property is an array of `EventListenerRegistrationMetadata`, which describes the functions used for registering and
 deregistering the event listeners. This information will be used for book keeping the event listener registrations. From this point event listeners has to be registered as usual, keeping in mind that the registration function (as mentioned above) returns a promise.

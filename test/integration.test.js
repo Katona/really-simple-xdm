@@ -53,7 +53,7 @@ test.beforeEach(t => {
 });
 
 test("with Math object", async t => {
-    const rpcClient = t.context.createClient([]);
+    const rpcClient = t.context.createClient();
     const rpcServer = t.context.createServer(Math);
     const abs = await rpcClient.abs(-1);
     t.is(abs, 1);
@@ -63,7 +63,7 @@ test("with Math object", async t => {
 });
 
 test("test calling of non existing function", async t => {
-    const rpcClient = t.context.createClient([]);
+    const rpcClient = t.context.createClient();
     const rpcServer = t.context.createServer({});
 
     const promise = rpcClient.nonExisting("asdfds");
@@ -73,7 +73,10 @@ test("test calling of non existing function", async t => {
 
 test("Simple callback test", t => {
     const testEventEmitter = new EventEmitter();
-    const rpcClient = t.context.createClient([{ register: "on", deregister: "removeListener" }]);
+    const options = {
+        callbackRegistrationMetadata: [{ register: "on", deregister: "removeListener" }]
+    };
+    const rpcClient = t.context.createClient(options);
     const rpcServer = t.context.createServer(testEventEmitter);
     const eventListener = sinon.stub();
 
@@ -89,7 +92,10 @@ test("Simple callback test", t => {
 
 test("Multiple callbacks test", async t => {
     const testEventEmitter = new EventEmitter();
-    const rpcClient = t.context.createClient([{ register: "on", deregister: "removeListener" }]);
+    const options = {
+        callbackRegistrationMetadata: [{ register: "on", deregister: "removeListener" }]
+    };
+    const rpcClient = t.context.createClient(options);
     const rpcServer = t.context.createServer(testEventEmitter);
     const event1Listener = sinon.stub();
     const event2Listener = sinon.stub();
@@ -118,7 +124,10 @@ test("Multiple callbacks test", async t => {
 
 test("Same callback multiple times for same event.", async t => {
     const testEventEmitter = new EventEmitter();
-    const rpcClient = t.context.createClient([{ register: "on", deregister: "removeListener" }]);
+    const options = {
+        callbackRegistrationMetadata: [{ register: "on", deregister: "removeListener" }]
+    };
+    const rpcClient = t.context.createClient(options);
     const rpcServer = t.context.createServer(testEventEmitter);
     const eventListener = sinon.stub();
 
@@ -140,7 +149,10 @@ test("Same callback multiple times for same event.", async t => {
 
 test("Same callback for different events.", async t => {
     const testEventEmitter = new EventEmitter();
-    const rpcClient = t.context.createClient([{ register: "on", deregister: "removeListener" }]);
+    const options = {
+        callbackRegistrationMetadata: [{ register: "on", deregister: "removeListener" }]
+    };
+    const rpcClient = t.context.createClient(options);
     const rpcServer = t.context.createServer(testEventEmitter);
     const eventListener = sinon.stub();
 
@@ -164,14 +176,20 @@ test("Same callback for different events.", async t => {
 });
 
 test("Only one callback can be registered at a time.", t => {
-    const rpcClient = t.context.createClient([{ register: "on", deregister: "removeListener" }]);
+    const options = {
+        callbackRegistrationMetadata: [{ register: "on", deregister: "removeListener" }]
+    };
+    const rpcClient = t.context.createClient(options);
     t.throws(() => {
         rpcClient.on(() => {}, () => {});
     }, Error);
 });
 
 test("Callbacks are not allowed as parameter for normal functions.", t => {
-    const rpcClient = t.context.createClient([{ register: "on", deregister: "removeListener" }]);
+    const options = {
+        callbackRegistrationMetadata: [{ register: "on", deregister: "removeListener" }]
+    };
+    const rpcClient = t.context.createClient(options);
     t.throws(() => {
         rpcClient.test(() => {}, "a");
     }, "Allowed number of callback functions is 0, received 1.");

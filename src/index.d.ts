@@ -57,6 +57,7 @@ export interface EventListenerRegistrationMetadata {
 }
 export function createServer(messagingService: MessagingService, serverObject: any): any;
 
-export function createClient(
-    messagingService: MessagingService,
-    eventListenerRegistrationMetadatas: EventListenerRegistrationMetadata[] = []): Promise<any>;
+export interface ClientOptions {
+    eventListenerRegistrationMetadata: EventListenerRegistrationMetadata[] = []
+}
+export function createClient(messagingService: MessagingService, options: ClientOptions): Promise<any>;

@@ -7,9 +7,9 @@ function assertCallbackCountIs(obj, count) {
     if (fnCount !== count) throw new Error(`Allowed number of callback functions is ${count}, received ${fnCount}.`);
 }
 class RpcClientHandler {
-    constructor(messagingBackend, callbackRegistrationMetadata) {
+    constructor(messagingBackend, options) {
         this.callbackRegistrationHandler = new CallbackRegistrationHandler();
-        this.callbackRegistrationMetadata = callbackRegistrationMetadata;
+        this.callbackRegistrationMetadata = options.callbackRegistrationMetadata;
         this.messagingBackend = messagingBackend;
         this.messagingBackend.onMessage(this.handleCallbackResponse.bind(this));
     }
@@ -112,11 +112,15 @@ class RpcClientHandler {
         }
     }
 }
-const createRpcClient = (messagingBackend, callbackRegistrationMetadata = []) =>
-    new Proxy({}, new RpcClientHandler(messagingBackend, callbackRegistrationMetadata));
 
-const defaultTimeoutFunction = callback => {
-    return setTimeout(callback, 1000);
+const defaultOptions = {
+    callbackRegistrationMetadata: [],
+    timeoutFn: callback => setTimeout(callback, 1000)
+};
+
+const createRpcClient = (messagingBackend, options) => {
+    const actualOptions = Object.assign({}, defaultOptions, options);
+    return new Proxy({}, new RpcClientHandler(messagingBackend, actualOptions));
 };
 
 const waitForServer = (messagingBackend, timeoutFn) => {
@@ -142,9 +146,11 @@ const waitForServer = (messagingBackend, timeoutFn) => {
         messagingBackend.sendMessage(pingMsg);
     });
 };
-const connect = (messagingBackend, callbackRegistrationMetadata = [], timeoutFn = defaultTimeoutFunction) => {
-    return waitForServer(messagingBackend, timeoutFn).then(() =>
-        createRpcClient(messagingBackend, callbackRegistrationMetadata)
+
+const connect = (messagingBackend, options) => {
+    const actualOptions = Object.assign({}, defaultOptions, options);
+    return waitForServer(messagingBackend, actualOptions.timeoutFn).then(() =>
+        createRpcClient(messagingBackend, actualOptions)
     );
 };
 

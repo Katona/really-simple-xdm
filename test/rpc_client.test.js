@@ -9,7 +9,10 @@ test.beforeEach(t => {
         onMessage: sinon.stub(),
         removeMessageListener: sinon.stub()
     };
-    t.context.client = createRpcClient(t.context.testBackend, [{ register: "on", deregister: "off" }]);
+    const options = {
+        callbackRegistrationMetadata: [{ register: "on", deregister: "off" }]
+    };
+    t.context.client = createRpcClient(t.context.testBackend, options);
 });
 
 test("should register a response listener for callbacks", t => {
@@ -95,7 +98,7 @@ test("connect() should return a Promise which resolves to the client after succe
         onMessage: sinon.stub(),
         removeMessageListener: sinon.stub()
     };
-    const rpcClientPromise = connect(localTestBackend, []);
+    const rpcClientPromise = connect(localTestBackend);
     t.is(localTestBackend.onMessage.callCount, 1);
     const messageListener = localTestBackend.onMessage.firstCall.args[0];
     t.is(localTestBackend.sendMessage.callCount > 0, true); // PING messages ...
@@ -111,7 +114,7 @@ test("connect() should return a Promise which rejects in case of connection time
         removeMessageListener: sinon.stub()
     };
     const timeoutFn = sinon.stub();
-    const rpcClientPromise = connect(localTestBackend, [], timeoutFn);
+    const rpcClientPromise = connect(localTestBackend, { timeoutFn });
     timeoutFn.firstCall.args[0]();
     await t.throws(rpcClientPromise, "Timeout during connecting to server.");
 });
