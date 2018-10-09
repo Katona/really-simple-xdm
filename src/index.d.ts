@@ -57,7 +57,7 @@ export interface EventMetadata {
 }
 export function createServer(messagingService: MessagingService, serverObject: any): any;
 
-export interface ClientOptions {
+export interface ClientConfig {
     events: EventMetadata[] = []
 }
-export function createClient(messagingService: MessagingService, options: ClientOptions): Promise<any>;
+export function createClient(messagingService: MessagingService, config: ClientOptions): Promise<any>;

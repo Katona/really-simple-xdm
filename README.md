@@ -1,4 +1,5 @@
 # xdm.js
+
 [![CircleCI](https://circleci.com/gh/Katona/xdm.js.svg?style=shield&circle-token=4fe7750d41525e10efd25cf28e42b5b07c8230f9)](https://circleci.com/gh/Katona/xdm.js)
 
 Experimental JavaScript Cross Domain Messaging library based on [JavaScript proxies](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy).
@@ -52,10 +53,10 @@ The `createClient`, just as `createServer`, requires a `MessagingService` to use
 Only event handlers are supported.
 
 ```javascript
-const options = {
-    callbackRegistrationMeventsetadata: [ { register: 'on', deregister: 'off' } ]
+const config = {
+    events: [ { register: 'on', deregister: 'off' } ]
 }
-const client = await xdmjs.createClient(messagingService, options);
+const client = await xdmjs.createClient(messagingService, config);
 const clickListener = e => {
     console.log(e);
 };
@@ -63,4 +64,4 @@ const result = await client.on('click', clickListener); // registering the liste
 client.off('click', clickListener); // deregistration
 ```
 
-The `createClient` function accepts a `ClientOptions` object of which the `events` property is an array of `EventMetadata`, which describes events provided by the proxied object. The `EventMetadata` specifies the functions used to register and deregister event listeners for the particular event. This information will be used for book keeping the event listener registrations. From this point event listeners has to be registered as usual, keeping in mind that the registration function (as mentioned above) returns a promise.
+The `createClient` function accepts a `ClientConfig` object of which the `events` property is an array of `EventMetadata`, which describes events provided by the proxied object. The `EventMetadata` specifies the functions used to register and deregister event listeners for the particular event. This information will be used for book keeping the event listener registrations. From this point event listeners has to be registered as usual, keeping in mind that the registration function (as mentioned above) returns a promise.
