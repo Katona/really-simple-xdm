@@ -1,76 +1,78 @@
 let uuid = require("uuid");
 
-function functionCall(functionName, args) {
-    const argDescriptors = args.map(arg => ({
-        type: typeof arg,
-        value: arg
-    }));
-    return {
-        type: "FUNCTION_CALL",
-        id: uuid.v4(),
-        functionName,
-        args: argDescriptors
-    };
-}
+class Messages {
+    constructor(recipient) {
+        this.recipient = recipient;
+    }
 
-function callbackRegistration(functionName, callbackId, args) {
-    const argDescriptors = args.map(arg => {
-        return {
+    functionCall(functionName, args) {
+        const argDescriptors = args.map(arg => ({
             type: typeof arg,
-            value: typeof arg === "function" ? callbackId : arg
-        };
-    });
-    let msg = {
-        type: "CALLBACK_REGISTRATION",
-        id: uuid.v4(),
-        functionName,
-        args: argDescriptors
-    };
-    return msg;
-}
-
-function callbackDeregistration(functionName, registerFunctionName, callbackId, args) {
-    const argDescriptors = args.map(arg => {
+            value: arg
+        }));
         return {
-            type: typeof arg,
-            value: typeof arg === "function" ? callbackId : arg
+            type: "FUNCTION_CALL",
+            id: uuid.v4(),
+            recipient: this.recipient,
+            functionName,
+            args: argDescriptors
         };
-    });
-    let msg = {
-        type: "CALLBACK_DEREGISTRATION",
-        id: uuid.v4(),
-        functionName,
-        registerFunctionName,
-        args: argDescriptors
-    };
-    return msg;
+    }
+
+    callbackRegistration(functionName, callbackId, args) {
+        const argDescriptors = args.map(arg => {
+            return {
+                type: typeof arg,
+                value: typeof arg === "function" ? callbackId : arg
+            };
+        });
+        let msg = {
+            type: "CALLBACK_REGISTRATION",
+            id: uuid.v4(),
+            recipient: this.recipient,
+            functionName,
+            args: argDescriptors
+        };
+        return msg;
+    }
+
+    callbackDeregistration(functionName, registerFunctionName, callbackId, args) {
+        const argDescriptors = args.map(arg => {
+            return {
+                type: typeof arg,
+                value: typeof arg === "function" ? callbackId : arg
+            };
+        });
+        let msg = {
+            type: "CALLBACK_DEREGISTRATION",
+            id: uuid.v4(),
+            recipient: this.recipient,
+            functionName,
+            registerFunctionName,
+            args: argDescriptors
+        };
+        return msg;
+    }
+
+    returnValue(id, value) {
+        return { type: "RETURN_VALUE", id, recipient: this.recipient, value };
+    }
+
+    error(id, error, functionName) {
+        return { type: "ERROR", id, recipient: this.recipient, error, functionName };
+    }
+
+    callback(id, ...args) {
+        return { type: "CALLBACK", id, recipient: this.recipient, args };
+    }
+
+    ping() {
+        return { type: "PING", id: uuid.v4(), recipient: this.recipient };
+    }
+
+    pong(id) {
+        return { type: "PONG", id, recipient: this.recipient };
+    }
 }
 
-function returnValue(id, value) {
-    return { type: "RETURN_VALUE", id, value };
-}
-
-function error(id, error, functionName) {
-    return { type: "ERROR", id, error, functionName };
-}
-
-function callback(id, ...args) {
-    return { type: "CALLBACK", id, args };
-}
-
-function ping() {
-    return { type: "PING", id: uuid.v4() };
-}
-
-function pong(id) {
-    return { type: "PONG", id };
-}
-
-module.exports.functionCall = functionCall;
-module.exports.callbackRegistration = callbackRegistration;
-module.exports.callbackDeregistration = callbackDeregistration;
-module.exports.returnValue = returnValue;
-module.exports.error = error;
-module.exports.callback = callback;
-module.exports.ping = ping;
-module.exports.pong = pong;
+module.exports = Messages;

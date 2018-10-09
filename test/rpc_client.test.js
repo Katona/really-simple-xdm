@@ -1,7 +1,7 @@
 import test from "ava";
 import { createRpcClient, connect } from "../src/rpc_client";
 import sinon from "sinon";
-import messages from "../src/messages";
+import Messages from "../src/messages";
 
 test.beforeEach(t => {
     t.context.testBackend = {
@@ -10,8 +10,10 @@ test.beforeEach(t => {
         removeMessageListener: sinon.stub()
     };
     const options = {
-        events: [{ register: "on", deregister: "off" }]
+        events: [{ register: "on", deregister: "off" }],
+        messages: new Messages()
     };
+    t.context.messages = options.messages;
     t.context.client = createRpcClient(t.context.testBackend, options);
 });
 
@@ -35,7 +37,7 @@ test("should handle callbacks.", t => {
     t.is(cbRegistrationMessage.args[1].type, "function");
     const callbackArgument = cbRegistrationMessage.args[1];
     // Trigger a callback response
-    callbackResponseListener(messages.callback(callbackArgument.value, "firstArg", "secondArg"));
+    callbackResponseListener(t.context.messages.callback(callbackArgument.value, "firstArg", "secondArg"));
     t.is(testCallback.callCount, 1);
     t.deepEqual(testCallback.firstCall.args, ["firstArg", "secondArg"]);
 
@@ -49,7 +51,7 @@ test("should handle callbacks.", t => {
     t.is(cbDeregistrationMessage.args[0].type, "string");
     t.is(cbDeregistrationMessage.args[1].type, "function");
 
-    callbackResponseListener(messages.callback(cbDeregistrationMessage.args[1].id, ["firstArg"]));
+    callbackResponseListener(t.context.messages.callback(cbDeregistrationMessage.args[1].id, ["firstArg"]));
     t.is(testCallback.callCount, 1, "Callback should have not been invoked since it has been deregistered.");
 });
 
@@ -68,7 +70,7 @@ test("should handle function calls", async t => {
     t.is(t.context.testBackend.onMessage.callCount, 2);
     const functionCallResponseListener = t.context.testBackend.onMessage.secondCall.args[0];
     // Emulate response message with the result
-    functionCallResponseListener(messages.returnValue(functionCallMessage.id, "return value"));
+    functionCallResponseListener(t.context.messages.returnValue(functionCallMessage.id, "return value"));
     t.is(t.context.testBackend.removeMessageListener.callCount, 1);
     t.is(t.context.testBackend.removeMessageListener.firstCall.args[0], functionCallResponseListener);
     const returnValue = await responsePromise;
@@ -82,7 +84,7 @@ test("should handle function call errors", async t => {
     t.is(t.context.testBackend.onMessage.callCount, 2);
     const functionCallResponseListener = t.context.testBackend.onMessage.secondCall.args[0];
     // Emulate error
-    functionCallResponseListener(messages.error(functionCallMessage.id, "error message"));
+    functionCallResponseListener(t.context.messages.error(functionCallMessage.id, "error message"));
     t.is(t.context.testBackend.removeMessageListener.callCount, 1);
     t.is(t.context.testBackend.removeMessageListener.firstCall.args[0], functionCallResponseListener);
     try {
@@ -93,17 +95,17 @@ test("should handle function call errors", async t => {
 });
 
 test("connect() should return a Promise which resolves to the client after successful handshake", async t => {
-    const localTestBackend = {
+    const messagingService = {
         sendMessage: sinon.stub(),
         onMessage: sinon.stub(),
         removeMessageListener: sinon.stub()
     };
-    const rpcClientPromise = connect(localTestBackend);
-    t.is(localTestBackend.onMessage.callCount, 1);
-    const messageListener = localTestBackend.onMessage.firstCall.args[0];
-    t.is(localTestBackend.sendMessage.callCount > 0, true); // PING messages ...
-    t.is(localTestBackend.sendMessage.firstCall.args[0].type, "PING");
-    messageListener(messages.pong(localTestBackend.sendMessage.firstCall.args[0].id));
+    const rpcClientPromise = connect(messagingService);
+    t.is(messagingService.onMessage.callCount, 1);
+    const messageListener = messagingService.onMessage.firstCall.args[0];
+    t.is(messagingService.sendMessage.callCount > 0, true); // PING messages ...
+    t.is(messagingService.sendMessage.firstCall.args[0].type, "PING");
+    messageListener(t.context.messages.pong(messagingService.sendMessage.firstCall.args[0].id));
     const rpcClient = await rpcClientPromise;
 });
 

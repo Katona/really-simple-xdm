@@ -1,5 +1,5 @@
 let uuid = require("uuid");
-const messages = require("./messages");
+const Messages = require("./messages");
 const equal = require("deep-equal");
 const CallbackRegistrationHandler = require("./callback_registration_handler");
 
@@ -9,6 +9,7 @@ class RpcServer {
         this.messagingBackend = messagingBackend;
         this.serverObject = serverObject;
         this.messagingBackend.onMessage(this.onMessage.bind(this));
+        this.messages = new Messages();
     }
 
     onMessage(message) {
@@ -28,19 +29,21 @@ class RpcServer {
             const argumentValues = args.map(a => a.value);
             const functionToCall = this.serverObject[functionName];
             if (!functionToCall) {
-                this.messagingBackend.sendMessage(messages.error(id, new Error(`${functionName} is not a function`)));
+                this.messagingBackend.sendMessage(
+                    this.messages.error(id, new Error(`${functionName} is not a function`))
+                );
                 return;
             }
             let response = functionToCall.apply(this.serverObject, argumentValues); // eslint-disable-line
             if (response instanceof Promise) {
                 response
-                    .then(result => this.messagingBackend.sendMessage(messages.returnValue(id, result)))
-                    .catch(error => this.messagingBackend.sendMessage(messages.error(id, error)));
+                    .then(result => this.messagingBackend.sendMessage(this.messages.returnValue(id, result)))
+                    .catch(error => this.messagingBackend.sendMessage(this.messages.error(id, error)));
             } else {
-                this.messagingBackend.sendMessage(messages.returnValue(id, response));
+                this.messagingBackend.sendMessage(this.messages.returnValue(id, response));
             }
         } catch (error) {
-            this.messagingBackend.sendMessage(messages.error(id, error));
+            this.messagingBackend.sendMessage(this.messages.error(id, error));
         }
     }
 
@@ -49,7 +52,7 @@ class RpcServer {
         const callbackId = callbackArgument.value;
         let callbackFunction = this.callbackRegistrationHandler.getCallback(callbackId);
         if (!callbackFunction) {
-            callbackFunction = (...a) => this.messagingBackend.sendMessage(messages.callback(callbackId, ...a));
+            callbackFunction = (...a) => this.messagingBackend.sendMessage(this.messages.callback(callbackId, ...a));
             this.callbackRegistrationHandler.addCallback(callbackId, callbackFunction);
         }
         this.callbackRegistrationHandler.addRegistration(callbackId, functionName, ...args);
@@ -57,34 +60,34 @@ class RpcServer {
         const actualArgs = args.map(a => (a.type === "function" ? callbackFunction : a.value));
         try {
             this.serverObject[functionName].apply(this.serverObject, actualArgs);
-            this.messagingBackend.sendMessage(messages.returnValue(id, undefined));
+            this.messagingBackend.sendMessage(this.messages.returnValue(id, undefined));
         } catch (error) {
-            this.messagingBackend.sendMessage(messages.error(id, error));
+            this.messagingBackend.sendMessage(this.messages.error(id, error));
         }
     }
 
     handleCallbackDeregistration({ id, functionName, registerFunctionName, args }) {
         let callbackRegistration = this.callbackRegistrationHandler.getRegistration(registerFunctionName, ...args);
         if (!callbackRegistration) {
-            this.messagingBackend.sendMessage(messages.error(id, "Callback is not registered.", functionName));
+            this.messagingBackend.sendMessage(this.messages.error(id, "Callback is not registered.", functionName));
             return;
         }
         const callbackFunction = this.callbackRegistrationHandler.getCallback(callbackRegistration.callbackId);
         const actualArgs = args.map(a => (a.type === "function" ? callbackFunction : a.value));
         try {
             this.serverObject[functionName].apply(this.serverObject, actualArgs);
-            this.messagingBackend.sendMessage(messages.returnValue(id, undefined));
+            this.messagingBackend.sendMessage(this.messages.returnValue(id, undefined));
             this.removeRegistration(callbackRegistration);
             if (!this.callbackRegistrationHandler.hasRegistrations(callbackRegistration.callbackId)) {
                 this.callbackRegistrationHandler.removeCallback(callbackRegistration.callbackId);
             }
         } catch (error) {
-            this.messagingBackend.sendMessage(messages.error(id, error, functionName));
+            this.messagingBackend.sendMessage(this.messages.error(id, error, functionName));
         }
     }
 
     handlePing(message) {
-        this.messagingBackend.sendMessage(messages.pong(message.id));
+        this.messagingBackend.sendMessage(this.messages.pong(message.id));
     }
 }
 

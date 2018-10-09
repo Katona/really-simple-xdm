@@ -1,7 +1,7 @@
 import test from "ava";
 import { RpcServer } from "../src/rpc_server";
 import sinon from "sinon";
-import messages from "../src/messages";
+import Messages from "../src/messages";
 
 test.beforeEach(t => {
     t.context.testBackend = {
@@ -17,6 +17,7 @@ test.beforeEach(t => {
         testCallbackDeregistrar2: sinon.stub()
     };
     t.context.rpcServer = new RpcServer(t.context.testBackend, t.context.serverObject);
+    t.context.messages = new Messages();
 });
 
 test("should register a message listener", t => {
@@ -25,7 +26,9 @@ test("should register a message listener", t => {
 
 test("should handle callback registrations.", t => {
     const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
-    messageListener(messages.callbackRegistration("testCallbackRegistrar", "callback-id", ["test", () => {}]));
+    messageListener(
+        t.context.messages.callbackRegistration("testCallbackRegistrar", "callback-id", ["test", () => {}])
+    );
     t.is(t.context.serverObject.testCallbackRegistrar.callCount, 1);
     const callbackRegistrationArguments = t.context.serverObject.testCallbackRegistrar.firstCall.args;
     t.is(callbackRegistrationArguments[0], "test");
@@ -42,14 +45,16 @@ test("should handle callback registrations.", t => {
 
 test("should handle callback deregistrations.", t => {
     const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
-    messageListener(messages.callbackRegistration("testCallbackRegistrar", "callback-id", ["test", () => {}]));
+    messageListener(
+        t.context.messages.callbackRegistration("testCallbackRegistrar", "callback-id", ["test", () => {}])
+    );
     t.is(t.context.serverObject.testCallbackRegistrar.callCount, 1);
     const callbackRegistrationArguments = t.context.serverObject.testCallbackRegistrar.firstCall.args;
     t.is(callbackRegistrationArguments[0], "test");
     const registeredCallback = callbackRegistrationArguments[1];
     // Deregistration test
     messageListener(
-        messages.callbackDeregistration("testCallbackDeregistrar", "testCallbackRegistrar", "callback-id", [
+        t.context.messages.callbackDeregistration("testCallbackDeregistrar", "testCallbackRegistrar", "callback-id", [
             "test",
             () => {}
         ])
@@ -61,15 +66,19 @@ test("should handle callback deregistrations.", t => {
 
 test("should handle same callbacks registered multiple times.", t => {
     const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
-    messageListener(messages.callbackRegistration("testCallbackRegistrar", "callback-id", ["test", () => {}]));
+    messageListener(
+        t.context.messages.callbackRegistration("testCallbackRegistrar", "callback-id", ["test", () => {}])
+    );
     const registeredCallback = t.context.serverObject.testCallbackRegistrar.firstCall.args[1];
-    messageListener(messages.callbackRegistration("testCallbackRegistrar2", "callback-id", ["test", () => {}]));
+    messageListener(
+        t.context.messages.callbackRegistration("testCallbackRegistrar2", "callback-id", ["test", () => {}])
+    );
     const registeredCallback1 = t.context.serverObject.testCallbackRegistrar2.firstCall.args[1];
     t.is(registeredCallback, registeredCallback1);
 
     // Deregistration test
     messageListener(
-        messages.callbackDeregistration("testCallbackDeregistrar", "testCallbackRegistrar", "callback-id", [
+        t.context.messages.callbackDeregistration("testCallbackDeregistrar", "testCallbackRegistrar", "callback-id", [
             "test",
             () => {}
         ])
@@ -77,7 +86,7 @@ test("should handle same callbacks registered multiple times.", t => {
     t.is(t.context.serverObject.testCallbackDeregistrar.callCount, 1);
     const deregisteredCallback = t.context.serverObject.testCallbackDeregistrar.firstCall.args[1];
     messageListener(
-        messages.callbackDeregistration("testCallbackDeregistrar2", "testCallbackRegistrar2", "callback-id", [
+        t.context.messages.callbackDeregistration("testCallbackDeregistrar2", "testCallbackRegistrar2", "callback-id", [
             "test",
             () => {}
         ])
@@ -90,7 +99,7 @@ test("should handle same callbacks registered multiple times.", t => {
 
 test("should handle function calls without return value", t => {
     const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
-    const functionCallMessage = messages.functionCall("testFunction", [1, "secondArg"]);
+    const functionCallMessage = t.context.messages.functionCall("testFunction", [1, "secondArg"]);
     messageListener(functionCallMessage);
     t.is(t.context.serverObject.testFunction.callCount, 1);
     t.deepEqual(t.context.serverObject.testFunction.firstCall.args, [1, "secondArg"]);
@@ -106,7 +115,7 @@ test("should handle function calls with return value", t => {
     t.context.serverObject.testFunction.returns(expectedReturnValue);
     // Emulate function call message
     const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
-    messageListener(messages.functionCall("testFunction", []));
+    messageListener(t.context.messages.functionCall("testFunction", []));
     t.is(t.context.serverObject.testFunction.callCount, 1);
     const returnValueMessage = t.context.testBackend.sendMessage.firstCall.args[0];
     t.deepEqual(returnValueMessage.value, expectedReturnValue);
@@ -118,7 +127,7 @@ test("should handle function calls returning a promise.", t => {
     t.context.serverObject.testFunction.returns(returnedPromise);
     // Emulate function call message
     const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
-    const functionCallMessage = messages.functionCall("testFunction", []);
+    const functionCallMessage = t.context.messages.functionCall("testFunction", []);
     // The return value message will happen asynchronously since testFunction returns a promise,
     // so we wrap the rest of the test in a promise and let Ava wait for it.
     const result = new Promise((resolve, reject) => {
@@ -137,7 +146,7 @@ test("should handle function call errors", t => {
     t.context.serverObject.testFunction.throws("error object");
     // Emulate function call message
     const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
-    messageListener(messages.functionCall("testFunction", []));
+    messageListener(t.context.messages.functionCall("testFunction", []));
     t.is(t.context.serverObject.testFunction.callCount, 1);
     const returnValueMessage = t.context.testBackend.sendMessage.firstCall.args[0];
     t.is(returnValueMessage.type, "ERROR");

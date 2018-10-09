@@ -1,5 +1,5 @@
 let uuid = require("uuid");
-let messages = require("./messages");
+let Messages = require("./messages");
 let CallbackRegistrationHandler = require("./callback_registration_handler");
 
 function assertCallbackCountIs(obj, count) {
@@ -7,9 +7,10 @@ function assertCallbackCountIs(obj, count) {
     if (fnCount !== count) throw new Error(`Allowed number of callback functions is ${count}, received ${fnCount}.`);
 }
 class RpcClientHandler {
-    constructor(messagingBackend, options) {
+    constructor(messagingBackend, config) {
+        this.messages = config.messages;
         this.callbackRegistrationHandler = new CallbackRegistrationHandler();
-        this.callbackRegistrationMetadata = options.events;
+        this.callbackRegistrationMetadata = config.events;
         this.messagingBackend = messagingBackend;
         this.messagingBackend.onMessage(this.handleCallbackResponse.bind(this));
     }
@@ -30,7 +31,7 @@ class RpcClientHandler {
         }
         return (...args) => {
             assertCallbackCountIs(args, 0);
-            let msg = messages.functionCall(functionName, args);
+            let msg = this.messages.functionCall(functionName, args);
             const resultPromise = this.createResult(msg);
             this.messagingBackend.sendMessage(msg);
             return resultPromise;
@@ -53,7 +54,7 @@ class RpcClientHandler {
                 this.callbackRegistrationHandler.addCallback(callbackId, callbackFunction);
             }
             this.callbackRegistrationHandler.addRegistration(callbackId, functionName, ...args);
-            let msg = messages.callbackRegistration(functionName, callbackId, args);
+            let msg = this.messages.callbackRegistration(functionName, callbackId, args);
             this.messagingBackend.sendMessage(msg);
             return this.createResult(msg);
         };
@@ -70,7 +71,7 @@ class RpcClientHandler {
                 console.warn('No registration exist for "%s" with arguments [%s]', functionName, args);
                 return;
             }
-            let msg = messages.callbackDeregistration(
+            let msg = this.messages.callbackDeregistration(
                 functionName,
                 callbackMetadata.register,
                 callbackRegistration.callbackId,
@@ -113,24 +114,25 @@ class RpcClientHandler {
     }
 }
 
-const defaultOptions = {
+const defaultConfig = {
     events: [],
-    timeoutFn: callback => setTimeout(callback, 1000)
+    timeoutFn: callback => setTimeout(callback, 1000),
+    messages: new Messages()
 };
 
-const createRpcClient = (messagingBackend, options) => {
-    const actualOptions = Object.assign({}, defaultOptions, options);
-    return new Proxy({}, new RpcClientHandler(messagingBackend, actualOptions));
+const createRpcClient = (messagingBackend, config) => {
+    const actualConfig = Object.assign({}, defaultConfig, config);
+    return new Proxy({}, new RpcClientHandler(messagingBackend, actualConfig));
 };
 
-const waitForServer = (messagingBackend, timeoutFn) => {
+const waitForServer = (messagingBackend, config) => {
     return new Promise((resolve, reject) => {
-        const pingMsg = messages.ping();
+        const pingMsg = config.messages.ping();
         const pingId = setInterval(() => {
             messagingBackend.sendMessage(pingMsg);
         }, 200);
 
-        const timeoutId = timeoutFn(() => {
+        const timeoutId = config.timeoutFn(() => {
             clearInterval(pingId);
             reject(new Error("Timeout during connecting to server."));
         });
@@ -147,11 +149,10 @@ const waitForServer = (messagingBackend, timeoutFn) => {
     });
 };
 
-const connect = (messagingBackend, options) => {
-    const actualOptions = Object.assign({}, defaultOptions, options);
-    return waitForServer(messagingBackend, actualOptions.timeoutFn).then(() =>
-        createRpcClient(messagingBackend, actualOptions)
-    );
+const connect = (messagingBackend, config) => {
+    const actualConfig = Object.assign({}, defaultConfig, config);
+    actualConfig.messages = new Messages(actualConfig.recipient);
+    return waitForServer(messagingBackend, actualConfig).then(() => createRpcClient(messagingBackend, actualConfig));
 };
 
 module.exports.connect = connect;
