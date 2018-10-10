@@ -1,27 +1,44 @@
 let uuid = require("uuid");
 let Messages = require("./messages");
 let CallbackRegistrationHandler = require("./callback_registration_handler");
+let serializeArgs = require("./serialize");
 
 function assertCallbackCountIs(obj, count) {
     const fnCount = obj.reduce((fnCount, obj) => fnCount + (typeof obj === "function" ? 1 : 0), 0);
     if (fnCount !== count) throw new Error(`Allowed number of callback functions is ${count}, received ${fnCount}.`);
 }
+
+class CallbackRegistry {
+    constructor() {
+        this.callbacks = [];
+    }
+
+    getId(callbackFn) {
+        const callback = this.callbacks.filter(callback => callback.fn === callbackFn);
+        return callback.length === 1 ? callback[0].id : undefined;
+    }
+
+    registerCallbacks(callbackFunctions) {
+        const newCallbacks = callbackFunctions.map(callbackFunction => ({ fn: callbackFunction, id: uuid.v4() }));
+        this.callbacks.push(...newCallbacks);
+    }
+
+    getCallbackFunction(id) {
+        const callback = this.callbacks.filter(callback => callback.id === id);
+        return callback.length === 1 ? callback[0].fn : undefined;
+    }
+}
+
 class RpcClientHandler {
     constructor(messagingBackend, config) {
         this.messages = config.messages;
-        this.callbackRegistrationHandler = new CallbackRegistrationHandler();
-        this.callbackRegistrationMetadata = config.events;
+        this.callbackRegistry = new CallbackRegistry();
         this.messagingBackend = messagingBackend;
         this.messagingBackend.onMessage(this.handleCallbackResponse.bind(this));
     }
 
     get(target, propKey) {
-        const callbackMetadata = this.callbackRegistrationMetadata.find(
-            metadata => propKey === metadata.deregister || propKey === metadata.register
-        );
-        return callbackMetadata
-            ? this.handleCallbackRegistration(callbackMetadata, target, propKey)
-            : this.handleFunctionCall(target, propKey);
+        return this.handleFunctionCall(target, propKey);
     }
 
     handleFunctionCall(target, functionName) {
@@ -30,59 +47,15 @@ class RpcClientHandler {
             return;
         }
         return (...args) => {
-            assertCallbackCountIs(args, 0);
-            let msg = this.messages.functionCall(functionName, args);
+            const newFunctions = args
+                .filter(a => typeof a === "function")
+                .filter(a => this.callbackRegistry.getId(a) === undefined);
+            this.callbackRegistry.registerCallbacks(newFunctions);
+            const serializedArgs = serializeArgs(args, this.callbackRegistry);
+            let msg = this.messages.functionCall(functionName, serializedArgs);
             const resultPromise = this.createResult(msg);
             this.messagingBackend.sendMessage(msg);
             return resultPromise;
-        };
-    }
-
-    handleCallbackRegistration(callbackMetadata, target, propKey) {
-        return callbackMetadata.register === propKey
-            ? this.registerCallback(callbackMetadata, target, propKey)
-            : this.deregisterCallback(callbackMetadata, target, propKey);
-    }
-
-    registerCallback(callbackMetadata, target, functionName) {
-        return (...args) => {
-            assertCallbackCountIs(args, 1);
-            const callbackFunction = args.find(arg => typeof arg === "function");
-            let callbackId = this.callbackRegistrationHandler.getCallbackId(callbackFunction);
-            if (!callbackId) {
-                callbackId = uuid.v4();
-                this.callbackRegistrationHandler.addCallback(callbackId, callbackFunction);
-            }
-            this.callbackRegistrationHandler.addRegistration(callbackId, functionName, ...args);
-            let msg = this.messages.callbackRegistration(functionName, callbackId, args);
-            this.messagingBackend.sendMessage(msg);
-            return this.createResult(msg);
-        };
-    }
-
-    deregisterCallback(callbackMetadata, target, functionName) {
-        return (...args) => {
-            assertCallbackCountIs(args, 1);
-            const callbackRegistration = this.callbackRegistrationHandler.getRegistration(
-                callbackMetadata.register,
-                ...args
-            );
-            if (!callbackRegistration) {
-                console.warn('No registration exist for "%s" with arguments [%s]', functionName, args);
-                return;
-            }
-            let msg = this.messages.callbackDeregistration(
-                functionName,
-                callbackMetadata.register,
-                callbackRegistration.callbackId,
-                args
-            );
-            this.callbackRegistrationHandler.removeRegistration(callbackRegistration);
-            if (!this.callbackRegistrationHandler.hasRegistrations(callbackRegistration.callbackId)) {
-                this.callbackRegistrationHandler.removeCallback(callbackRegistration.callbackId);
-            }
-            this.messagingBackend.sendMessage(msg);
-            return this.createResult(msg);
         };
     }
 
@@ -107,7 +80,7 @@ class RpcClientHandler {
         if (response.type !== "CALLBACK") {
             return;
         }
-        const callbackFunction = this.callbackRegistrationHandler.getCallback(response.id);
+        const callbackFunction = this.callbackRegistry.getCallbackFunction(response.id);
         if (callbackFunction) {
             callbackFunction(...response.args);
         }

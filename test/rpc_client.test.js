@@ -31,7 +31,7 @@ test("should handle callbacks.", t => {
     // Check registration message
     t.is(t.context.testBackend.sendMessage.firstCall.args.length, 1);
     const cbRegistrationMessage = t.context.testBackend.sendMessage.firstCall.args[0];
-    t.is(cbRegistrationMessage.type, "CALLBACK_REGISTRATION");
+    t.is(cbRegistrationMessage.type, "FUNCTION_CALL");
     t.is(cbRegistrationMessage.args.length, 2);
     t.is(cbRegistrationMessage.args[0].type, "string");
     t.is(cbRegistrationMessage.args[1].type, "function");
@@ -46,7 +46,7 @@ test("should handle callbacks.", t => {
     // Check message
     t.is(t.context.testBackend.sendMessage.callCount, 2);
     const cbDeregistrationMessage = t.context.testBackend.sendMessage.secondCall.args[0];
-    t.is(cbDeregistrationMessage.type, "CALLBACK_DEREGISTRATION");
+    t.is(cbDeregistrationMessage.type, "FUNCTION_CALL");
     t.is(cbDeregistrationMessage.args.length, 2);
     t.is(cbDeregistrationMessage.args[0].type, "string");
     t.is(cbDeregistrationMessage.args[1].type, "function");

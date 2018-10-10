@@ -6,16 +6,12 @@ class Messages {
     }
 
     functionCall(functionName, args) {
-        const argDescriptors = args.map(arg => ({
-            type: typeof arg,
-            value: arg
-        }));
         return {
             type: "FUNCTION_CALL",
             id: uuid.v4(),
             recipient: this.recipient,
             functionName,
-            args: argDescriptors
+            args
         };
     }
 
