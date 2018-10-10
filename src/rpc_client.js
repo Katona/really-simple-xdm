@@ -18,8 +18,7 @@ class CallbackRegistry {
         return callback.length === 1 ? callback[0].id : undefined;
     }
 
-    registerCallbacks(callbackFunctions) {
-        const newCallbacks = callbackFunctions.map(callbackFunction => ({ fn: callbackFunction, id: uuid.v4() }));
+    registerCallbacks(newCallbacks) {
         this.callbacks.push(...newCallbacks);
     }
 
@@ -49,7 +48,8 @@ class RpcClientHandler {
         return (...args) => {
             const newFunctions = args
                 .filter(a => typeof a === "function")
-                .filter(a => this.callbackRegistry.getId(a) === undefined);
+                .filter(a => this.callbackRegistry.getId(a) === undefined)
+                .map(a => ({ fn: a, id: uuid.v4() }));
             this.callbackRegistry.registerCallbacks(newFunctions);
             const serializedArgs = serializeArgs(args, this.callbackRegistry);
             let msg = this.messages.functionCall(functionName, serializedArgs);
