@@ -15,37 +15,12 @@ class Messages {
         };
     }
 
-    callbackRegistration(functionName, callbackId, args) {
-        const argDescriptors = args.map(arg => {
-            return {
-                type: typeof arg,
-                value: typeof arg === "function" ? callbackId : arg
-            };
-        });
+    deleteCallback(callbackId) {
         let msg = {
-            type: "CALLBACK_REGISTRATION",
+            type: "DELETE_CALLBACK",
             id: uuid.v4(),
             recipient: this.recipient,
-            functionName,
-            args: argDescriptors
-        };
-        return msg;
-    }
-
-    callbackDeregistration(functionName, registerFunctionName, callbackId, args) {
-        const argDescriptors = args.map(arg => {
-            return {
-                type: typeof arg,
-                value: typeof arg === "function" ? callbackId : arg
-            };
-        });
-        let msg = {
-            type: "CALLBACK_DEREGISTRATION",
-            id: uuid.v4(),
-            recipient: this.recipient,
-            functionName,
-            registerFunctionName,
-            args: argDescriptors
+            callbackId
         };
         return msg;
     }

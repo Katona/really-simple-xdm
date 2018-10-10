@@ -1,7 +1,7 @@
 let uuid = require("uuid");
 let Messages = require("./messages");
 let CallbackRegistrationHandler = require("./callback_registration_handler");
-let serializeArgs = require("./serialize");
+let serializeArgs = require("./serialize").serializeArgs;
 
 function assertCallbackCountIs(obj, count) {
     const fnCount = obj.reduce((fnCount, obj) => fnCount + (typeof obj === "function" ? 1 : 0), 0);
@@ -25,6 +25,10 @@ class CallbackRegistry {
     getCallbackFunction(id) {
         const callback = this.callbacks.filter(callback => callback.id === id);
         return callback.length === 1 ? callback[0].fn : undefined;
+    }
+
+    deleteCallback(id) {
+        delete this.callbacks[id];
     }
 }
 
@@ -84,6 +88,13 @@ class RpcClientHandler {
         if (callbackFunction) {
             callbackFunction(...response.args);
         }
+    }
+
+    handleDeleteCallback(response) {
+        if (response.type !== "DELETE_CALLBACK") {
+            return;
+        }
+        this.callbackRegistry.deleteCallback(response.callbackId);
     }
 }
 
