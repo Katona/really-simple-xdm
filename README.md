@@ -76,4 +76,4 @@ await client.on('click', clickListener); // registering the listener
 await client.off('click', clickListener); // deregistration
 ```
 
-Note that the register/deregister methods (`on` and `off` respectively) return a promise which resolves when the registration/deregistration completed.
+Note that the register/deregister methods (`on` and `off` respectively) return a promise which resolves when the registration/deregistration is completed.
