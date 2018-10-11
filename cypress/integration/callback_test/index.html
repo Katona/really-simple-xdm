@@ -1,0 +1,22 @@
+<html>
+<body>
+  <iframe id="testFrame" src="./iframe.html"></iframe>
+  <div id="result"></div>
+  <button id="stop-listening">Stop Listening</button>
+  <script src="/index.js"></script>
+  <script>
+    async function test() {
+      let counter = 0;
+      const iframeElement = document.getElementById('testFrame');
+      const messagingSrv = new xdmjs.CrossWindowMessagingService(iframeElement.contentWindow, "*");
+      const client = await xdmjs.createClient(messagingSrv);
+      const onInterval = () => {
+          document.querySelector("#result").innerHTML = counter++;
+      };
+      const intervalHandle = await client.setInterval(onInterval, 500);
+      document.querySelector('#stop-listening').onclick = () => client.clearInterval(intervalHandle);
+    }
+    test();
+  </script>
+</body>
+</html>

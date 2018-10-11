@@ -1,0 +1,14 @@
+<html>
+<body>
+  <script src="/index.js"></script>
+  <script>
+    const testObject ={
+      setInterval: (...a) => setInterval(...a),
+      clearInterval: (...a) => clearInterval(...a)
+    }
+    const messagingSrv = new xdmjs.CrossWindowMessagingService(window.parent, "*");
+    const server = xdmjs.createServer(messagingSrv, testObject);
+    console.log('Server is ready.');
+</script>
+</body>
+</html>
