@@ -1,30 +1,7 @@
 const Messages = require("./messages");
 const EventRegistrationHandler = require("./event_registration_handler");
 const deserializeArgs = require("./serialize").deserializeArgs;
-
-class CallbackRegistry {
-    constructor() {
-        this.callbacks = [];
-    }
-
-    getId(callbackFn) {
-        const callback = this.callbacks.filter(callback => callback.fn === callbackFn);
-        return callback.length === 1 ? callback[0].id : undefined;
-    }
-
-    registerCallbacks(newCallbacks) {
-        this.callbacks.push(...newCallbacks);
-    }
-
-    getCallbackFunction(id) {
-        const callback = this.callbacks.filter(callback => callback.id === id);
-        return callback.length === 1 ? callback[0].fn : undefined;
-    }
-
-    deleteCallback(id) {
-        delete this.callbacks[id];
-    }
-}
+const CallbackRegistry = require("./callback_registry");
 
 class RpcServer {
     constructor(messagingBackend, events, serverObject) {
