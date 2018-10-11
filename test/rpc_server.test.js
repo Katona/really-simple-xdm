@@ -16,8 +16,10 @@ test.beforeEach(t => {
         testCallbackRegistrar2: sinon.stub(),
         testCallbackDeregistrar2: sinon.stub()
     };
-    const events = [{ register: "testCallbackRegistrar", deregister: "testCallbackDeregistrar" }];
-    t.context.rpcServer = new RpcServer(t.context.testBackend, events, t.context.serverObject);
+    const config = {
+        events: [{ register: "testCallbackRegistrar", deregister: "testCallbackDeregistrar" }]
+    };
+    t.context.rpcServer = new RpcServer(t.context.testBackend, t.context.serverObject, config);
     t.context.messages = new Messages();
 });
 

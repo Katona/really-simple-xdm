@@ -3,15 +3,19 @@ const EventRegistrationHandler = require("./event_registration_handler");
 const deserializeArgs = require("./serialize").deserializeArgs;
 const CallbackRegistry = require("./callback_registry");
 
+const defaultConfig = {
+    events: []
+};
 class RpcServer {
-    constructor(messagingBackend, events, serverObject) {
+    constructor(messagingBackend, serverObject, config) {
+        const actualConfig = Object.assign({}, defaultConfig, config);
         this.messagingBackend = messagingBackend;
         this.serverObject = serverObject;
         this.messagingBackend.onMessage(this.onMessage.bind(this));
         this.messages = new Messages();
         this.callbackRegistry = new CallbackRegistry();
-        this.events = events;
         this.eventRegistrationHandler = new EventRegistrationHandler();
+        this.events = actualConfig.events;
     }
 
     onMessage(message) {
@@ -85,6 +89,6 @@ class RpcServer {
     }
 }
 
-const createServer = (messagingBackend, serverObject, config) => new RpcServer(messagingBackend, config, serverObject);
+const createServer = (messagingBackend, serverObject, config) => new RpcServer(messagingBackend, serverObject, config);
 module.exports.RpcServer = RpcServer;
 module.exports.createServer = createServer;

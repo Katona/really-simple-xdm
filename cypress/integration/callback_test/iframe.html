@@ -7,8 +7,10 @@
   <script>
     const eventEmitter = new EventEmitter3();
     const messagingSrv = new xdmjs.CrossWindowMessagingService(window.parent, "*");
-    const events = [ { register: 'on', deregister: 'off' } ];
-    const server = xdmjs.createServer(messagingSrv, eventEmitter, events);
+    const config = {
+      events: [ { register: 'on', deregister: 'off' } ]
+    }
+    const server = xdmjs.createServer(messagingSrv, eventEmitter, config);
     document.querySelector('#test-event').onclick = () => eventEmitter.emit('click');
     console.log('Server is ready.');
 </script>

@@ -3,6 +3,11 @@ const Messages = require("./messages");
 const serializeArgs = require("./serialize").serializeArgs;
 const CallbackRegistry = require("./callback_registry");
 
+const defaultConfig = {
+    timeoutFn: callback => setTimeout(callback, 1000),
+    messages: new Messages()
+};
+
 class RpcClientHandler {
     constructor(messagingBackend, config) {
         this.messages = config.messages;
@@ -68,12 +73,6 @@ class RpcClientHandler {
         this.callbackRegistry.deleteCallback(response.callbackId);
     }
 }
-
-const defaultConfig = {
-    events: [],
-    timeoutFn: callback => setTimeout(callback, 1000),
-    messages: new Messages()
-};
 
 const createRpcClient = (messagingBackend, config) => {
     const actualConfig = Object.assign({}, defaultConfig, config);

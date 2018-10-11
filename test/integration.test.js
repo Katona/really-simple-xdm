@@ -50,7 +50,7 @@ test.beforeEach(t => {
     const testBackend = new TestMessagingService();
     t.context.createClient = params => createRpcClient(testBackend.getClientMessagingService(), params);
     t.context.createServer = (serviceObject, config) =>
-        new RpcServer(testBackend.getServerMessagingService(), config, serviceObject);
+        new RpcServer(testBackend.getServerMessagingService(), serviceObject, config);
 });
 
 test("with Math object", async t => {
@@ -74,11 +74,11 @@ test("test calling of non existing function", async t => {
 
 test("Simple callback test", t => {
     const testEventEmitter = new EventEmitter();
-    const options = {
+    const config = {
         events: [{ register: "on", deregister: "removeListener" }]
     };
-    const rpcClient = t.context.createClient(options);
-    const rpcServer = t.context.createServer(testEventEmitter, options.events);
+    const rpcClient = t.context.createClient();
+    const rpcServer = t.context.createServer(testEventEmitter, config);
     const eventListener = sinon.stub();
 
     rpcClient.on("event1", eventListener);
@@ -97,7 +97,7 @@ test("Multiple callbacks test", async t => {
         events: [{ register: "on", deregister: "removeListener" }]
     };
     const rpcClient = t.context.createClient(options);
-    const rpcServer = t.context.createServer(testEventEmitter);
+    const rpcServer = t.context.createServer(testEventEmitter, options);
     const event1Listener = sinon.stub();
     const event2Listener = sinon.stub();
 
@@ -125,11 +125,11 @@ test("Multiple callbacks test", async t => {
 
 test("Same callback multiple times for same event.", async t => {
     const testEventEmitter = new EventEmitter();
-    const options = {
+    const config = {
         events: [{ register: "on", deregister: "removeListener" }]
     };
-    const rpcClient = t.context.createClient(options);
-    const rpcServer = t.context.createServer(testEventEmitter);
+    const rpcClient = t.context.createClient();
+    const rpcServer = t.context.createServer(testEventEmitter, config);
     const eventListener = sinon.stub();
 
     rpcClient.on("event1", eventListener);
