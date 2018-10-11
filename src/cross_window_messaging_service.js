@@ -1,3 +1,5 @@
+const stringify = require("json-stringify-safe");
+
 class CrossWindowMessagingService {
     constructor(target, targetOrigin, _window = window) {
         this.listeners = [];
@@ -14,7 +16,7 @@ class CrossWindowMessagingService {
 
     sendMessage(msg) {
         // Send the message through a stringify/parse loop so that 'postMessage' can clone it.
-        const msgClone = JSON.parse(JSON.stringify(msg));
+        const msgClone = JSON.parse(stringify(msg));
         this.target.postMessage(msgClone, this.targetOrigin);
     }
 
