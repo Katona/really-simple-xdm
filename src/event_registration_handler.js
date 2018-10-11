@@ -1,8 +1,5 @@
-const equal = require("deep-equal");
-
-class CallbackRegistrationHandler {
+class EventRegistrationHandler {
     constructor() {
-        this.callbackFunctions = [];
         this.callbackRegistrations = [];
     }
 
@@ -19,4 +16,4 @@ class CallbackRegistrationHandler {
     }
 }
 
-module.exports = CallbackRegistrationHandler;
+module.exports = EventRegistrationHandler;

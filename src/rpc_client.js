@@ -1,12 +1,6 @@
 let uuid = require("uuid");
 let Messages = require("./messages");
-let CallbackRegistrationHandler = require("./callback_registration_handler");
 let serializeArgs = require("./serialize").serializeArgs;
-
-function assertCallbackCountIs(obj, count) {
-    const fnCount = obj.reduce((fnCount, obj) => fnCount + (typeof obj === "function" ? 1 : 0), 0);
-    if (fnCount !== count) throw new Error(`Allowed number of callback functions is ${count}, received ${fnCount}.`);
-}
 
 class CallbackRegistry {
     constructor() {

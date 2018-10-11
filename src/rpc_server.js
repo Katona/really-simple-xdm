@@ -1,5 +1,5 @@
 const Messages = require("./messages");
-const CallbackRegistrationHandler = require("./callback_registration_handler");
+const EventRegistrationHandler = require("./event_registration_handler");
 const deserializeArgs = require("./serialize").deserializeArgs;
 
 class CallbackRegistry {
@@ -34,7 +34,7 @@ class RpcServer {
         this.messages = new Messages();
         this.callbackRegistry = new CallbackRegistry();
         this.events = events;
-        this.callbackRegistrationHandler = new CallbackRegistrationHandler();
+        this.eventRegistrationHandler = new EventRegistrationHandler();
     }
 
     onMessage(message) {
@@ -83,14 +83,14 @@ class RpcServer {
             return;
         }
         if (event.register === functionName) {
-            this.callbackRegistrationHandler.addRegistration(functionName, args);
+            this.eventRegistrationHandler.addRegistration(functionName, args);
         } else {
-            this.callbackRegistrationHandler.removeRegistration(event.register, args);
+            this.eventRegistrationHandler.removeRegistration(event.register, args);
             args
                 .filter(a => a.type === "function")
                 .map(a => a.value)
                 .forEach(callbackId => {
-                    if (!this.callbackRegistrationHandler.hasRegistrations(callbackId)) {
+                    if (!this.eventRegistrationHandler.hasRegistrations(callbackId)) {
                         this.messagingBackend.sendMessage(this.messages.deleteCallback(callbackId));
                         this.callbackRegistry.deleteCallback(callbackId);
                     }
