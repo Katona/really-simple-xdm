@@ -1,6 +1,4 @@
-let uuid = require("uuid");
 const Messages = require("./messages");
-const equal = require("deep-equal");
 const CallbackRegistrationHandler = require("./callback_registration_handler");
 const deserializeArgs = require("./serialize").deserializeArgs;
 
@@ -80,8 +78,8 @@ class RpcServer {
     }
 
     handleEventHandlerRegistrations(functionName, args) {
-        const event = this.events.filter(event => event.register === functionName || event.deregister === functionName);
-        if (event.length === 0) {
+        const event = this.getCorrespondingEvent(functionName, args);
+        if (event === undefined) {
             return;
         }
         if (event.register === functionName) {
@@ -92,7 +90,6 @@ class RpcServer {
                 .filter(a => a.type === "function")
                 .map(a => a.value)
                 .forEach(callbackId => {
-                    this.callbackRegistrationHandler.removeRegistration(callbackId);
                     if (!this.callbackRegistrationHandler.hasRegistrations(callbackId)) {
                         this.messagingBackend.sendMessage(this.messages.deleteCallback(callbackId));
                         this.callbackRegistry.deleteCallback(callbackId);
@@ -100,7 +97,12 @@ class RpcServer {
                 });
         }
     }
-
+    getCorrespondingEvent(functionName, args) {
+        const events = this.events.filter(
+            event => event.register === functionName || event.deregister === functionName
+        );
+        return events.length === 1 ? events[0] : undefined;
+    }
     handlePing(message) {
         this.messagingBackend.sendMessage(this.messages.pong(message.id));
     }

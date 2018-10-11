@@ -67,7 +67,6 @@ test("should handle callback deregistrations.", t => {
         ])
     );
     t.is(t.context.serverObject.testCallbackDeregistrar.callCount, 1);
-    const callbackDeregistrationArguments = t.context.serverObject.testCallbackDeregistrar.firstCall.args;
     t.is(t.context.serverObject.testCallbackDeregistrar.firstCall.args[1], registeredCallback);
 });
 

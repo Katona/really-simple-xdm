@@ -26,7 +26,7 @@ class SimpleMessagingService {
     }
 
     removeMessageListener(callback) {
-        this.listeners = this.listeners.filter(listener => listener === callback);
+        this.listeners = this.listeners.filter(listener => listener !== callback);
     }
 }
 
@@ -49,7 +49,8 @@ class TestMessagingService {
 test.beforeEach(t => {
     const testBackend = new TestMessagingService();
     t.context.createClient = params => createRpcClient(testBackend.getClientMessagingService(), params);
-    t.context.createServer = serviceObject => new RpcServer(testBackend.getServerMessagingService(), serviceObject);
+    t.context.createServer = (serviceObject, config) =>
+        new RpcServer(testBackend.getServerMessagingService(), config, serviceObject);
 });
 
 test("with Math object", async t => {
@@ -77,7 +78,7 @@ test("Simple callback test", t => {
         events: [{ register: "on", deregister: "removeListener" }]
     };
     const rpcClient = t.context.createClient(options);
-    const rpcServer = t.context.createServer(testEventEmitter);
+    const rpcServer = t.context.createServer(testEventEmitter, options.events);
     const eventListener = sinon.stub();
 
     rpcClient.on("event1", eventListener);
@@ -173,24 +174,4 @@ test("Same callback for different events.", async t => {
     rpcClient.removeListener("event2", eventListener);
     testEventEmitter.emit("event2", 2);
     t.is(eventListener.callCount, 2);
-});
-
-test("Only one callback can be registered at a time.", t => {
-    const options = {
-        events: [{ register: "on", deregister: "removeListener" }]
-    };
-    const rpcClient = t.context.createClient(options);
-    t.throws(() => {
-        rpcClient.on(() => {}, () => {});
-    }, Error);
-});
-
-test("Callbacks are not allowed as parameter for normal functions.", t => {
-    const options = {
-        events: [{ register: "on", deregister: "removeListener" }]
-    };
-    const rpcClient = t.context.createClient(options);
-    t.throws(() => {
-        rpcClient.test(() => {}, "a");
-    }, "Allowed number of callback functions is 0, received 1.");
 });
