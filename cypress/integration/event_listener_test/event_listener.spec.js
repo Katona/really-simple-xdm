@@ -8,7 +8,7 @@ describe("Messages", () => {
     }
 
     it("should appear on load", () => {
-        cy.visit("http://localhost:8080/callback_test");
+        cy.visit("http://localhost:8080/event_listener_test");
         cy.wait(1000); // waiting for the iframe to load
         clickOnTestEventButton(cy)
             .then(() => {
