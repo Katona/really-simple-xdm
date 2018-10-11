@@ -50,18 +50,30 @@ The `createClient`, just as `createServer`, requires a `MessagingService` to use
 
 # Callback support
 
-Only event handlers are supported.
+Functions can also be passed as arguments and when called in the frame, the call be be dispatched to the host page.
 
+## Event listeners
+
+Event listeners here are treated as special callbacks: they can be registered _and_ deregistered. For this to work, the server needs some auxilary information to know the function pairs used to register and deregister the event listener.
 ```javascript
+import { CrossWindowMessagingService, createServer } from 'xdm.js';
+
+const messagingSrv = new CrossWindowMessagingService(window.parent, "*");
 const config = {
     events: [ { register: 'on', deregister: 'off' } ]
 }
+const server = createServer(messagingSrv, Math, config);
+```
+The `createServer` function accepts a `ClientConfig` object of which the `events` property is an array of `EventMetadata`, which describes events provided by the proxied object. The `EventMetadata` specifies the functions used to register and deregister event listeners for the particular event. This information will be used for book keeping the event listener registrations.
+
+After the server is configured properly, event listeners can be registered on the client:
+```javascript
 const client = await xdmjs.createClient(messagingService, config);
 const clickListener = e => {
     console.log(e);
 };
-const result = await client.on('click', clickListener); // registering the listener
-client.off('click', clickListener); // deregistration
+await client.on('click', clickListener); // registering the listener
+await client.off('click', clickListener); // deregistration
 ```
 
-The `createClient` function accepts a `ClientConfig` object of which the `events` property is an array of `EventMetadata`, which describes events provided by the proxied object. The `EventMetadata` specifies the functions used to register and deregister event listeners for the particular event. This information will be used for book keeping the event listener registrations. From this point event listeners has to be registered as usual, keeping in mind that the registration function (as mentioned above) returns a promise.
+Note that the register/deregister methods (`on` and `off` respectively) return a promise which resolves when the registration/deregistration completed.
