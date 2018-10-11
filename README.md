@@ -54,7 +54,7 @@ Functions can also be passed as arguments and when called in the frame, the call
 
 ## Event listeners
 
-Event listeners here are treated as special callbacks: they can be registered _and_ deregistered. For this to work, the server needs some auxilary information to know the function pairs used to register and deregister the event listener.
+Event listeners here are treated as special callbacks: they can be registered _and_ deregistered. For this to work, the server needs some auxiliary information to know the function pairs used to register and deregister the event listener.
 ```javascript
 import { CrossWindowMessagingService, createServer } from 'xdm.js';
 
