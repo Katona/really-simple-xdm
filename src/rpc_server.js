@@ -11,11 +11,14 @@ class RpcServer {
         const actualConfig = Object.assign({}, defaultConfig, config);
         this.messagingBackend = messagingBackend;
         this.serverObject = serverObject;
-        this.messagingBackend.onMessage(this.onMessage.bind(this));
         this.messages = new Messages();
         this.callbackRegistry = new CallbackRegistry();
         this.eventRegistrationHandler = new EventRegistrationHandler();
         this.events = actualConfig.events;
+    }
+
+    serve() {
+        this.messagingBackend.onMessage(this.onMessage.bind(this));
     }
 
     onMessage(message) {

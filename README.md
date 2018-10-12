@@ -19,9 +19,10 @@ import { CrossWindowMessagingService, createServer } from 'xdm.js';
 
 const messagingSrv = new CrossWindowMessagingService(window.parent, "*");
 const server = createServer(messagingSrv, Math);
+server.serve();
 ```
 `createServer` requires two arguments, a `MessagingService` and the object which we want to make accessible in the host page (`Math` in our
-case). We use `CrossWindowMessagingService` which handles the message passing between cross domain frames.
+case). We use `CrossWindowMessagingService` which handles the message passing between cross domain frames. `server.serve()` will make the server listening for requests.
 
 And in host page:
 ```javascript
@@ -30,7 +31,6 @@ import { createClient, CrossWindowMessagingService } from 'xdm.js';
 const iframeElement = document.getElementById('testFrame'); // the id of the frame containing the `Math` object to be called
 const messagingService = new CrossWindowMessagingService(iframeElement.contentWindow, "*");
 const mathProxyPromise = createClient(messagingService); // 'mathProxy' is a promise which resolves with the proxy of 'Math'
-
 ```
 Now, with everything is setup, the actual call would be the following:
 ```javascript
@@ -63,6 +63,7 @@ const config = {
     events: [ { register: 'on', deregister: 'off' } ]
 }
 const server = createServer(messagingSrv, Math, config);
+server.serve();
 ```
 The `createServer` function accepts a `ClientConfig` object of which the `events` property is an array of `EventMetadata`, which describes events provided by the proxied object. The `EventMetadata` specifies the functions used to register and deregister event listeners for the particular event. This information will be used for book keeping the event listener registrations.
 

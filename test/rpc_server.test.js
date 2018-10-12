@@ -20,6 +20,7 @@ test.beforeEach(t => {
         events: [{ register: "testCallbackRegistrar", deregister: "testCallbackDeregistrar" }]
     };
     t.context.rpcServer = new RpcServer(t.context.testBackend, t.context.serverObject, config);
+    t.context.rpcServer.serve();
     t.context.messages = new Messages();
 });
 

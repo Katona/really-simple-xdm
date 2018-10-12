@@ -56,6 +56,7 @@ test.beforeEach(t => {
 test("with Math object", async t => {
     const rpcClient = t.context.createClient();
     const rpcServer = t.context.createServer(Math);
+    rpcServer.serve();
     const abs = await rpcClient.abs(-1);
     t.is(abs, 1);
 
@@ -66,6 +67,7 @@ test("with Math object", async t => {
 test("test calling of non existing function", async t => {
     const rpcClient = t.context.createClient();
     const rpcServer = t.context.createServer({});
+    rpcServer.serve();
 
     const promise = rpcClient.nonExisting("asdfds");
     const error = await t.throws(promise);
@@ -79,6 +81,7 @@ test("Simple callback test", t => {
     };
     const rpcClient = t.context.createClient();
     const rpcServer = t.context.createServer(testEventEmitter, config);
+    rpcServer.serve();
     const eventListener = sinon.stub();
 
     rpcClient.on("event1", eventListener);
@@ -98,6 +101,7 @@ test("Multiple callbacks test", async t => {
     };
     const rpcClient = t.context.createClient(options);
     const rpcServer = t.context.createServer(testEventEmitter, options);
+    rpcServer.serve();
     const event1Listener = sinon.stub();
     const event2Listener = sinon.stub();
 
@@ -130,6 +134,7 @@ test("Same callback multiple times for same event.", async t => {
     };
     const rpcClient = t.context.createClient();
     const rpcServer = t.context.createServer(testEventEmitter, config);
+    rpcServer.serve();
     const eventListener = sinon.stub();
 
     rpcClient.on("event1", eventListener);
@@ -155,6 +160,7 @@ test("Same callback for different events.", async t => {
     };
     const rpcClient = t.context.createClient(options);
     const rpcServer = t.context.createServer(testEventEmitter);
+    rpcServer.serve();
     const eventListener = sinon.stub();
 
     rpcClient.on("event1", eventListener);

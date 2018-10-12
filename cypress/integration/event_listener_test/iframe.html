@@ -11,6 +11,7 @@
       events: [ { register: 'on', deregister: 'off' } ]
     }
     const server = xdmjs.createServer(messagingSrv, eventEmitter, config);
+    server.serve();
     document.querySelector('#test-event').onclick = () => eventEmitter.emit('click');
     console.log('Server is ready.');
 </script>

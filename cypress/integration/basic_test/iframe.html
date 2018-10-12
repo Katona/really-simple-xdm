@@ -4,6 +4,7 @@
   <script>
     const messagingSrv = new xdmjs.CrossWindowMessagingService(window.parent, "*");
     const server = xdmjs.createServer(messagingSrv, Math);
+    server.serve();
     console.log('Server is ready.');
 </script>
 </body>
