@@ -5,6 +5,7 @@ module.exports = {
         filename: "index.js"
     },
     devServer: {
-        contentBase: "cypress/integration"
+        contentBase: "cypress/integration",
+        port: 8080
     }
 };
