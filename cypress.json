@@ -1,7 +1,7 @@
 {
     "reporter": "junit",
     "reporterOptions": {
-        "mochaFile": "dist/test-results/cypress/test-results.xml"
+        "mochaFile": "dist/test-results/cypress/test-results-[hash].xml"
     },
     "ignoreTestFiles": "*.html",
     "video": false
