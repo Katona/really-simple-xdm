@@ -69,7 +69,9 @@ The `createServer` function accepts a `ClientConfig` object of which the `events
 
 After the server is configured properly, event listeners can be registered on the client:
 ```javascript
-const client = await xdmjs.createClient(messagingService, config);
+import { createClient } from 'xdm.js';
+
+const client = await createClient(messagingService, config);
 const clickListener = e => {
     console.log(e);
 };
