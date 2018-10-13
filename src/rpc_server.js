@@ -15,6 +15,7 @@ class RpcServer {
         this.callbackRegistry = new CallbackRegistry();
         this.eventRegistrationHandler = new EventRegistrationHandler();
         this.config = actualConfig;
+        this.messageFilter = message => this.config.name === undefined || this.config.name === message.recipient;
     }
 
     serve() {
@@ -22,6 +23,9 @@ class RpcServer {
     }
 
     onMessage(message) {
+        if (!this.messageFilter(message)) {
+            return;
+        }
         if (message.type === "FUNCTION_CALL") {
             this.handleFunctionCall(message);
         } else if (message.type === "PING") {

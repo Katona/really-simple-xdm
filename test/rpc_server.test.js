@@ -139,6 +139,21 @@ test("should handle function calls with return value", t => {
     t.deepEqual(returnValueMessage.value, expectedReturnValue);
 });
 
+test("should accept messages with the proper recipient.", t => {
+    const testBackend = {
+        onMessage: sinon.stub(),
+        sendMessage: sinon.stub()
+    };
+    const config = {
+        name: "testServerObject"
+    };
+    const server = new RpcServer(testBackend, t.context.serverObject, config);
+    server.serve();
+    const messageListener = testBackend.onMessage.firstCall.args[0];
+    messageListener(new Messages(config.name).functionCall("testFunction", ["testArg"]));
+    t.is(t.context.serverObject.testFunction.callCount, 1);
+});
+
 test("should handle function calls returning a promise.", t => {
     const resolvedValue = 3;
     const returnedPromise = Promise.resolve(resolvedValue);
