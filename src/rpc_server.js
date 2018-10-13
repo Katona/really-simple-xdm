@@ -14,7 +14,7 @@ class RpcServer {
         this.messages = new Messages();
         this.callbackRegistry = new CallbackRegistry();
         this.eventRegistrationHandler = new EventRegistrationHandler();
-        this.events = actualConfig.events;
+        this.config = actualConfig;
     }
 
     serve() {
@@ -82,7 +82,7 @@ class RpcServer {
     }
 
     getCorrespondingEvent(functionName) {
-        const events = this.events.filter(e => e.register === functionName || e.deregister === functionName);
+        const events = this.config.events.filter(e => e.register === functionName || e.deregister === functionName);
         return events.length === 1 ? events[0] : undefined;
     }
 
