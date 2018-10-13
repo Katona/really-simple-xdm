@@ -73,20 +73,19 @@ class RpcServer {
             args
                 .filter(a => a.type === "function")
                 .map(a => a.value)
+                .filter(callbackId => !this.eventRegistrationHandler.hasRegistrations(callbackId))
                 .forEach(callbackId => {
-                    if (!this.eventRegistrationHandler.hasRegistrations(callbackId)) {
-                        this.messagingBackend.sendMessage(this.messages.deleteCallback(callbackId));
-                        this.callbackRegistry.deleteCallback(callbackId);
-                    }
+                    this.messagingBackend.sendMessage(this.messages.deleteCallback(callbackId));
+                    this.callbackRegistry.deleteCallback(callbackId);
                 });
         }
     }
-    getCorrespondingEvent(functionName, args) {
-        const events = this.events.filter(
-            event => event.register === functionName || event.deregister === functionName
-        );
+
+    getCorrespondingEvent(functionName) {
+        const events = this.events.filter(e => e.register === functionName || e.deregister === functionName);
         return events.length === 1 ? events[0] : undefined;
     }
+
     handlePing(message) {
         this.messagingBackend.sendMessage(this.messages.pong(message.id));
     }
