@@ -1,6 +1,7 @@
 import test from "ava";
 import { createRpcClient } from "../src/rpc_client";
 import { RpcServer } from "../src/rpc_server";
+import Messages from "../src/messages";
 import sinon from "sinon";
 import { EventEmitter } from "events";
 
@@ -180,4 +181,24 @@ test("Same callback for different events.", async t => {
     rpcClient.removeListener("event2", eventListener);
     testEventEmitter.emit("event2", 2);
     t.is(eventListener.callCount, 2);
+});
+
+test("Multiple server object with single messaging service.", async t => {
+    const testMessagingService = new TestMessagingService();
+    const mathServer = new RpcServer(testMessagingService.getServerMessagingService(), Math, { name: "Math" });
+    mathServer.serve();
+    const numberServer = new RpcServer(testMessagingService.getServerMessagingService(), Number, { name: "Number" });
+    numberServer.serve();
+
+    const mathProxy = createRpcClient(testMessagingService.getClientMessagingService(), {
+        messages: new Messages("Math")
+    });
+    const abs = await mathProxy.abs(-1);
+    t.is(abs, 1);
+
+    const integerProxy = createRpcClient(testMessagingService.getClientMessagingService(), {
+        messages: new Messages("Number")
+    });
+    const isInteger = await integerProxy.isInteger(1);
+    t.is(isInteger, true);
 });
