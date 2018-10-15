@@ -41,6 +41,7 @@
   "dependencies": {
     "deep-equal": "^1.0.1",
     "json-stringify-safe": "^5.0.1",
+    "serialize-error": "^3.0.0",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
