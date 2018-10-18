@@ -55,7 +55,7 @@ const result = await mathProxy.abs(-2);
 console.log(result);
 ```
 
-The `createClient`, just as `createServer`, requires a `MessagingService` to use for the messaging, and we use `CrossWindowMessagingService` again. It returns a promise which is resolved with a proxy object when the connection is estabilished with the server object in the embedded frame. All the methods of the server object (`Math` in the example) can be called on the proxy almost the same as if it was the server object itself. The only difference is the calls return a `Promise` in every case. If the call is successful, then the promise is resolved with the return value if any, if the call fails then the promise is rejected.
+The `createClient`, just as `createServer`, requires a `MessagingService` to use for the messaging, and we use `CrossWindowMessagingService` again. It returns a promise which is resolved with a proxy object when the connection is estabilished with the server object in the embedded frame. All the methods of the service object (`Math` in the example) can be called on the proxy almost the same as if it was the service object itself. The only difference is the calls return a `Promise` in every case. If the call is successful, then the promise is resolved with the return value if any, if the call fails then the promise is rejected.
 
 # Callback support
 
@@ -74,7 +74,7 @@ const config = {
 const server = createServer(messagingSrv, Math, config);
 server.serve();
 ```
-The `createServer` function accepts a `ClientConfig` object of which the `events` property is an array of `EventMetadata`, which describes events provided by the proxied object. The `EventMetadata` specifies the functions used to register and deregister event listeners for the particular event. This information will be used for book keeping the event listener registrations.
+The `createServer` function accepts a `ServerConfig` object of which the `events` property is an array of `EventMetadata`, which describes events provided by the proxied object. The `EventMetadata` specifies the functions used to register and deregister event listeners for the particular event. This information will be used for book keeping the event listener registrations.
 
 After the server is configured properly, event listeners can be registered on the client:
 ```javascript
