@@ -4,7 +4,7 @@
 
 Experimental JavaScript Cross Domain Messaging library based on [JavaScript proxies](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy).
 
-The goal of this library to simplify cross domain messaging in browsers, that is, making the communication with a Javascript object in a frame (almost) as simple as it were a local one.
+The goal of this library is to simplify cross domain messaging in browsers, that is, making the communication with a Javascript object in a iframe (almost) as simple as it were a local one.
 
 # Quick Start
 Let's assume that we would like to call `Math.abs(-2)`, if `Math` were a local object, then the call would look like this:
@@ -13,7 +13,11 @@ Let's assume that we would like to call `Math.abs(-2)`, if `Math` were a local o
 console.log(Math.abs(-2)); // Prints '2'
 ```
 
-Assuming `Math` resides in a cross domain frame, the calling it would be the following. Some initialization is needed in the frame:
+If Math is in an iframe, calling it with `xdm.js` is demonstrated below.
+
+## Initilization in the iframe
+The first step is to expose the service object (`Math` in our case) by creating a _server_:
+
 ```javascript
 import { CrossWindowMessagingService, createServer } from 'xdm.js';
 
@@ -22,9 +26,11 @@ const server = createServer(messagingSrv, Math);
 server.serve();
 ```
 `createServer` requires two arguments, a `MessagingService` and the object which we want to make accessible in the host page (`Math` in our
-case). We use `CrossWindowMessagingService` which handles the message passing between cross domain frames. `server.serve()` will make the server listening for requests.
+case). We use `CrossWindowMessagingService` which handles the message passing between cross domain frames. `server.serve()` will instruct the server to start serving requests.
 
-And in host page:
+## Initialization in the host page
+
+In the host page a _client_ has to be made which connects to the server created above.
 ```javascript
 import { createClient, CrossWindowMessagingService } from 'xdm.js';
 
@@ -32,6 +38,9 @@ const iframeElement = document.getElementById('testFrame'); // the id of the fra
 const messagingService = new CrossWindowMessagingService(iframeElement.contentWindow, "*");
 const mathProxyPromise = createClient(messagingService); // 'mathProxy' is a promise which resolves with the proxy of 'Math'
 ```
+
+## Using the object
+
 Now, with everything is setup, the actual call would be the following:
 ```javascript
 mathProxyPromise.then(mathProxy => {
@@ -80,3 +89,5 @@ await client.off('click', clickListener); // deregistration
 ```
 
 Note that the register/deregister methods (`on` and `off` respectively) return a promise which resolves when the registration/deregistration is completed.
+
+__The only difference between normal callbacks and event listeners__ is callback registrations are not tracked so they can not be deregistered.
