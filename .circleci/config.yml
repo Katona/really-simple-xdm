@@ -3,22 +3,17 @@
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
 version: 2
-jobs:
-  build:
-    docker:
-      # specify the version you desire here
+defaults: &defaults
+  working_directory: ~/repo
+  docker:
       - image: cypress/base:8
         environment:
           ## this enables colors in the output
           TERM: xterm
 
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mongo:3.4.4
-
-    working_directory: ~/repo
-
+jobs:
+  build:
+    <<: *defaults
     steps:
       - checkout
 
@@ -30,17 +25,43 @@ jobs:
           - v2-dependencies-
 
       - run: npm install
-
+      - run: npm run test-ci
       - save_cache:
           paths:
             - node_modules
             - ~/.cache
           key: v2-dependencies-{{ checksum "package.json" }}
-
-      # run tests!
-      - run: npm run test-ci
-
+      - persist_to_workspace:
+          root: ~/repo
+          paths: .
       - store_test_results:
           path: dist/test-results/ava
       - store_test_results:
           path: dist/test-results/cypress
+  deploy:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Set registry URL
+          command: npm set registry https://packagecloud.io/katona/testrepo/npm/
+      - run:
+          name: Authenticate with registry
+          command: echo "//packagecloud.io/katona/testrepo/npm/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
+      - run:
+          name: Publish package
+          command: npm publish
+workflows:
+  version: 2
+  test-deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
