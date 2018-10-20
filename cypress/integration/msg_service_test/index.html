@@ -7,9 +7,12 @@
     const iframeElement = document.getElementById('testFrame');
     const messagingSrv = new xdmjs.CrossWindowMessagingService(iframeElement.contentWindow, "*");
     messagingSrv.onMessage(msg => {
-      document.querySelector("#response_from_iframe").innerHTML = msg;
-      console.log("Message received from iframe: ", JSON.stringify(msg));
-      messagingSrv.sendMessage("Parent message");
+      if (msg.type !== "test") {
+        return;
+      }
+      document.querySelector("#response_from_iframe").innerHTML = msg.payload;
+      console.log("Message received from iframe: ", msg.payload);
+      messagingSrv.sendMessage({ type: "test", payload: "Parent message" });
     });
   </script>
 </body>

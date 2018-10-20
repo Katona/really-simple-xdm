@@ -6,8 +6,12 @@
     const messagingSrv = new xdmjs.CrossWindowMessagingService(window.parent, "*");
     const responseSpan = document.querySelector("#response_from_parent");
 
-    messagingSrv.onMessage(msg => responseSpan.innerHTML = JSON.stringify(msg));
-    messagingSrv.sendMessage("Iframe message");
+    messagingSrv.onMessage(msg => {
+      if (msg.type === "test") {
+         responseSpan.innerHTML = msg.payload;
+      }
+    });
+    messagingSrv.sendMessage({ type: "test", payload: "Iframe message" });
   </script>
 </body>
 </html>
