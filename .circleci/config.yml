@@ -16,8 +16,6 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-
-      # Download and cache dependencies
       - restore_cache:
           keys:
           - v2-dependencies-{{ checksum "package.json" }}
@@ -38,6 +36,8 @@ jobs:
           path: dist/test-results/ava
       - store_test_results:
           path: dist/test-results/cypress
+      - store_artifacts:
+          path: cypress/screenshots
   deploy:
     <<: *defaults
     steps:
