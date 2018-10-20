@@ -56,7 +56,10 @@ workflows:
   version: 2
   test-deploy:
     jobs:
-      - build
+      - build:
+          filters:
+            tags:
+              only: /.*/
       - deploy:
           requires:
             - build
@@ -64,6 +67,4 @@ workflows:
             tags:
               only: /^v.*/
             branches:
-              only:
-                - master
-                - rc-*
+              ignore: /.*/
