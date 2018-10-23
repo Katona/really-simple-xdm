@@ -39,7 +39,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Katona/xdm.js.git"
+    "url": "https://github.com/Katona/really-simple-xdm.git"
   },
   "dependencies": {
     "deep-equal": "^1.0.1",
