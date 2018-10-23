@@ -6,8 +6,8 @@
       setInterval: (...a) => setInterval(...a),
       clearInterval: (...a) => clearInterval(...a)
     }
-    const messagingSrv = new xdmjs.CrossWindowMessagingService(window.parent, "*");
-    const server = xdmjs.createServer(messagingSrv, testObject);
+    const messagingSrv = new rsx.CrossWindowMessagingService(window.parent, "*");
+    const server = rsx.createServer(messagingSrv, testObject);
     server.serve();
     console.log('Server is ready.');
 </script>

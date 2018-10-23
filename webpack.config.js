@@ -1,6 +1,6 @@
 module.exports = {
     output: {
-        library: "xdmjs",
+        library: "rsx",
         libraryTarget: "umd",
         filename: "index.js"
     },

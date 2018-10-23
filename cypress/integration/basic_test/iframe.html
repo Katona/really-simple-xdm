@@ -2,8 +2,8 @@
 <body>
   <script src="/index.js"></script>
   <script>
-    const messagingSrv = new xdmjs.CrossWindowMessagingService(window.parent, "*");
-    const server = xdmjs.createServer(messagingSrv, Math);
+    const messagingSrv = new rsx.CrossWindowMessagingService(window.parent, "*");
+    const server = rsx.createServer(messagingSrv, Math);
     server.serve();
     console.log('Server is ready.');
 </script>

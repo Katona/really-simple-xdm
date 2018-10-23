@@ -5,7 +5,7 @@
   <script src="/index.js"></script>
   <script>
     const iframeElement = document.getElementById('testFrame');
-    const messagingSrv = new xdmjs.CrossWindowMessagingService(iframeElement.contentWindow, "*");
+    const messagingSrv = new rsx.CrossWindowMessagingService(iframeElement.contentWindow, "*");
     messagingSrv.onMessage(msg => {
       if (msg.type !== "test") {
         return;

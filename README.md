@@ -1,6 +1,6 @@
-# xdm.js
+# really-simple-xdm
 
-[![CircleCI](https://circleci.com/gh/Katona/xdm.js.svg?style=shield&circle-token=4fe7750d41525e10efd25cf28e42b5b07c8230f9)](https://circleci.com/gh/Katona/xdm.js)
+[![CircleCI](https://circleci.com/gh/Katona/really-simple-xdm.svg?style=shield&circle-token=4fe7750d41525e10efd25cf28e42b5b07c8230f9)](https://circleci.com/gh/Katona/really-simple-xdm)
 
 Experimental JavaScript Cross Domain Messaging library based on [JavaScript proxies](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy).
 
@@ -13,13 +13,13 @@ Let's assume that we would like to call `Math.abs(-2)`, if `Math` were a local o
 console.log(Math.abs(-2)); // Prints '2'
 ```
 
-If Math is in an iframe, calling it with `xdm.js` is demonstrated below.
+If Math is in an iframe, calling it with `really-simple-xdm` is demonstrated below.
 
 ## Initilization in the iframe
 The first step is to expose the service object (`Math` in our case) by creating a _server_:
 
 ```javascript
-import { CrossWindowMessagingService, createServer } from 'xdm.js';
+import { CrossWindowMessagingService, createServer } from 'really-simple-xdm';
 
 const messagingSrv = new CrossWindowMessagingService(window.parent, "*");
 const server = createServer(messagingSrv, Math);
@@ -32,7 +32,7 @@ case). We use `CrossWindowMessagingService` which handles the message passing be
 
 In the host page a _client_ has to be made which connects to the server created above.
 ```javascript
-import { createClient, CrossWindowMessagingService } from 'xdm.js';
+import { createClient, CrossWindowMessagingService } from 'really-simple-xdm';
 
 const iframeElement = document.getElementById('testFrame'); // the id of the frame containing the `Math` object to be called
 const messagingService = new CrossWindowMessagingService(iframeElement.contentWindow, "*");
@@ -65,7 +65,7 @@ Functions can also be passed as arguments and when called in the frame, the call
 
 Event listeners here are treated as special callbacks: they can be registered _and_ deregistered. For this to work, the server needs some auxiliary information to know the function pairs used to register and deregister the event listener.
 ```javascript
-import { CrossWindowMessagingService, createServer } from 'xdm.js';
+import { CrossWindowMessagingService, createServer } from 'really-simple-xdm';
 
 const messagingSrv = new CrossWindowMessagingService(window.parent, "*");
 const config = {
@@ -78,7 +78,7 @@ The `createServer` function accepts a `ServerConfig` object of which the `events
 
 After the server is configured properly, event listeners can be registered on the client:
 ```javascript
-import { createClient } from 'xdm.js';
+import { createClient } from 'really-simple-xdm';
 
 const client = await createClient(messagingService, config);
 const clickListener = e => {

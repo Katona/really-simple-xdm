@@ -8,8 +8,8 @@
     async function test() {
       let counter = 0;
       const iframeElement = document.getElementById('testFrame');
-      const messagingSrv = new xdmjs.CrossWindowMessagingService(iframeElement.contentWindow, "*");
-      const client = await xdmjs.createClient(messagingSrv);
+      const messagingSrv = new rsx.CrossWindowMessagingService(iframeElement.contentWindow, "*");
+      const client = await rsx.createClient(messagingSrv);
       const clickListener = e => {
         document.querySelector("#result").innerHTML = "On click: " + counter++;
       };
