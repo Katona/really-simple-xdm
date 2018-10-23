@@ -44,11 +44,8 @@ jobs:
       - attach_workspace:
           at: ~/repo
       - run:
-          name: Set registry URL
-          command: npm set registry https://packagecloud.io/katona/testrepo/npm/
-      - run:
           name: Authenticate with registry
-          command: echo "//packagecloud.io/katona/testrepo/npm/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
       - run:
           name: Publish package
           command: npm publish
