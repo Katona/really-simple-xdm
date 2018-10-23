@@ -1,6 +1,6 @@
 {
   "name": "really-simple-xdm",
-  "version": "0.8.7",
+  "version": "0.8.8",
   "description": "Experimental Cross Domain Messaging library based on Javascript Proxies.",
   "main": "src/index.js",
   "types": "src/index.d.ts",
@@ -8,7 +8,9 @@
     "src/"
   ],
   "keywords": [
-    "xdm", "iframe", "cross window messaging"
+    "xdm",
+    "iframe",
+    "cross window messaging"
   ],
   "scripts": {
     "prettier": "prettier --write *.js",
