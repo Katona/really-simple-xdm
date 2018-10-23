@@ -7,6 +7,9 @@
   "files": [
     "src/"
   ],
+  "keywords": [
+    "xdm", "iframe", "cross window messaging"
+  ],
   "scripts": {
     "prettier": "prettier --write *.js",
     "lint-staged": "lint-staged",
