@@ -1,5 +1,5 @@
 {
-  "name": "xdm.js",
+  "name": "really-simple-xdm",
   "version": "0.8.6",
   "description": "Experimental Cross Domain Messaging library based on Javascript Proxies.",
   "main": "src/index.js",
