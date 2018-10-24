@@ -10,7 +10,9 @@
   "keywords": [
     "xdm",
     "iframe",
-    "cross window messaging"
+    "cross window messaging",
+    "postmessage",
+    "cross domain"
   ],
   "scripts": {
     "prettier": "prettier --write *.js",
