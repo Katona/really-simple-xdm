@@ -78,7 +78,7 @@ The `createServer` function accepts a `ServerConfig` object of which the `events
 
 After the server is configured properly, event listeners can be registered on the client:
 ```javascript
-import { createClient } from 'really-simple-xdm';
+import { createClient, CrossWindowMessagingService } from 'really-simple-xdm';
 
 const client = await createClient(messagingService, config);
 const clickListener = e => {
@@ -91,3 +91,32 @@ await client.off('click', clickListener); // deregistration
 Note that the register/deregister methods (`on` and `off` respectively) return a promise which resolves when the registration/deregistration is completed.
 
 __The only difference between normal callbacks and event listeners__ is callback registrations are not tracked so they can not be deregistered.
+
+# Exposing multiple service objects from one iframe
+
+It is possible to expose multiple service objects from one iframe by giving them a name:
+
+```javascript
+import { CrossWindowMessagingService, createServer } from 'really-simple-xdm';
+
+const messagingSrv = new CrossWindowMessagingService(window.parent, "*");
+const mathServer = createServer(messagingSrv, Math, { name: "Math" });
+mathServer.serve();
+
+const numberServer = createServer(messagingSrv, Number, { name: "Number" });
+numberServer.serve();
+```
+
+The names specified during server creation has to be passed to the clients:
+
+```javascript
+import { createClient, CrossWindowMessagingService } from 'really-simple-xdm';
+
+const mathProxy = await createClient(messagingService, { serverName: "Math" });
+const abs = await mathProxy.abs(-1);
+console.log(abs);
+
+const integerProxy = await createClient(messagingService, { serverName: "Number" });
+const isInteger = await integerProxy.isInteger(1);
+console.log(isInteger);
+```
