@@ -58,12 +58,13 @@ export interface EventMetadata {
 
 export interface ServerConfig {
     events?: EventMetadata[] = []
+    name?: string
 }
 
 export function createServer(messagingService: MessagingService, serverObject: any, serverConfig?: ServerConfig): any;
 
 export interface ClientConfig {
-    objectName?: string
+    serverName?: string
 }
 
 export function createClient(messagingService: MessagingService, clientconfig?: ClientOptions): Promise<any>;

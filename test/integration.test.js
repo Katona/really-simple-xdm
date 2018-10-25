@@ -1,5 +1,5 @@
 import test from "ava";
-import { createRpcClient } from "../src/rpc_client";
+import { createRpcClient, connect } from "../src/rpc_client";
 import { RpcServer } from "../src/rpc_server";
 import Messages from "../src/messages";
 import sinon from "sinon";
@@ -190,15 +190,11 @@ test("Multiple server object with single messaging service.", async t => {
     const numberServer = new RpcServer(testMessagingService.getServerMessagingService(), Number, { name: "Number" });
     numberServer.serve();
 
-    const mathProxy = createRpcClient(testMessagingService.getClientMessagingService(), {
-        messages: new Messages("Math")
-    });
+    const mathProxy = await connect(testMessagingService.getClientMessagingService(), { serverName: "Math" });
     const abs = await mathProxy.abs(-1);
     t.is(abs, 1);
 
-    const integerProxy = createRpcClient(testMessagingService.getClientMessagingService(), {
-        messages: new Messages("Number")
-    });
+    const integerProxy = await connect(testMessagingService.getClientMessagingService(), { serverName: "Number" });
     const isInteger = await integerProxy.isInteger(1);
     t.is(isInteger, true);
 });

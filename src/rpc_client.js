@@ -105,7 +105,7 @@ const waitForServer = (messagingBackend, config) => {
 
 const connect = (messagingBackend, config) => {
     const actualConfig = Object.assign({}, defaultConfig, config);
-    actualConfig.messages = new Messages(actualConfig.recipient);
+    actualConfig.messages = new Messages(actualConfig.serverName);
     return waitForServer(messagingBackend, actualConfig).then(() => createRpcClient(messagingBackend, actualConfig));
 };
 
