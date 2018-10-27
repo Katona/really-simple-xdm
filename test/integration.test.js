@@ -1,6 +1,6 @@
 import test from "ava";
 import { createRpcClient, connect } from "../src/rpc_client";
-import { RpcServer } from "../src/rpc_server";
+import { createClient, createServer } from "../src";
 import Messages from "../src/messages";
 import sinon from "sinon";
 import { EventEmitter } from "events";
@@ -49,14 +49,17 @@ class TestMessagingService {
 
 test.beforeEach(t => {
     const testBackend = new TestMessagingService();
-    t.context.createClient = params => createRpcClient(testBackend.getClientMessagingService(), params);
-    t.context.createServer = (serviceObject, config) =>
-        new RpcServer(testBackend.getServerMessagingService(), serviceObject, config);
+    t.context.createClient = params => createClient(testBackend.getClientMessagingService(), params);
+    t.context.createServer = (serviceObject, config) => {
+        const server = createServer(testBackend.getServerMessagingService(), serviceObject, config);
+        server.serve();
+        return server;
+    };
 });
 
 test("with Math object", async t => {
-    const rpcClient = t.context.createClient();
     const rpcServer = t.context.createServer(Math);
+    const rpcClient = await t.context.createClient();
     rpcServer.serve();
     const abs = await rpcClient.abs(-1);
     t.is(abs, 1);
@@ -66,8 +69,8 @@ test("with Math object", async t => {
 });
 
 test("test calling of non existing function", async t => {
-    const rpcClient = t.context.createClient();
     const rpcServer = t.context.createServer({});
+    const rpcClient = await t.context.createClient();
     rpcServer.serve();
 
     const promise = rpcClient.nonExisting("asdfds");
@@ -75,14 +78,13 @@ test("test calling of non existing function", async t => {
     t.is(error.message, "nonExisting is not a function");
 });
 
-test("Simple callback test", t => {
+test("Simple callback test", async t => {
     const testEventEmitter = new EventEmitter();
     const config = {
         events: [{ register: "on", deregister: "removeListener" }]
     };
-    const rpcClient = t.context.createClient();
     const rpcServer = t.context.createServer(testEventEmitter, config);
-    rpcServer.serve();
+    const rpcClient = await t.context.createClient();
     const eventListener = sinon.stub();
 
     rpcClient.on("event1", eventListener);
@@ -100,9 +102,8 @@ test("Multiple callbacks test", async t => {
     const options = {
         events: [{ register: "on", deregister: "removeListener" }]
     };
-    const rpcClient = t.context.createClient(options);
     const rpcServer = t.context.createServer(testEventEmitter, options);
-    rpcServer.serve();
+    const rpcClient = await t.context.createClient(options);
     const event1Listener = sinon.stub();
     const event2Listener = sinon.stub();
 
@@ -133,9 +134,8 @@ test("Same callback multiple times for same event.", async t => {
     const config = {
         events: [{ register: "on", deregister: "removeListener" }]
     };
-    const rpcClient = t.context.createClient();
     const rpcServer = t.context.createServer(testEventEmitter, config);
-    rpcServer.serve();
+    const rpcClient = await t.context.createClient();
     const eventListener = sinon.stub();
 
     rpcClient.on("event1", eventListener);
@@ -159,9 +159,8 @@ test("Same callback for different events.", async t => {
     const options = {
         events: [{ register: "on", deregister: "removeListener" }]
     };
-    const rpcClient = t.context.createClient(options);
     const rpcServer = t.context.createServer(testEventEmitter);
-    rpcServer.serve();
+    const rpcClient = await t.context.createClient(options);
     const eventListener = sinon.stub();
 
     rpcClient.on("event1", eventListener);
@@ -185,16 +184,16 @@ test("Same callback for different events.", async t => {
 
 test("Multiple server object with single messaging service.", async t => {
     const testMessagingService = new TestMessagingService();
-    const mathServer = new RpcServer(testMessagingService.getServerMessagingService(), Math, { name: "Math" });
+    const mathServer = createServer(testMessagingService.getServerMessagingService(), Math, { name: "Math" });
     mathServer.serve();
-    const numberServer = new RpcServer(testMessagingService.getServerMessagingService(), Number, { name: "Number" });
+    const numberServer = createServer(testMessagingService.getServerMessagingService(), Number, { name: "Number" });
     numberServer.serve();
 
-    const mathProxy = await connect(testMessagingService.getClientMessagingService(), { serverName: "Math" });
+    const mathProxy = await createClient(testMessagingService.getClientMessagingService(), { serverName: "Math" });
     const abs = await mathProxy.abs(-1);
     t.is(abs, 1);
 
-    const integerProxy = await connect(testMessagingService.getClientMessagingService(), { serverName: "Number" });
+    const integerProxy = await createClient(testMessagingService.getClientMessagingService(), { serverName: "Number" });
     const isInteger = await integerProxy.isInteger(1);
     t.is(isInteger, true);
 });

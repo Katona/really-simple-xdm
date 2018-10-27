@@ -1,5 +1,5 @@
-// Type definitions for xdm.js
-// Project: xdm.js
+// Type definitions for really-simple-xdm
+// Project: really-simple-xdm
 // Definitions by: Gabor Hornyak
 
 /**
@@ -57,7 +57,7 @@ export interface EventMetadata {
 }
 
 export interface ServerConfig {
-    events?: EventMetadata[] = []
+    events?: EventMetadata[]
     name?: string
 }
 
@@ -67,4 +67,4 @@ export interface ClientConfig {
     serverName?: string
 }
 
-export function createClient(messagingService: MessagingService, clientconfig?: ClientOptions): Promise<any>;
+export function createClient(messagingService: MessagingService, clientconfig?: ClientConfig): Promise<any>;
