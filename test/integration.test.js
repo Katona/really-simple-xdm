@@ -1,7 +1,5 @@
 import test from "ava";
-import { createRpcClient, connect } from "../src/rpc_client";
 import { createClient, createServer } from "../src";
-import Messages from "../src/messages";
 import sinon from "sinon";
 import { EventEmitter } from "events";
 
