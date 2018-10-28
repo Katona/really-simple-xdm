@@ -15,7 +15,7 @@ console.log(Math.abs(-2)); // Prints '2'
 
 If Math is in an iframe, calling it with `really-simple-xdm` is demonstrated below.
 
-## Initilization in the iframe
+## Initialization in the iframe
 The first step is to expose the service object (`Math` in our case) by creating a _server_:
 
 ```javascript
