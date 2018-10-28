@@ -23,6 +23,7 @@
     "e2e-test-ci": "server-test start 8080 e2e-test",
     "test-ci": "npm run unit-test-ci && npm run e2e-test-ci",
     "start": "webpack-dev-server --mode development",
+    "apidoc": "typedoc --out dist/doc --includeDeclarations --ignoreCompilerErrors --excludeExternals --externalPattern '**/node_modules/**'  --mode file src/index.d.ts",
     "cypress": "cypress open"
   },
   "lint-staged": {
@@ -62,6 +63,7 @@
     "sinon": "^4.5.0",
     "start-server-and-test": "^1.7.4",
     "tap-xunit": "^2.3.0",
+    "typedoc": "^0.13.0",
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.9"
