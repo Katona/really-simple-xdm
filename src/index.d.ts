@@ -49,8 +49,8 @@ export class CrossWindowMessagingService implements MessagingService {
      */
     sendMessage(message: any);
     /**
-     * Registers a listener for incoming messages. The listener will be called only if the received messages is sent from the target origin
-     * specified at the constructore.
+     * Registers a listener for incoming messages. Received messages will only be delivered to listeners when their origin matches the
+     * target origin specified at the constructor.
      * @param messageListener the listener to call when a message is received.
      */
     onMessage(messageListener: MessageListener);
