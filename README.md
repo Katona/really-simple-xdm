@@ -120,3 +120,7 @@ const integerProxy = await createClient(messagingService, { serverName: "Number"
 const isInteger = await integerProxy.isInteger(1);
 console.log(isInteger);
 ```
+
+# API documentation
+
+See [TypeScript type definitions for the API documentation](https://github.com/Katona/really-simple-xdm/blob/master/src/index.d.ts).

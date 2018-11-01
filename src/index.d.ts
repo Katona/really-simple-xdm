@@ -33,12 +33,30 @@ export interface MessagingService {
 }
 
 /**
- * A messaging service implementation to be used for communacting with a frame embedded in a html page.
+ * A messaging service implementation to be used for communicating with a frame embedded in a html page.
  */
 export class CrossWindowMessagingService implements MessagingService {
+    /**
+     * Constructs a new instance.
+     * @param target the target window to send messages to. Usually, this is the content window of the frame or the parent window.
+     * @param targetOrigin the origin of the target to send messages to or receive from. Messages will be sent with the target origin
+     * specified here and will only be delivered to message listener if they are from this origin.
+     */
     constructor(target: Window, targetOrigin: string);
+    /**
+     * Sends the specified message.
+     * @param message the message to be sent.
+     */
     sendMessage(message: any);
+    /**
+     * Registers a listener for incoming messages. The listener will be called only if the received messages is sent from the target origin
+     * specified at the constructore.
+     * @param messageListener the listener to call when a message is received.
+     */
     onMessage(messageListener: MessageListener);
+    /**
+     * Removes the specified message listener.
+     */
     removeMessageListener(messageListener: MessageListener);
 }
 
@@ -56,15 +74,42 @@ export interface EventMetadata {
     off: string
 }
 
+/**
+ * The configuration object of the server.
+ */
 export interface ServerConfig {
+    /**
+     * The list of events the server object provides.
+     */
     events?: EventMetadata[]
+    /**
+     * The name of the server. Use it when you would like to expose multiple objects from one iframe so you can distinguish them. A server
+     * object will accepts messages sent specifically to them. If the name is unspecified then all messages will be accepted.
+     */
     name?: string
 }
 
+/**
+ * Creates a server object.
+ * @param messagingService the messaging service to use for the communication.
+ * @param serverObject the server object to be exposed.
+ * @param serverConfig the configuration object.
+ */
 export function createServer(messagingService: MessagingService, serverObject: any, serverConfig?: ServerConfig): any;
 
+/**
+ * Configuration of the client object.
+ */
 export interface ClientConfig {
+    /**
+     * The optional name of the server object to send messages to. Use it when there are multiple objects exposed from one iframe.
+     */
     serverName?: string
 }
 
+/**
+ * Creates a new client object.
+ * @param messagingService the messaging service to use for the communication.
+ * @param clientconfig the configuration object.
+ */
 export function createClient(messagingService: MessagingService, clientconfig?: ClientConfig): Promise<any>;
