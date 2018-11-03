@@ -74,7 +74,7 @@ class RpcClientHandler {
     }
 }
 
-const createRpcClient = (messagingBackend, config) => {
+const createRpcClientSync = (messagingBackend, config) => {
     const actualConfig = Object.assign({}, defaultConfig, config);
     return new Proxy({}, new RpcClientHandler(messagingBackend, actualConfig));
 };
@@ -103,11 +103,13 @@ const waitForServer = (messagingBackend, config) => {
     });
 };
 
-const connect = (messagingBackend, config) => {
+const createRpcClient = (messagingBackend, config) => {
     const actualConfig = Object.assign({}, defaultConfig, config);
     actualConfig.messages = new Messages(actualConfig.serverName);
-    return waitForServer(messagingBackend, actualConfig).then(() => createRpcClient(messagingBackend, actualConfig));
+    return waitForServer(messagingBackend, actualConfig).then(() =>
+        createRpcClientSync(messagingBackend, actualConfig)
+    );
 };
 
-module.exports.connect = connect;
 module.exports.createRpcClient = createRpcClient;
+module.exports.createRpcClientSync = createRpcClientSync;

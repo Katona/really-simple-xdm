@@ -1,5 +1,5 @@
 import test from "ava";
-import { createRpcClient, connect } from "../src/rpc_client";
+import { createRpcClientSync, createRpcClient } from "../src/rpc_client";
 import sinon from "sinon";
 import Messages from "../src/messages";
 
@@ -14,7 +14,7 @@ test.beforeEach(t => {
         messages: new Messages()
     };
     t.context.messages = options.messages;
-    t.context.client = createRpcClient(t.context.testBackend, options);
+    t.context.client = createRpcClientSync(t.context.testBackend, options);
 });
 
 test("should register a response listener for callbacks", t => {
@@ -94,13 +94,13 @@ test("should handle function call errors", async t => {
     }
 });
 
-test("connect() should return a Promise which resolves to the client after successful handshake", async t => {
+test("createRpcClient() should return a Promise which resolves to the client after successful handshake", async t => {
     const messagingService = {
         sendMessage: sinon.stub(),
         onMessage: sinon.stub(),
         removeMessageListener: sinon.stub()
     };
-    const rpcClientPromise = connect(messagingService);
+    const rpcClientPromise = createRpcClient(messagingService);
     t.is(messagingService.onMessage.callCount, 1);
     const messageListener = messagingService.onMessage.firstCall.args[0];
     t.is(messagingService.sendMessage.callCount > 0, true); // PING messages ...
@@ -109,14 +109,14 @@ test("connect() should return a Promise which resolves to the client after succe
     const rpcClient = await rpcClientPromise;
 });
 
-test("connect() should return a Promise which rejects in case of connection timeout", async t => {
+test("createRpcClient() should return a Promise which rejects in case of connection timeout", async t => {
     const localTestBackend = {
         sendMessage: sinon.stub(),
         onMessage: sinon.stub(),
         removeMessageListener: sinon.stub()
     };
     const timeoutFn = sinon.stub();
-    const rpcClientPromise = connect(localTestBackend, { timeoutFn });
+    const rpcClientPromise = createRpcClient(localTestBackend, { timeoutFn });
     timeoutFn.firstCall.args[0]();
     await t.throws(rpcClientPromise, "Timeout during connecting to server.");
 });
