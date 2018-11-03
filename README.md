@@ -28,6 +28,9 @@ server.serve();
 `createServer` requires two arguments, a `MessagingService` and the object which we want to make accessible in the host page (`Math` in our
 case). We use `CrossWindowMessagingService` which handles the message passing between cross domain frames. `server.serve()` will instruct the server to start serving requests.
 
+__Note:__ the second argument of `CrossWindowMessaigingServer`'s constructor is the target origin, which is `*` in the example but you should
+always specify the origin of the host page. See the documentation of [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) for more information.
+
 ## Initialization in the host page
 
 In the host page a _client_ has to be made which connects to the server created above.
