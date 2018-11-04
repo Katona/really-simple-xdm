@@ -110,5 +110,6 @@ const createRpcClient = config => {
     return waitForServer(actualConfig).then(() => createRpcClientSync(actualConfig));
 };
 
-module.exports.createRpcClient = createRpcClient;
-module.exports.createRpcClientSync = createRpcClientSync;
+module.exports.createClient = createRpcClient;
+// Exporting it for testing purposes.
+module.exports.createClientSync = createRpcClientSync;

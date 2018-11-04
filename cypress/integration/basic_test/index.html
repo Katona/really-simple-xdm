@@ -7,8 +7,7 @@
     async function test() {
       try {
         const iframeElement = document.getElementById('testFrame');
-        const messagingService = new rsx.CrossWindowMessagingService(iframeElement.contentWindow, "*");
-        const client = await rsx.createClient({ messagingService });
+        const client = await rsx.createClient({ targetWindow: iframeElement.contentWindow, targetOrigin: "*" });
         const result = await client.abs(-2);
         document.querySelector("#result").innerHTML = result;
         console.log('The abs of "-2" is ', result);

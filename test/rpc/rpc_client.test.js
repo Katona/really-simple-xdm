@@ -1,5 +1,5 @@
 import test from "ava";
-import { createRpcClientSync, createRpcClient } from "../../src/rpc/rpc_client";
+import { createClientSync, createClient } from "../../src/rpc/rpc_client";
 import sinon from "sinon";
 import Messages from "../../src/rpc/messages";
 
@@ -15,7 +15,7 @@ test.beforeEach(t => {
         messagingService: t.context.messagingService
     };
     t.context.messages = options.messages;
-    t.context.client = createRpcClientSync(options);
+    t.context.client = createClientSync(options);
 });
 
 test("should register a response listener for callbacks", t => {
@@ -95,13 +95,13 @@ test("should handle function call errors", async t => {
     }
 });
 
-test("createRpcClient() should return a Promise which resolves to the client after successful handshake", async t => {
+test("createClient() should return a Promise which resolves to the client after successful handshake", async t => {
     const messagingService = {
         sendMessage: sinon.stub(),
         onMessage: sinon.stub(),
         removeMessageListener: sinon.stub()
     };
-    const rpcClientPromise = createRpcClient({ messagingService });
+    const rpcClientPromise = createClient({ messagingService });
     t.is(messagingService.onMessage.callCount, 1);
     const messageListener = messagingService.onMessage.firstCall.args[0];
     t.is(messagingService.sendMessage.callCount > 0, true); // PING messages ...
@@ -110,14 +110,14 @@ test("createRpcClient() should return a Promise which resolves to the client aft
     const rpcClient = await rpcClientPromise;
 });
 
-test("createRpcClient() should return a Promise which rejects in case of connection timeout", async t => {
+test("createClient() should return a Promise which rejects in case of connection timeout", async t => {
     const messagingService = {
         sendMessage: sinon.stub(),
         onMessage: sinon.stub(),
         removeMessageListener: sinon.stub()
     };
     const timeoutFn = sinon.stub();
-    const rpcClientPromise = createRpcClient({ messagingService, timeoutFn });
+    const rpcClientPromise = createClient({ messagingService, timeoutFn });
     timeoutFn.firstCall.args[0]();
     await t.throws(rpcClientPromise, "Timeout during connecting to server.");
 });

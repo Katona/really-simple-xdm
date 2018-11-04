@@ -8,7 +8,7 @@
     const eventEmitter = new EventEmitter3();
     const config = {
       events: [ { register: 'on', deregister: 'off' } ],
-      messagingService: new rsx.CrossWindowMessagingService(window.parent, "*")
+      targetOrigin: "*"
     };
     const server = rsx.createServer(eventEmitter, config);
     server.serve();

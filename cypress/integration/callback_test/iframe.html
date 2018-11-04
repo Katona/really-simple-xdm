@@ -6,8 +6,7 @@
       setInterval: (...a) => setInterval(...a),
       clearInterval: (...a) => clearInterval(...a)
     }
-    const messagingService = new rsx.CrossWindowMessagingService(window.parent, "*");
-    const server = rsx.createServer(testObject, { messagingService });
+    const server = rsx.createServer(testObject, { targetOrigin: "*" });
     server.serve();
     console.log('Server is ready.');
 </script>

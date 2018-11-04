@@ -79,6 +79,10 @@ export interface EventMetadata {
  */
 export interface ServerConfig {
     /**
+     * The origin of the target window (parent frame). Messages will be sent to and received only from the target origin.
+     */
+    targetOrigin: string
+    /**
      * The list of events the server object provides.
      */
     events?: EventMetadata[]
@@ -87,10 +91,6 @@ export interface ServerConfig {
      * object will accepts messages sent specifically to them. If the name is unspecified then all messages will be accepted.
      */
     name?: string,
-    /**
-     * The messaging service to use for the communication.
-     */
-    messagingService: MessagingService
 }
 
 /**
@@ -105,13 +105,17 @@ export function createServer(serverObject: any, serverConfig: ServerConfig): any
  */
 export interface ClientConfig {
     /**
+     * The origin of the target window (parent frame). Messages will be sent to and received only from the target origin.
+     */
+    targetOrigin: string
+    /**
+     * The target window to send to and receive messages from.
+     */
+    targetWindow: Window
+    /**
      * The optional name of the server object to send messages to. Use it when there are multiple objects exposed from one iframe.
      */
     serverName?: string
-    /**
-     * The messaging service to use for the communication.
-     */
-    messagingService: MessagingService
 }
 
 /**
