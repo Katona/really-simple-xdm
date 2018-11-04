@@ -47,7 +47,8 @@ class TestMessagingService {
 
 test.beforeEach(t => {
     const testBackend = new TestMessagingService();
-    t.context.createClient = params => createClient(testBackend.getClientMessagingService(), params);
+    t.context.createClient = params =>
+        createClient({ ...params, messagingService: testBackend.getClientMessagingService() });
     t.context.createServer = (serviceObject, config) => {
         const server = createServer(testBackend.getServerMessagingService(), serviceObject, config);
         server.serve();
@@ -187,11 +188,17 @@ test("Multiple server object with single messaging service.", async t => {
     const numberServer = createServer(testMessagingService.getServerMessagingService(), Number, { name: "Number" });
     numberServer.serve();
 
-    const mathProxy = await createClient(testMessagingService.getClientMessagingService(), { serverName: "Math" });
+    const mathProxy = await createClient({
+        messagingService: testMessagingService.getClientMessagingService(),
+        serverName: "Math"
+    });
     const abs = await mathProxy.abs(-1);
     t.is(abs, 1);
 
-    const integerProxy = await createClient(testMessagingService.getClientMessagingService(), { serverName: "Number" });
+    const integerProxy = await createClient({
+        messagingService: testMessagingService.getClientMessagingService(),
+        serverName: "Number"
+    });
     const isInteger = await integerProxy.isInteger(1);
     t.is(isInteger, true);
 });

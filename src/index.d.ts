@@ -105,11 +105,14 @@ export interface ClientConfig {
      * The optional name of the server object to send messages to. Use it when there are multiple objects exposed from one iframe.
      */
     serverName?: string
+    /**
+     * The messaging service to use for the communication.
+     */
+    messagingService: MessagingService
 }
 
 /**
  * Creates a new client object.
- * @param messagingService the messaging service to use for the communication.
  * @param clientconfig the configuration object.
  */
-export function createClient(messagingService: MessagingService, clientconfig?: ClientConfig): Promise<any>;
+export function createClient(clientconfig: ClientConfig): Promise<any>;

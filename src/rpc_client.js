@@ -9,11 +9,11 @@ const defaultConfig = {
 };
 
 class RpcClientHandler {
-    constructor(messagingBackend, config) {
+    constructor(config) {
         this.messages = config.messages;
         this.callbackRegistry = new CallbackRegistry();
-        this.messagingBackend = messagingBackend;
-        this.messagingBackend.onMessage(this.handleCallbackResponse.bind(this));
+        this.messagingService = config.messagingService;
+        this.messagingService.onMessage(this.handleCallbackResponse.bind(this));
     }
 
     get(target, propKey) {
@@ -34,7 +34,7 @@ class RpcClientHandler {
             const serializedArgs = serializeArgs(args, this.callbackRegistry);
             let msg = this.messages.functionCall(functionName, serializedArgs);
             const resultPromise = this.createResult(msg);
-            this.messagingBackend.sendMessage(msg);
+            this.messagingService.sendMessage(msg);
             return resultPromise;
         };
     }
@@ -45,14 +45,14 @@ class RpcClientHandler {
                 if (response.id !== originalMessage.id) {
                     return;
                 }
-                this.messagingBackend.removeMessageListener(responseListener);
+                this.messagingService.removeMessageListener(responseListener);
                 if (response.type === "RETURN_VALUE") {
                     resolve(response.value);
                 } else if (response.type === "ERROR") {
                     reject(response.error);
                 }
             };
-            this.messagingBackend.onMessage(responseListener);
+            this.messagingService.onMessage(responseListener);
         });
     }
 
@@ -74,16 +74,17 @@ class RpcClientHandler {
     }
 }
 
-const createRpcClientSync = (messagingBackend, config) => {
+const createRpcClientSync = config => {
     const actualConfig = Object.assign({}, defaultConfig, config);
-    return new Proxy({}, new RpcClientHandler(messagingBackend, actualConfig));
+    return new Proxy({}, new RpcClientHandler(actualConfig));
 };
 
-const waitForServer = (messagingBackend, config) => {
+const waitForServer = config => {
     return new Promise((resolve, reject) => {
+        const messagingService = config.messagingService;
         const pingMsg = config.messages.ping();
         const pingId = setInterval(() => {
-            messagingBackend.sendMessage(pingMsg);
+            messagingService.sendMessage(pingMsg);
         }, 200);
 
         const timeoutId = config.timeoutFn(() => {
@@ -92,23 +93,21 @@ const waitForServer = (messagingBackend, config) => {
         });
         const messageListener = responseMsg => {
             if (responseMsg.type === "PONG" && responseMsg.id === pingMsg.id) {
-                messagingBackend.removeMessageListener(messageListener);
+                messagingService.removeMessageListener(messageListener);
                 clearInterval(pingId);
                 clearTimeout(timeoutId);
                 resolve();
             }
         };
-        messagingBackend.onMessage(messageListener);
-        messagingBackend.sendMessage(pingMsg);
+        messagingService.onMessage(messageListener);
+        messagingService.sendMessage(pingMsg);
     });
 };
 
-const createRpcClient = (messagingBackend, config) => {
+const createRpcClient = config => {
     const actualConfig = Object.assign({}, defaultConfig, config);
     actualConfig.messages = new Messages(actualConfig.serverName);
-    return waitForServer(messagingBackend, actualConfig).then(() =>
-        createRpcClientSync(messagingBackend, actualConfig)
-    );
+    return waitForServer(actualConfig).then(() => createRpcClientSync(actualConfig));
 };
 
 module.exports.createRpcClient = createRpcClient;
