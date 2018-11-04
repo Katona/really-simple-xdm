@@ -1,7 +1,7 @@
 import test from "ava";
-import { RpcServer } from "../src/rpc_server";
+import { RpcServer } from "../../src/rpc/rpc_server";
 import sinon from "sinon";
-import Messages from "../src/messages";
+import Messages from "../../src/rpc/messages";
 
 test.beforeEach(t => {
     t.context.testBackend = {

@@ -1,7 +1,7 @@
 import test from "ava";
-import { createRpcClientSync, createRpcClient } from "../src/rpc_client";
+import { createRpcClientSync, createRpcClient } from "../../src/rpc/rpc_client";
 import sinon from "sinon";
-import Messages from "../src/messages";
+import Messages from "../../src/rpc/messages";
 
 test.beforeEach(t => {
     t.context.messagingService = {
