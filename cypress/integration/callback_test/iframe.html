@@ -6,7 +6,7 @@
       setInterval: (...a) => setInterval(...a),
       clearInterval: (...a) => clearInterval(...a)
     }
-    const server = rsx.createServer(testObject, { targetOrigin: "*" });
+    const server = rsx.createServer({ serviceObject: testObject, targetOrigin: "*" });
     server.serve();
     console.log('Server is ready.');
 </script>

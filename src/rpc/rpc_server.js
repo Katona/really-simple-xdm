@@ -7,10 +7,10 @@ const defaultConfig = {
     events: []
 };
 class RpcServer {
-    constructor(serverObject, config) {
+    constructor(config) {
         const actualConfig = Object.assign({}, defaultConfig, config);
         this.messagingService = config.messagingService;
-        this.serverObject = serverObject;
+        this.serviceObject = config.serviceObject;
         this.messages = new Messages();
         this.callbackRegistry = new CallbackRegistry();
         this.eventRegistrationHandler = new EventRegistrationHandler();
@@ -35,7 +35,7 @@ class RpcServer {
 
     handleFunctionCall({ id, functionName, args }) {
         try {
-            const functionToCall = this.serverObject[functionName];
+            const functionToCall = this.serviceObject[functionName];
             if (!functionToCall) {
                 this.messagingService.sendMessage(
                     this.messages.error(id, new Error(`${functionName} is not a function`))
@@ -51,7 +51,7 @@ class RpcServer {
                 }));
             this.callbackRegistry.registerCallbacks(newCallbacks);
             const argumentValues = deserializeArgs(args, this.callbackRegistry);
-            let response = functionToCall.apply(this.serverObject, argumentValues); // eslint-disable-line
+            let response = functionToCall.apply(this.serviceObject, argumentValues); // eslint-disable-line
             if (response instanceof Promise) {
                 response
                     .then(result => this.messagingService.sendMessage(this.messages.returnValue(id, result)))
@@ -95,6 +95,6 @@ class RpcServer {
     }
 }
 
-const createServer = (serverObject, config) => new RpcServer(serverObject, config);
+const createServer = config => new RpcServer(config);
 module.exports.RpcServer = RpcServer;
 module.exports.createServer = createServer;

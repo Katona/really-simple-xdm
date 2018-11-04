@@ -79,6 +79,10 @@ export interface EventMetadata {
  */
 export interface ServerConfig {
     /**
+     * The service object to be exposed.
+     */
+    serviceObject: any
+    /**
      * The origin of the target window (parent frame). Messages will be sent to and received only from the target origin.
      */
     targetOrigin: string
@@ -95,10 +99,9 @@ export interface ServerConfig {
 
 /**
  * Creates a server object.
- * @param serverObject the server object to be exposed.
  * @param serverConfig the configuration object.
  */
-export function createServer(serverObject: any, serverConfig: ServerConfig): any;
+export function createServer(serverConfig: ServerConfig): any;
 
 /**
  * Configuration of the client object.

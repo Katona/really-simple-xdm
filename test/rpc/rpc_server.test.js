@@ -9,7 +9,7 @@ test.beforeEach(t => {
         onMessage: sinon.stub(),
         removeMessageListener: sinon.stub()
     };
-    t.context.serverObject = {
+    t.context.serviceObject = {
         testFunction: sinon.stub(),
         testCallbackRegistrar: sinon.stub(),
         testCallbackDeregistrar: sinon.stub(),
@@ -17,10 +17,11 @@ test.beforeEach(t => {
         testCallbackDeregistrar2: sinon.stub()
     };
     const config = {
+        serviceObject: t.context.serviceObject,
         events: [{ register: "testCallbackRegistrar", deregister: "testCallbackDeregistrar" }],
         messagingService: t.context.testBackend
     };
-    t.context.rpcServer = new RpcServer(t.context.serverObject, config);
+    t.context.rpcServer = new RpcServer(config);
     t.context.rpcServer.serve();
     t.context.messages = new Messages();
 });
@@ -37,8 +38,8 @@ test("should handle callback registrations.", t => {
             { type: "function", value: "callback-id" }
         ])
     );
-    t.is(t.context.serverObject.testCallbackRegistrar.callCount, 1);
-    const callbackRegistrationArguments = t.context.serverObject.testCallbackRegistrar.firstCall.args;
+    t.is(t.context.serviceObject.testCallbackRegistrar.callCount, 1);
+    const callbackRegistrationArguments = t.context.serviceObject.testCallbackRegistrar.firstCall.args;
     t.is(callbackRegistrationArguments[0], "test");
     const registeredCallback = callbackRegistrationArguments[1];
     t.true(typeof registeredCallback === "function");
@@ -59,8 +60,8 @@ test("should handle callback deregistrations.", t => {
             { type: "function", value: "callback-id" }
         ])
     );
-    t.is(t.context.serverObject.testCallbackRegistrar.callCount, 1);
-    const callbackRegistrationArguments = t.context.serverObject.testCallbackRegistrar.firstCall.args;
+    t.is(t.context.serviceObject.testCallbackRegistrar.callCount, 1);
+    const callbackRegistrationArguments = t.context.serviceObject.testCallbackRegistrar.firstCall.args;
     t.is(callbackRegistrationArguments[0], "test");
     const registeredCallback = callbackRegistrationArguments[1];
     // Deregistration test
@@ -70,8 +71,8 @@ test("should handle callback deregistrations.", t => {
             { type: "function", value: "callback-id" }
         ])
     );
-    t.is(t.context.serverObject.testCallbackDeregistrar.callCount, 1);
-    t.is(t.context.serverObject.testCallbackDeregistrar.firstCall.args[1], registeredCallback);
+    t.is(t.context.serviceObject.testCallbackDeregistrar.callCount, 1);
+    t.is(t.context.serviceObject.testCallbackDeregistrar.firstCall.args[1], registeredCallback);
 });
 
 test("should handle same callbacks registered multiple times.", t => {
@@ -82,14 +83,14 @@ test("should handle same callbacks registered multiple times.", t => {
             { type: "function", value: "callback-id" }
         ])
     );
-    const registeredCallback = t.context.serverObject.testCallbackRegistrar.firstCall.args[1];
+    const registeredCallback = t.context.serviceObject.testCallbackRegistrar.firstCall.args[1];
     messageListener(
         t.context.messages.functionCall("testCallbackRegistrar2", [
             { type: "string", value: "test" },
             { type: "function", value: "callback-id" }
         ])
     );
-    const registeredCallback1 = t.context.serverObject.testCallbackRegistrar2.firstCall.args[1];
+    const registeredCallback1 = t.context.serviceObject.testCallbackRegistrar2.firstCall.args[1];
     t.is(registeredCallback, registeredCallback1);
 
     // Deregistration test
@@ -99,16 +100,16 @@ test("should handle same callbacks registered multiple times.", t => {
             { type: "function", value: "callback-id" }
         ])
     );
-    t.is(t.context.serverObject.testCallbackDeregistrar.callCount, 1);
-    const deregisteredCallback = t.context.serverObject.testCallbackDeregistrar.firstCall.args[1];
+    t.is(t.context.serviceObject.testCallbackDeregistrar.callCount, 1);
+    const deregisteredCallback = t.context.serviceObject.testCallbackDeregistrar.firstCall.args[1];
     messageListener(
         t.context.messages.functionCall("testCallbackDeregistrar2", [
             { type: "string", value: "test" },
             { type: "function", value: "callback-id" }
         ])
     );
-    t.is(t.context.serverObject.testCallbackDeregistrar2.callCount, 1);
-    const deregisteredCallback2 = t.context.serverObject.testCallbackDeregistrar2.firstCall.args[1];
+    t.is(t.context.serviceObject.testCallbackDeregistrar2.callCount, 1);
+    const deregisteredCallback2 = t.context.serviceObject.testCallbackDeregistrar2.firstCall.args[1];
     t.is(registeredCallback, deregisteredCallback);
     t.is(deregisteredCallback, deregisteredCallback2);
 });
@@ -120,8 +121,8 @@ test("should handle function calls without return value", t => {
         { type: "string", value: "secondArg" }
     ]);
     messageListener(functionCallMessage);
-    t.is(t.context.serverObject.testFunction.callCount, 1);
-    t.deepEqual(t.context.serverObject.testFunction.firstCall.args, [1, "secondArg"]);
+    t.is(t.context.serviceObject.testFunction.callCount, 1);
+    t.deepEqual(t.context.serviceObject.testFunction.firstCall.args, [1, "secondArg"]);
     t.is(t.context.testBackend.sendMessage.callCount, 1);
     const returnValueMessage = t.context.testBackend.sendMessage.firstCall.args[0];
     t.is(returnValueMessage.id, functionCallMessage.id);
@@ -131,11 +132,11 @@ test("should handle function calls without return value", t => {
 
 test("should handle function calls with return value", t => {
     const expectedReturnValue = { prop1: 1, prop2: "two" };
-    t.context.serverObject.testFunction.returns(expectedReturnValue);
+    t.context.serviceObject.testFunction.returns(expectedReturnValue);
     // Emulate function call message
     const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
     messageListener(t.context.messages.functionCall("testFunction", []));
-    t.is(t.context.serverObject.testFunction.callCount, 1);
+    t.is(t.context.serviceObject.testFunction.callCount, 1);
     const returnValueMessage = t.context.testBackend.sendMessage.firstCall.args[0];
     t.deepEqual(returnValueMessage.value, expectedReturnValue);
 });
@@ -146,20 +147,21 @@ test("should accept messages with the proper recipient.", t => {
         sendMessage: sinon.stub()
     };
     const config = {
+        serviceObject: t.context.serviceObject,
         name: "testServerObject",
         messagingService
     };
-    const server = new RpcServer(t.context.serverObject, config);
+    const server = new RpcServer(config);
     server.serve();
     const messageListener = messagingService.onMessage.firstCall.args[0];
     messageListener(new Messages(config.name).functionCall("testFunction", ["testArg"]));
-    t.is(t.context.serverObject.testFunction.callCount, 1);
+    t.is(t.context.serviceObject.testFunction.callCount, 1);
 });
 
 test("should handle function calls returning a promise.", t => {
     const resolvedValue = 3;
     const returnedPromise = Promise.resolve(resolvedValue);
-    t.context.serverObject.testFunction.returns(returnedPromise);
+    t.context.serviceObject.testFunction.returns(returnedPromise);
     // Emulate function call message
     const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
     const functionCallMessage = t.context.messages.functionCall("testFunction", []);
@@ -178,11 +180,11 @@ test("should handle function calls returning a promise.", t => {
 });
 
 test("should handle function call errors", t => {
-    t.context.serverObject.testFunction.throws("error object");
+    t.context.serviceObject.testFunction.throws("error object");
     // Emulate function call message
     const messageListener = t.context.testBackend.onMessage.firstCall.args[0];
     messageListener(t.context.messages.functionCall("testFunction", []));
-    t.is(t.context.serverObject.testFunction.callCount, 1);
+    t.is(t.context.serviceObject.testFunction.callCount, 1);
     const returnValueMessage = t.context.testBackend.sendMessage.firstCall.args[0];
     t.is(returnValueMessage.type, "ERROR");
     t.not(returnValueMessage.error, undefined);

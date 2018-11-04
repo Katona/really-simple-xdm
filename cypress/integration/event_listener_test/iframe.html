@@ -7,10 +7,11 @@
   <script>
     const eventEmitter = new EventEmitter3();
     const config = {
+      serviceObject: eventEmitter,
       events: [ { register: 'on', deregister: 'off' } ],
       targetOrigin: "*"
     };
-    const server = rsx.createServer(eventEmitter, config);
+    const server = rsx.createServer(config);
     server.serve();
     document.querySelector('#test-event').onclick = () => eventEmitter.emit('click');
     console.log('Server is ready.');

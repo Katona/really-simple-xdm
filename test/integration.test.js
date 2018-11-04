@@ -50,8 +50,8 @@ test.beforeEach(t => {
     const testBackend = new TestMessagingService();
     t.context.createClient = params =>
         createClient({ ...params, messagingService: testBackend.getClientMessagingService() });
-    t.context.createServer = (serviceObject, config) => {
-        const server = createServer(serviceObject, {
+    t.context.createServer = config => {
+        const server = createServer({
             ...config,
             messagingService: testBackend.getServerMessagingService()
         });
@@ -61,7 +61,7 @@ test.beforeEach(t => {
 });
 
 test("with Math object", async t => {
-    const rpcServer = t.context.createServer(Math);
+    const rpcServer = t.context.createServer({ serviceObject: Math });
     const rpcClient = await t.context.createClient();
     rpcServer.serve();
     const abs = await rpcClient.abs(-1);
@@ -72,7 +72,7 @@ test("with Math object", async t => {
 });
 
 test("test calling of non existing function", async t => {
-    const rpcServer = t.context.createServer({});
+    const rpcServer = t.context.createServer({ serviceObject: {} });
     const rpcClient = await t.context.createClient();
     rpcServer.serve();
 
@@ -84,9 +84,10 @@ test("test calling of non existing function", async t => {
 test("Simple callback test", async t => {
     const testEventEmitter = new EventEmitter();
     const config = {
+        serviceObject: testEventEmitter,
         events: [{ register: "on", deregister: "removeListener" }]
     };
-    const rpcServer = t.context.createServer(testEventEmitter, config);
+    const rpcServer = t.context.createServer(config);
     const rpcClient = await t.context.createClient();
     const eventListener = sinon.stub();
 
@@ -103,9 +104,10 @@ test("Simple callback test", async t => {
 test("Multiple callbacks test", async t => {
     const testEventEmitter = new EventEmitter();
     const options = {
+        serviceObject: testEventEmitter,
         events: [{ register: "on", deregister: "removeListener" }]
     };
-    const rpcServer = t.context.createServer(testEventEmitter, options);
+    const rpcServer = t.context.createServer(options);
     const rpcClient = await t.context.createClient(options);
     const event1Listener = sinon.stub();
     const event2Listener = sinon.stub();
@@ -135,9 +137,10 @@ test("Multiple callbacks test", async t => {
 test("Same callback multiple times for same event.", async t => {
     const testEventEmitter = new EventEmitter();
     const config = {
+        serviceObject: testEventEmitter,
         events: [{ register: "on", deregister: "removeListener" }]
     };
-    const rpcServer = t.context.createServer(testEventEmitter, config);
+    const rpcServer = t.context.createServer(config);
     const rpcClient = await t.context.createClient();
     const eventListener = sinon.stub();
 
@@ -159,11 +162,11 @@ test("Same callback multiple times for same event.", async t => {
 
 test("Same callback for different events.", async t => {
     const testEventEmitter = new EventEmitter();
-    const options = {
+    const clientOptions = {
         events: [{ register: "on", deregister: "removeListener" }]
     };
-    const rpcServer = t.context.createServer(testEventEmitter);
-    const rpcClient = await t.context.createClient(options);
+    const rpcServer = t.context.createServer({ serviceObject: testEventEmitter });
+    const rpcClient = await t.context.createClient(clientOptions);
     const eventListener = sinon.stub();
 
     rpcClient.on("event1", eventListener);
@@ -187,12 +190,14 @@ test("Same callback for different events.", async t => {
 
 test("Multiple server object with single messaging service.", async t => {
     const testMessagingService = new TestMessagingService();
-    const mathServer = createServer(Math, {
+    const mathServer = createServer({
+        serviceObject: Math,
         name: "Math",
         messagingService: testMessagingService.getServerMessagingService()
     });
     mathServer.serve();
-    const numberServer = createServer(Number, {
+    const numberServer = createServer({
+        serviceObject: Number,
         name: "Number",
         messagingService: testMessagingService.getServerMessagingService()
     });

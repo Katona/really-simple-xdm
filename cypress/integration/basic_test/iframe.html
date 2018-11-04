@@ -2,7 +2,7 @@
 <body>
   <script src="/index.js"></script>
   <script>
-    const server = rsx.createServer(Math, { targetOrigin: "*" });
+    const server = rsx.createServer({ serviceObject: Math, targetOrigin: "*" });
     server.serve();
     console.log('Server is ready.');
 </script>
