@@ -17,9 +17,10 @@ test.beforeEach(t => {
         testCallbackDeregistrar2: sinon.stub()
     };
     const config = {
-        events: [{ register: "testCallbackRegistrar", deregister: "testCallbackDeregistrar" }]
+        events: [{ register: "testCallbackRegistrar", deregister: "testCallbackDeregistrar" }],
+        messagingService: t.context.testBackend
     };
-    t.context.rpcServer = new RpcServer(t.context.testBackend, t.context.serverObject, config);
+    t.context.rpcServer = new RpcServer(t.context.serverObject, config);
     t.context.rpcServer.serve();
     t.context.messages = new Messages();
 });
@@ -140,16 +141,17 @@ test("should handle function calls with return value", t => {
 });
 
 test("should accept messages with the proper recipient.", t => {
-    const testBackend = {
+    const messagingService = {
         onMessage: sinon.stub(),
         sendMessage: sinon.stub()
     };
     const config = {
-        name: "testServerObject"
+        name: "testServerObject",
+        messagingService
     };
-    const server = new RpcServer(testBackend, t.context.serverObject, config);
+    const server = new RpcServer(t.context.serverObject, config);
     server.serve();
-    const messageListener = testBackend.onMessage.firstCall.args[0];
+    const messageListener = messagingService.onMessage.firstCall.args[0];
     messageListener(new Messages(config.name).functionCall("testFunction", ["testArg"]));
     t.is(t.context.serverObject.testFunction.callCount, 1);
 });

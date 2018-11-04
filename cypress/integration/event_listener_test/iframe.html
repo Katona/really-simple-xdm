@@ -6,11 +6,11 @@
   <script src="https://unpkg.com/eventemitter3@latest/umd/eventemitter3.min.js"></script>
   <script>
     const eventEmitter = new EventEmitter3();
-    const messagingSrv = new rsx.CrossWindowMessagingService(window.parent, "*");
     const config = {
-      events: [ { register: 'on', deregister: 'off' } ]
-    }
-    const server = rsx.createServer(messagingSrv, eventEmitter, config);
+      events: [ { register: 'on', deregister: 'off' } ],
+      messagingService: new rsx.CrossWindowMessagingService(window.parent, "*")
+    };
+    const server = rsx.createServer(eventEmitter, config);
     server.serve();
     document.querySelector('#test-event').onclick = () => eventEmitter.emit('click');
     console.log('Server is ready.');

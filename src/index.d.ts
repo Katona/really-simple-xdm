@@ -86,16 +86,19 @@ export interface ServerConfig {
      * The name of the server. Use it when you would like to expose multiple objects from one iframe so you can distinguish them. A server
      * object will accepts messages sent specifically to them. If the name is unspecified then all messages will be accepted.
      */
-    name?: string
+    name?: string,
+    /**
+     * The messaging service to use for the communication.
+     */
+    messagingService: MessagingService
 }
 
 /**
  * Creates a server object.
- * @param messagingService the messaging service to use for the communication.
  * @param serverObject the server object to be exposed.
  * @param serverConfig the configuration object.
  */
-export function createServer(messagingService: MessagingService, serverObject: any, serverConfig?: ServerConfig): any;
+export function createServer(serverObject: any, serverConfig: ServerConfig): any;
 
 /**
  * Configuration of the client object.

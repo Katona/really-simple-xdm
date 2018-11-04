@@ -50,7 +50,10 @@ test.beforeEach(t => {
     t.context.createClient = params =>
         createClient({ ...params, messagingService: testBackend.getClientMessagingService() });
     t.context.createServer = (serviceObject, config) => {
-        const server = createServer(testBackend.getServerMessagingService(), serviceObject, config);
+        const server = createServer(serviceObject, {
+            ...config,
+            messagingService: testBackend.getServerMessagingService()
+        });
         server.serve();
         return server;
     };
@@ -183,9 +186,15 @@ test("Same callback for different events.", async t => {
 
 test("Multiple server object with single messaging service.", async t => {
     const testMessagingService = new TestMessagingService();
-    const mathServer = createServer(testMessagingService.getServerMessagingService(), Math, { name: "Math" });
+    const mathServer = createServer(Math, {
+        name: "Math",
+        messagingService: testMessagingService.getServerMessagingService()
+    });
     mathServer.serve();
-    const numberServer = createServer(testMessagingService.getServerMessagingService(), Number, { name: "Number" });
+    const numberServer = createServer(Number, {
+        name: "Number",
+        messagingService: testMessagingService.getServerMessagingService()
+    });
     numberServer.serve();
 
     const mathProxy = await createClient({

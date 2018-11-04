@@ -2,8 +2,8 @@
 <body>
   <script src="/index.js"></script>
   <script>
-    const messagingSrv = new rsx.CrossWindowMessagingService(window.parent, "*");
-    const server = rsx.createServer(messagingSrv, Math);
+    const messagingService = new rsx.CrossWindowMessagingService(window.parent, "*");
+    const server = rsx.createServer(Math, { messagingService });
     server.serve();
     console.log('Server is ready.');
 </script>

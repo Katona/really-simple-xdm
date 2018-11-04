@@ -7,9 +7,9 @@ const defaultConfig = {
     events: []
 };
 class RpcServer {
-    constructor(messagingBackend, serverObject, config) {
+    constructor(serverObject, config) {
         const actualConfig = Object.assign({}, defaultConfig, config);
-        this.messagingBackend = messagingBackend;
+        this.messagingService = config.messagingService;
         this.serverObject = serverObject;
         this.messages = new Messages();
         this.callbackRegistry = new CallbackRegistry();
@@ -19,7 +19,7 @@ class RpcServer {
     }
 
     serve() {
-        this.messagingBackend.onMessage(this.onMessage.bind(this));
+        this.messagingService.onMessage(this.onMessage.bind(this));
     }
 
     onMessage(message) {
@@ -37,7 +37,7 @@ class RpcServer {
         try {
             const functionToCall = this.serverObject[functionName];
             if (!functionToCall) {
-                this.messagingBackend.sendMessage(
+                this.messagingService.sendMessage(
                     this.messages.error(id, new Error(`${functionName} is not a function`))
                 );
                 return;
@@ -47,21 +47,21 @@ class RpcServer {
                 .filter(arg => this.callbackRegistry.getCallbackFunction(arg.value) === undefined)
                 .map(arg => ({
                     id: arg.value,
-                    fn: (...a) => this.messagingBackend.sendMessage(this.messages.callback(arg.value, ...a))
+                    fn: (...a) => this.messagingService.sendMessage(this.messages.callback(arg.value, ...a))
                 }));
             this.callbackRegistry.registerCallbacks(newCallbacks);
             const argumentValues = deserializeArgs(args, this.callbackRegistry);
             let response = functionToCall.apply(this.serverObject, argumentValues); // eslint-disable-line
             if (response instanceof Promise) {
                 response
-                    .then(result => this.messagingBackend.sendMessage(this.messages.returnValue(id, result)))
-                    .catch(error => this.messagingBackend.sendMessage(this.messages.error(id, error)));
+                    .then(result => this.messagingService.sendMessage(this.messages.returnValue(id, result)))
+                    .catch(error => this.messagingService.sendMessage(this.messages.error(id, error)));
             } else {
-                this.messagingBackend.sendMessage(this.messages.returnValue(id, response));
+                this.messagingService.sendMessage(this.messages.returnValue(id, response));
             }
             this.handleEventHandlerRegistrations(functionName, args);
         } catch (error) {
-            this.messagingBackend.sendMessage(this.messages.error(id, error));
+            this.messagingService.sendMessage(this.messages.error(id, error));
         }
     }
 
@@ -79,7 +79,7 @@ class RpcServer {
                 .map(a => a.value)
                 .filter(callbackId => !this.eventRegistrationHandler.hasRegistrations(callbackId))
                 .forEach(callbackId => {
-                    this.messagingBackend.sendMessage(this.messages.deleteCallback(callbackId));
+                    this.messagingService.sendMessage(this.messages.deleteCallback(callbackId));
                     this.callbackRegistry.deleteCallback(callbackId);
                 });
         }
@@ -91,10 +91,10 @@ class RpcServer {
     }
 
     handlePing(message) {
-        this.messagingBackend.sendMessage(this.messages.pong(message.id));
+        this.messagingService.sendMessage(this.messages.pong(message.id));
     }
 }
 
-const createServer = (messagingBackend, serverObject, config) => new RpcServer(messagingBackend, serverObject, config);
+const createServer = (serverObject, config) => new RpcServer(serverObject, config);
 module.exports.RpcServer = RpcServer;
 module.exports.createServer = createServer;
