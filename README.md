@@ -73,7 +73,7 @@ const config = {
 const server = createServer(config);
 server.serve();
 ```
-The `createServer` function accepts a `ServerConfig` object of which the `events` property is an array of `EventMetadata`, which describes events provided by the proxied object. The `EventMetadata` specifies the functions used to register and deregister event listeners for the particular event. This information will be used for book keeping the event listener registrations.
+The `events` configuration property is an array which describe events provided by the proxied object. It's elements, the `EventMetadata`s, specify the functions used to register and deregister event listeners for the particular event. This information will be used for book keeping the event listener registrations.
 
 After the server is configured properly, event listeners can be registered on the client:
 ```javascript
