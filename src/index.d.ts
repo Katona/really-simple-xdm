@@ -58,6 +58,15 @@ export class CrossWindowMessagingService implements MessagingService {
      * Removes the specified message listener.
      */
     removeMessageListener(messageListener: MessageListener);
+    /**
+     * Registers a listener for incoming invalid messages (like those who failed the target origin check etc.)
+     * @param messageListener the listener to call when a message is received.
+     */
+    onInvalidMessage(messageListener: MessageListener);
+    /**
+     * Removes the specified invalid message listener.
+     */
+    removeMessageListener(messageListener: MessageListener);
 }
 
 /**

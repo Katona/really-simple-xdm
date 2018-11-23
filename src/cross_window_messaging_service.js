@@ -1,16 +1,20 @@
 const stringify = require("json-stringify-safe");
 const serializeError = require("serialize-error");
+const EventEmitter = require("events");
+
+const MESSAGE_EVENT = "message";
+const INVALID_MESSAGE_EVENT = "invalidMessage";
 
 class CrossWindowMessagingService {
     constructor(target, targetOrigin, _window = window) {
-        this.listeners = [];
+        this.eventEmitter = new EventEmitter();
         this.targetOrigin = targetOrigin;
         this.target = target;
         _window.addEventListener("message", e => {
             if (this.targetOrigin === "*" || e.origin === this.targetOrigin) {
-                this.listeners.forEach(l => {
-                    l(e.data);
-                });
+                this.eventEmitter.emit(MESSAGE_EVENT, e.data);
+            } else {
+                this.eventEmitter.emit(INVALID_MESSAGE_EVENT, e);
             }
         });
     }
@@ -29,11 +33,19 @@ class CrossWindowMessagingService {
     }
 
     onMessage(callback) {
-        this.listeners.push(callback);
+        this.eventEmitter.on(MESSAGE_EVENT, callback);
     }
 
     removeMessageListener(callback) {
-        this.listeners = this.listeners.filter(listener => listener !== callback);
+        this.eventEmitter.removeListener(MESSAGE_EVENT, callback);
+    }
+
+    onInvalidMessage(callback) {
+        this.eventEmitter.on(INVALID_MESSAGE_EVENT, callback);
+    }
+
+    removeInvalidMessageListener(callback) {
+        this.eventEmitter.removeListener(INVALID_MESSAGE_EVENT, callback);
     }
 }
 

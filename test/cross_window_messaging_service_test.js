@@ -25,7 +25,9 @@ test("Test send message", t => {
 
 test("Test receive message", t => {
     const messageListener = sinon.spy();
+    const invalidMessageListener = sinon.spy();
     t.context.msgService.onMessage(messageListener);
+    t.context.msgService.onInvalidMessage(invalidMessageListener);
     t.is(t.context.window.addEventListener.callCount, 1);
     t.is(t.context.window.addEventListener.firstCall.args[0], "message");
     const eventListener = t.context.window.addEventListener.firstCall.args[1];
@@ -35,6 +37,8 @@ test("Test receive message", t => {
     };
     eventListener(messageFromOtherOrigin);
     t.is(messageListener.callCount, 0);
+    t.is(invalidMessageListener.callCount, 1);
+    t.is(invalidMessageListener.firstCall.args[0], messageFromOtherOrigin);
 
     const messageFromExpectedOrigin = {
         origin: "targetOrigin",
@@ -45,4 +49,39 @@ test("Test receive message", t => {
     eventListener(messageFromExpectedOrigin);
     t.is(messageListener.callCount, 1);
     t.is(messageListener.firstCall.args[0], messageFromExpectedOrigin.data);
+});
+
+test("Test remove invalid message listener", t => {
+    const invalidMessageListener = sinon.spy();
+    t.context.msgService.onInvalidMessage(invalidMessageListener);
+    const eventListener = t.context.window.addEventListener.firstCall.args[1];
+
+    const messageFromOtherOrigin = {
+        origin: "otherOrigin"
+    };
+    eventListener(messageFromOtherOrigin);
+    t.is(invalidMessageListener.callCount, 1);
+
+    t.context.msgService.removeInvalidMessageListener(invalidMessageListener);
+    eventListener(messageFromOtherOrigin);
+    t.is(invalidMessageListener.callCount, 1);
+});
+
+test("Test remove message listener", t => {
+    const messageListener = sinon.spy();
+    t.context.msgService.onMessage(messageListener);
+    const eventListener = t.context.window.addEventListener.firstCall.args[1];
+
+    const messageFromExpectedOrigin = {
+        origin: "targetOrigin",
+        data: {
+            test: "test"
+        }
+    };
+    eventListener(messageFromExpectedOrigin);
+    t.is(messageListener.callCount, 1);
+
+    t.context.msgService.removeMessageListener(messageListener);
+    eventListener(messageFromExpectedOrigin);
+    t.is(messageListener.callCount, 1);
 });
