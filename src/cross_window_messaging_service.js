@@ -13,6 +13,9 @@ class CrossWindowMessagingService {
         this.target = target;
         _window.addEventListener("message", e => {
             if (this.isMessageValid(e)) {
+                if (this.targetOrigin === undefined) {
+                    this.targetOrigin = e.origin;
+                }
                 this.eventEmitter.emit(MESSAGE_EVENT, e.data);
             } else {
                 this.eventEmitter.emit(INVALID_MESSAGE_EVENT, e);

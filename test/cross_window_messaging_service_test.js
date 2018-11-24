@@ -85,3 +85,28 @@ test("Test remove message listener", t => {
     eventListener(messageFromExpectedOrigin);
     t.is(messageListener.callCount, 1);
 });
+
+test("Test when target origin not specified then the origin of the first valid message will be used.", t => {
+    const testWindow = {
+        addEventListener: sinon.spy()
+    };
+    const testTarget = {
+        postMessage: sinon.spy()
+    };
+    const msgService = new CrossWindowMessagingService(testTarget, undefined, testWindow, () => true);
+    const messageListener = sinon.spy();
+    msgService.onMessage(messageListener);
+    const eventListener = testWindow.addEventListener.firstCall.args[1];
+
+    const testMessage = {
+        origin: "testOrigin",
+        data: {
+            test: "test"
+        }
+    };
+    eventListener(testMessage);
+    t.is(messageListener.callCount, 1);
+    msgService.sendMessage({ key: "value" });
+    t.is(testTarget.postMessage.callCount, 1);
+    t.deepEqual(testTarget.postMessage.firstCall.args[1], "testOrigin");
+});
