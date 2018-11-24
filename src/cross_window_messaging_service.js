@@ -6,12 +6,13 @@ const MESSAGE_EVENT = "message";
 const INVALID_MESSAGE_EVENT = "invalidMessage";
 
 class CrossWindowMessagingService {
-    constructor(target, targetOrigin, _window = window) {
+    constructor(target, targetOrigin, _window = window, isMessageValid = isMessageFromOrigin(targetOrigin)) {
         this.eventEmitter = new EventEmitter();
         this.targetOrigin = targetOrigin;
+        this.isMessageValid = isMessageValid;
         this.target = target;
         _window.addEventListener("message", e => {
-            if (this.targetOrigin === "*" || e.origin === this.targetOrigin) {
+            if (this.isMessageValid(e)) {
                 this.eventEmitter.emit(MESSAGE_EVENT, e.data);
             } else {
                 this.eventEmitter.emit(INVALID_MESSAGE_EVENT, e);
@@ -48,5 +49,7 @@ class CrossWindowMessagingService {
         this.eventEmitter.removeListener(INVALID_MESSAGE_EVENT, callback);
     }
 }
+
+const isMessageFromOrigin = origin => message => origin === "*" || message.origin === origin;
 
 module.exports = CrossWindowMessagingService;

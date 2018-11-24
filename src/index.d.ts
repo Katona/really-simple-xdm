@@ -92,7 +92,7 @@ export interface ServerConfig {
      */
     serviceObject: any
     /**
-     * The origin of the target window (parent frame). Messages will be sent to and received only from the target origin.
+     * The origin of the target window (parent frame), messages will be sent to the origin specified here.
      */
     targetOrigin: string
     /**
@@ -101,9 +101,16 @@ export interface ServerConfig {
     events?: EventMetadata[]
     /**
      * The name of the server. Use it when you would like to expose multiple objects from one iframe so you can distinguish them. A server
-     * object will accepts messages sent specifically to them. If the name is unspecified then all messages will be accepted.
+     * will accept messages sent specifically to them. If the name is unspecified then all messages will be accepted.
      */
     name?: string,
+
+    /**
+     * This function is called to decide if an incoming message is valid or not. If unspecified then only the messages' origin will be
+     * checked agains the target origin. Invalid messages will not be dispatched to the service object.
+     */
+    messageValidator?: (message) => boolean
+
 }
 
 /**
