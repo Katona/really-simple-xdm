@@ -103,7 +103,7 @@ export interface ServerConfig {
      * The name of the server. Use it when you would like to expose multiple objects from one iframe so you can distinguish them. A server
      * will accept messages sent specifically to them. If the name is unspecified then all messages will be accepted.
      */
-    name?: string,
+    name?: string
 
     /**
      * This function is called to decide if an incoming message is valid or not. If unspecified then only the messages' origin will be
@@ -111,6 +111,11 @@ export interface ServerConfig {
      */
     messageValidator?: (message) => boolean
 
+    /**
+     * Functions to be notified when an invalid message (according to messageValidator) has been received. The message is passed as a
+     * parameter.
+     */
+    onInvalidMessage?: (message) => { }
 }
 
 /**

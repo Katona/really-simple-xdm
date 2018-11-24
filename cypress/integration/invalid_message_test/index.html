@@ -1,0 +1,19 @@
+<html>
+<body>
+  <iframe id="testFrame" src="./iframe.html"></iframe>
+  <script src="/index.js"></script>
+  <script>
+    async function test() {
+      try {
+        const iframeElement = document.getElementById('testFrame');
+        const client = await rsx.createClient({ targetWindow: iframeElement.contentWindow, targetOrigin: "*" });
+        const result = await client.testMessage();
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
+    test();
+  </script>
+</body>
+</html>

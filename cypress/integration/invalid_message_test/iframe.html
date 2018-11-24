@@ -1,0 +1,19 @@
+<html>
+<body>
+  <span id="message" />
+  <script src="/index.js"></script>
+  <script>
+    const alwaysInvalid = () => false;
+    const onInvalidMessage = () => {
+      document.querySelector('#message').innerHTML = 'Invalid message has been received.';
+    };
+    const server = rsx.createServer({
+      serviceObject: { testMessage: () => { console.log('should not happen')} },
+      targetOrigin: "*",
+      isMessageValid: alwaysInvalid,
+      onInvalidMessage });
+    server.serve();
+    console.log('Server is ready.');
+</script>
+</body>
+</html>

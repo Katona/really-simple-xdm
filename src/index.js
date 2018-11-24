@@ -9,8 +9,9 @@ const createXdmClient = config => {
 };
 
 const createXdmServer = config => {
-    const { serviceObject, events, name, targetOrigin, isMessageValid } = config;
+    const { serviceObject, events, name, targetOrigin, isMessageValid, onInvalidMessage = () => {} } = config;
     const messagingService = new CrossWindowMessagingService(window.parent, targetOrigin, window, isMessageValid);
+    messagingService.onInvalidMessage(onInvalidMessage);
     return createRpcServer({ serviceObject, messagingService, name, events });
 };
 module.exports.createClient = createXdmClient;
