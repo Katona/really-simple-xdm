@@ -4,7 +4,7 @@ const serializeArgs = require("./serialize").serializeArgs;
 const CallbackRegistry = require("./callback_registry");
 
 const defaultConfig = {
-    timeoutFn: callback => setTimeout(callback, 1000),
+    timeoutFn: callback => setTimeout(callback, 5000),
     messages: new Messages()
 };
 
