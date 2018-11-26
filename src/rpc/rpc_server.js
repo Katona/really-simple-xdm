@@ -5,13 +5,13 @@ const CallbackRegistry = require("./callback_registry");
 
 class RpcServer {
     constructor({ serviceObject, messagingService, name, events = [] }) {
-        this.messagingService = config.messagingService;
-        this.serviceObject = config.serviceObject;
+        this.messagingService = messagingService;
+        this.serviceObject = serviceObject;
         this.messages = new Messages();
         this.callbackRegistry = new CallbackRegistry();
         this.eventRegistrationHandler = new EventRegistrationHandler();
         this.config = { serviceObject, messagingService, name, events };
-        this.messageFilter = message => this.config.name === undefined || this.config.name === message.recipient;
+        this.messageFilter = message => name === undefined || name === message.recipient;
     }
 
     serve() {
