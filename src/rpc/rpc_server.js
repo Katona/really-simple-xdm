@@ -3,18 +3,14 @@ const EventRegistrationHandler = require("./event_registration_handler");
 const deserializeArgs = require("./serialize").deserializeArgs;
 const CallbackRegistry = require("./callback_registry");
 
-const defaultConfig = {
-    events: []
-};
 class RpcServer {
-    constructor(config) {
-        const actualConfig = Object.assign({}, defaultConfig, config);
+    constructor({ serviceObject, messagingService, name, events = [] }) {
         this.messagingService = config.messagingService;
         this.serviceObject = config.serviceObject;
         this.messages = new Messages();
         this.callbackRegistry = new CallbackRegistry();
         this.eventRegistrationHandler = new EventRegistrationHandler();
-        this.config = actualConfig;
+        this.config = { serviceObject, messagingService, name, events };
         this.messageFilter = message => this.config.name === undefined || this.config.name === message.recipient;
     }
 
