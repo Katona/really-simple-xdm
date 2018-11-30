@@ -77,8 +77,7 @@ test("test calling of non existing function", async t => {
     rpcServer.serve();
 
     const promise = rpcClient.nonExisting("asdfds");
-    const error = await t.throws(promise);
-    t.is(error.message, "nonExisting is not a function");
+    promise.catch(e => t.is(e.message, "nonExisting is not a function"));
 });
 
 test("Simple callback test", async t => {

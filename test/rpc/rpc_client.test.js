@@ -118,6 +118,6 @@ test("createClient() should return a Promise which rejects in case of connection
     };
     const timeoutFn = sinon.stub();
     const rpcClientPromise = createClient({ messagingService, timeoutFn });
+    rpcClientPromise.catch(e => t.is(e.message, "Timeout during connecting to server."));
     timeoutFn.firstCall.args[0]();
-    await t.throws(rpcClientPromise, "Timeout during connecting to server.");
 });
