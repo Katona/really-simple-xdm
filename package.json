@@ -63,7 +63,7 @@
     "sinon": "^4.5.0",
     "start-server-and-test": "^1.7.11",
     "tap-xunit": "^2.3.0",
-    "typedoc": "^0.13.0",
+    "typedoc": "^0.14.2",
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.14"
