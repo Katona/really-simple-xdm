@@ -35,7 +35,7 @@ jobs:
           command: npm run copy-test-harness
       - run:
           name: Start Test Server
-          command: npm run e2e-test-server
+          command: npm run e2e-test-server &
       - run:
           name: Run tests
           command: npm run e2e-test 
