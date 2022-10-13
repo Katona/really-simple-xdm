@@ -2,66 +2,26 @@
 #
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
-version: 2
-defaults: &defaults
-  working_directory: ~/repo
-  docker:
-      - image: cypress/base:8
-        environment:
-          ## this enables colors in the output
-          TERM: xterm
+version: 2.1
+
+orbs:
+  cypress: cypress-io/cypress@1
 
 jobs:
-  build:
-    <<: *defaults
+  unit-test:
+    docker:
+      - image: cimg/node:16.15.0
     steps:
       - checkout
-      - restore_cache:
-          keys:
-          - v2-dependencies-{{ checksum "package.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - v2-dependencies-
+      - run:
+          name: Install Dependencies
+          command: npm i
+      - run:
+          name: Run Tests
+          command: npm test
 
-      - run: npm install
-      - run: npm run test-ci
-      - save_cache:
-          paths:
-            - node_modules
-            - ~/.cache
-          key: v2-dependencies-{{ checksum "package.json" }}
-      - persist_to_workspace:
-          root: ~/repo
-          paths: .
-      - store_test_results:
-          path: dist/test-results/ava
-      - store_test_results:
-          path: dist/test-results/cypress
-      - store_artifacts:
-          path: cypress/screenshots
-  deploy:
-    <<: *defaults
-    steps:
-      - attach_workspace:
-          at: ~/repo
-      - run:
-          name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
-      - run:
-          name: Publish package
-          command: npm publish
 workflows:
   version: 2
-  test-deploy:
+  test:
     jobs:
-      - build:
-          filters:
-            tags:
-              only: /.*/
-      - deploy:
-          requires:
-            - build
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
+      - unit-test
