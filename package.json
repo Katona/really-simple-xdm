@@ -15,16 +15,18 @@
     "cross domain"
   ],
   "scripts": {
+    "build": "webpack",
     "prettier": "prettier --write *.js",
     "lint-staged": "lint-staged",
     "test": "ava",
     "unit-test-ci": "mkdir -p dist/test-results/ava && ava --tap | tap-xunit > dist/test-results/ava/test-results.xml",
     "e2e-test": "cypress run",
-    "e2e-test-ci": "server-test start 8080 e2e-test",
+    "e2e-test-server": "http-server -p 8080 ./build/dist",
     "test-ci": "npm run unit-test-ci && npm run e2e-test-ci",
     "start": "webpack-dev-server --mode development",
     "apidoc": "typedoc --out dist/doc --includeDeclarations --ignoreCompilerErrors --excludeExternals --externalPattern '**/node_modules/**'  --mode file src/index.d.ts",
-    "cypress": "cypress open"
+    "cypress": "cypress open",
+    "copy-test-harness": "cpy --parents --cwd=cypress/e2e/ **/*.html ../../build/dist/"
   },
   "lint-staged": {
     "*.js": [
@@ -47,6 +49,7 @@
     "url": "https://github.com/Katona/really-simple-xdm.git"
   },
   "dependencies": {
+    "cypress": "^10.10.0",
     "deep-equal": "^1.0.1",
     "json-stringify-safe": "^5.0.1",
     "serialize-error": "^3.0.0",
@@ -55,7 +58,6 @@
   "devDependencies": {
     "ava": "^1.0.0-rc.2",
     "cpy-cli": "^2.0.0",
-    "cypress": "^3.1.5",
     "http-server": "^0.11.1",
     "husky": "^1.0.0-rc.6",
     "lint-staged": "^7.3.0",

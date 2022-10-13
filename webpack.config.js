@@ -1,8 +1,11 @@
+const path = require("path");
+
 module.exports = {
     output: {
         library: "rsx",
         libraryTarget: "umd",
-        filename: "index.js"
+        filename: "index.js",
+        path: path.resolve(__dirname, "build/dist")
     },
     devServer: {
         contentBase: "cypress/integration",
