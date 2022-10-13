@@ -22,7 +22,7 @@
     "unit-test-ci": "mkdir -p dist/test-results/ava && ava --tap | tap-xunit > dist/test-results/ava/test-results.xml",
     "e2e-test": "cypress run",
     "e2e-test-server": "http-server -p 8080 ./build/dist",
-    "test-ci": "npm run unit-test-ci && npm run e2e-test-ci",
+    "test-ci": "npm run unit-test-ci && npm run e2e-test",
     "start": "webpack-dev-server --mode development",
     "apidoc": "typedoc --out dist/doc --includeDeclarations --ignoreCompilerErrors --excludeExternals --externalPattern '**/node_modules/**'  --mode file src/index.d.ts",
     "cypress": "cypress open",
