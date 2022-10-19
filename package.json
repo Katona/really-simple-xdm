@@ -49,7 +49,6 @@
     "url": "https://github.com/Katona/really-simple-xdm.git"
   },
   "dependencies": {
-    "cypress": "^10.10.0",
     "deep-equal": "^1.0.1",
     "json-stringify-safe": "^5.0.1",
     "serialize-error": "^3.0.0",
@@ -58,6 +57,7 @@
   "devDependencies": {
     "ava": "^1.0.0-rc.2",
     "cpy-cli": "^2.0.0",
+    "cypress": "^10.10.0",
     "http-server": "^0.11.1",
     "husky": "^1.0.0-rc.6",
     "lint-staged": "^7.3.0",
