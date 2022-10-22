@@ -6,7 +6,7 @@ version: 2
 defaults: &defaults
   working_directory: ~/repo
   docker:
-      - image: cypress/base:8
+      - image: cypress/base:14.16.0
         environment:
           ## this enables colors in the output
           TERM: xterm
@@ -23,6 +23,11 @@ jobs:
           - v2-dependencies-
 
       - run: npm install
+      - run: npm run build
+      - run: npm run copy-test-harness
+      - run:
+          command: npm run e2e-test-server
+          background: true
       - run: npm run test-ci
       - save_cache:
           paths:
@@ -33,9 +38,7 @@ jobs:
           root: ~/repo
           paths: .
       - store_test_results:
-          path: dist/test-results/ava
-      - store_test_results:
-          path: dist/test-results/cypress
+          path: dist/test-results
       - store_artifacts:
           path: cypress/screenshots
   deploy:

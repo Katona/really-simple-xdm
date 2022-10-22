@@ -68,3 +68,4 @@ dist/
 .cache/
 
 cypress/videos
+cypress/screenshots
